@@ -85,7 +85,6 @@
   <div id="status">Load your folder to begin</div>
   <button class="btn g" onclick="loadFolder()">📁 Load FEM_SCANS Folder</button>
   <button class="btn" id="refreshBtn" onclick="refresh()" style="display:none">🔄 Refresh</button>
-  <button class="btn o" id="priceBtn" onclick="fetchPrices()" style="display:none">🌅 Fetch Prices</button>
 </div>
 
 <div id="tabs" style="display:none">
@@ -227,7 +226,6 @@ async function processFiles(){
   document.getElementById('tabs').style.display='flex';
   document.getElementById('load-screen').style.display='none';
   document.getElementById('refreshBtn').style.display='';
-  document.getElementById('priceBtn').style.display='';
 
   renderAll();
   showTab('dash');
@@ -292,7 +290,7 @@ function renderDash(){
 
   let typeRows=typeList.map((t,i)=>{
     const sub=all.filter(r=>r._t===t);const W2=wr(sub),NR2=nr(sub);
-    return`<tr class="${i%2?'alt':''}"><td style="font-weight:700">${t}</td>
+    return`<tr class="${i%2?'alt':''}"><td style="font-weight:700">$tt}</td>
       <td>${W2.total}</td><td style="color:#22c55e">${W2.wins}</td><td style="color:#ef4444">${W2.total-W2.wins}</td>
       <td>${fWR(W2.wins,W2.total)}</td><td>${fR(NR2)}</td></tr>`;
   }).join('');
@@ -309,7 +307,7 @@ function renderDash(){
 const SYMS=['SPY','QQQ','IWM','VIX','XLF','XLK','XLE','GLD','TLT'];
 
 async function renderMorning(){
-  // Try morning_prices.json from folder first
+  // 1. Try morning_prices.json from loaded folder
   if(DIR){
     try{
       const fh=await DIR.getFileHandle('morning_prices.json');
@@ -320,15 +318,12 @@ async function renderMorning(){
         morningData._date=j.date;
       }
     }catch(e){
+      // No JSON file — try localStorage
       const saved=localStorage.getItem('fem_morning');
-      if(saved)morningData=JSON.parse(saved);
+      if(saved) try{morningData=JSON.parse(saved);}catch(e2){}
     }
   }
   buildMorningPane();
-  // Auto-fetch live prices (works on HTTPS)
-  if(window.location.protocol==='https:'){
-    await fetchPrices(true);
-  }
 }
 
 function buildMorningPane(){
@@ -354,17 +349,25 @@ function buildMorningPane(){
     </div>`;
   }).join('');
 
-  const fromJSON=morningData._date?`<span style="color:#22c55e">✓ Prices loaded from <strong>morning_prices.json</strong> (${morningData._date})</span>`
-    :`Run <strong>RUN_FETCH_PRICES.bat</strong> → then click 🔄 Refresh · or type prices below`;
+  const hasData = Object.keys(morningData).filter(k=>k!=='_date').length > 0;
+  const noteBg  = hasData ? '#0f2a1a' : '#1a1400';
+  const noteBdr = hasData ? '#166534' : '#854d0e';
+  const noteHTML = hasData
+    ? `<span style="color:#22c55e;font-size:13px">✅ Prices loaded from <strong>morning_prices.json</strong> — ${morningData._date||'today'}</span>`
+    : `<span style="font-size:13px">⚡ <strong style="color:#fbbf24">How to populate:</strong>&nbsp;
+        Double-click <code style="background:#0d1117;padding:2px 8px;border-radius:4px;color:#60a5fa;font-size:12px">RUN_FETCH_PRICES.bat</code>
+        in your FEM_SCANS folder, then click <strong>🔄 Refresh</strong> above.
+        &nbsp;Or type prices directly into the boxes below.</span>`;
 
   document.getElementById('pane-morning').innerHTML=`
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;flex-wrap:wrap">
       <div class="sec" style="margin:0">MORNING REGIME — ${today}</div>
       <div class="rb ${rcls}">REGIME: ${regime}</div>
-      <button class="btn o" onclick="fetchPrices()">🌐 Fetch Live</button>
       <button class="btn" onclick="clearM()">🗑 Clear</button>
     </div>
-    <div class="note-box" id="m-note">${fromJSON}</div>
+    <div style="background:${noteBg};border:1px solid ${noteBdr};border-radius:6px;padding:10px 14px;margin-bottom:14px;line-height:1.7">
+      ${noteHTML}
+    </div>
     <div class="mg">${cards}</div>
     <div class="sec">Decision Guide</div>
     <div class="tw"><table>
@@ -401,49 +404,6 @@ function calcRegime(){
   return'CAUTION';
 }
 
-async function fetchPrices(silent=false){
-  if(!silent){setS('⏳ Fetching prices…','spin');const b=document.getElementById('priceBtn');if(b){b.textContent='⏳…';b.disabled=true;}}
-  let ok=false;
-
-  // Batch request
-  try{
-    const url=`https://query1.finance.yahoo.com/v7/finance/quote?lang=en-US&region=US&corsDomain=finance.yahoo.com&symbols=${SYMS.join(',')}`;
-    const r=await fetch(url,{credentials:'include'});
-    if(r.ok){
-      const j=await r.json();
-      (j?.quoteResponse?.result||[]).forEach(q=>{
-        morningData[q.symbol]={prev:String((q.regularMarketPreviousClose||0).toFixed(2)),cur:String((q.regularMarketPrice||0).toFixed(2))};
-      });
-      if(Object.keys(morningData).filter(k=>k!=='_date').length>0)ok=true;
-    }
-  }catch(e){}
-
-  // Per-ticker fallback
-  if(!ok){
-    for(const sym of SYMS){
-      try{
-        const r=await fetch(`https://query2.finance.yahoo.com/v8/finance/chart/${sym}?interval=1d&range=2d&corsDomain=finance.yahoo.com`,{credentials:'include'});
-        if(!r.ok)continue;
-        const j=await r.json();
-        const m=j?.chart?.result?.[0]?.meta;
-        if(m)morningData[sym]={prev:String((m.chartPreviousClose||m.previousClose||0).toFixed(2)),cur:String((m.regularMarketPrice||0).toFixed(2))};
-        ok=true;
-      }catch(e){}
-    }
-  }
-
-  const b=document.getElementById('priceBtn');if(b){b.textContent='🌅 Fetch Prices';b.disabled=false;}
-  if(ok){
-    morningData._date=new Date().toISOString().slice(0,10);
-    localStorage.setItem('fem_morning',JSON.stringify(morningData));
-    buildMorningPane();
-    if(!silent)setS(`✓ Prices updated`,false);
-    document.getElementById('status').className='ok';
-  }else{
-    if(!silent){setS('Auto-fetch blocked — use RUN_FETCH_PRICES.bat',true);}
-    buildMorningPane();
-  }
-}
 
 // ── TODAY'S SETUPS ────────────────────────────────────────────────────────────
 function renderSetups(){
@@ -596,7 +556,7 @@ function renderBC(){
   const rows=D.latestBigcap;
   if(!rows.length){document.getElementById('pane-bc').innerHTML='<div style="padding:40px;text-align:center;color:#6b7280">No fem_scan_v8 files found</div>';return;}
   const lf=D.bigcap[D.bigcap.length-1];
-  const sb=v=>{const n=parseInt(v)||0;const c=n>=80?'#fbbf24':n>=60?'#22c55e':n>=40?'#60a5fa':'#6b7280';return`<span style="color:${c};font-weight:${n>=70?700:400}">${n||'—'}</span>`};
+  const sb=v=>{const n=parseInt(v)||0;const c=n>=80?'#fbbf24':n>=60?'#22c55e':n>=40?'#60a5fa':'#6f7280';return`<span style="color:${c};font-weight:${n>=70?700:400}">${n||'—'}</span>`};
 
   document.getElementById('pane-bc').innerHTML=`
     <div class="fb">
