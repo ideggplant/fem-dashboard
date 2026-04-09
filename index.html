@@ -38,20 +38,20 @@ tr:hover td{background:#1a2533}
   <div><h1>FEM SETUPS</h1><div id="status">Load your Master Fem Fresh Scans folder to begin</div></div>
   <div style="display:flex;align-items:center;gap:12px">
     <div id="file-summary" style="font-size:11px;color:#6b7280"></div>
-    <button id="load-btn" onclick="loadFolder()">Ã°ÂÂÂ Load Folder</button>
+    <button id="load-btn" onclick="loadFolder()">ÃÂ°ÃÂÃÂÃÂ Load Folder</button>
   </div>
 </div>
 <div id="scoreboard">
-  <div class="kpi all"><div class="lbl">All Win Rate</div><div class="val" id="sc-all">Ã¢ÂÂ</div></div>
-  <div class="kpi t1"><div class="lbl">T1 Win Rate</div><div class="val" id="sc-t1">Ã¢ÂÂ</div></div>
-  <div class="kpi t2"><div class="lbl">T2 Win Rate</div><div class="val" id="sc-t2">Ã¢ÂÂ</div></div>
-  <div class="kpi t3"><div class="lbl">T3 Win Rate</div><div class="val" id="sc-t3">Ã¢ÂÂ</div></div>
-  <div class="kpi all"><div class="lbl">Avg R</div><div class="val" id="sc-r">Ã¢ÂÂ</div></div>
-  <div class="kpi t1"><div class="lbl">T1 Avg R</div><div class="val" id="sc-r1">Ã¢ÂÂ</div></div>
-  <div class="kpi all"><div class="lbl">Entry Accuracy</div><div class="val" id="sc-ea">Ã¢ÂÂ</div></div>
+  <div class="kpi all"><div class="lbl">All Win Rate</div><div class="val" id="sc-all">ÃÂ¢ÃÂÃÂ</div></div>
+  <div class="kpi t1"><div class="lbl">T1 Win Rate</div><div class="val" id="sc-t1">ÃÂ¢ÃÂÃÂ</div></div>
+  <div class="kpi t2"><div class="lbl">T2 Win Rate</div><div class="val" id="sc-t2">ÃÂ¢ÃÂÃÂ</div></div>
+  <div class="kpi t3"><div class="lbl">T3 Win Rate</div><div class="val" id="sc-t3">ÃÂ¢ÃÂÃÂ</div></div>
+  <div class="kpi all"><div class="lbl">Avg R</div><div class="val" id="sc-r">ÃÂ¢ÃÂÃÂ</div></div>
+  <div class="kpi t1"><div class="lbl">T1 Avg R</div><div class="val" id="sc-r1">ÃÂ¢ÃÂÃÂ</div></div>
+  <div class="kpi all"><div class="lbl">Entry Accuracy</div><div class="val" id="sc-ea">ÃÂ¢ÃÂÃÂ</div></div>
 </div>
 <div id="controls" style="display:none">
-  <input type="text" id="ft" placeholder="Filter tickerÃ¢ÂÂ¦" oninput="applyFilters()">
+  <input type="text" id="ft" placeholder="Filter tickerÃÂ¢ÃÂÃÂ¦" oninput="applyFilters()">
   <select id="fs" onchange="applyFilters()"><option value="">All Sources</option><option value="PENNY">Penny</option><option value="BIGCAP">BigCap</option><option value="SWING">Swing</option></select>
   <select id="fside" onchange="applyFilters()"><option value="">Both Sides</option><option value="Long">Long</option><option value="Short">Short</option></select>
   <select id="ftier" onchange="applyFilters()"><option value="">All Tiers</option><option value="T1">T1</option><option value="T2">T2</option><option value="T3">T3</option></select>
@@ -60,7 +60,7 @@ tr:hover td{background:#1a2533}
   <span id="summary" style="font-size:11px;color:#6b7280;margin-left:4px"></span>
 </div>
 <div class="tw">
-  <table><thead><tr><th>Date</th><th>Src</th><th>Ticker</th><th>Side</th><th>Mode</th><th>Tier</th><th>FEM</th><th>Entry</th><th>Stop</th><th>T1</th><th>R:R</th><th>Float</th><th>Outcome</th><th>Result R</th><th>Last Px</th><th>Entry ÃÂ%</th></tr></thead>
+  <table><thead><tr><th>Date</th><th>Src</th><th>Ticker</th><th>Side</th><th>Mode</th><th>Tier</th><th>FEM</th><th>Entry</th><th>Stop</th><th>T1</th><th>R:R</th><th>Float</th><th>Outcome</th><th>Result R</th><th>Last Px</th><th>Entry ÃÂÃÂ%</th></tr></thead>
   <tbody id="tb"></tbody></table>
 </div>
 <div id="empty">No setups match your filters.</div>
@@ -72,10 +72,10 @@ function src(n){if(n.startsWith('fem_penny_scan_'))return'PENNY';if(n.startsWith
 function isChk(n){return n.startsWith('fem_check_')&&n.endsWith('.csv');}
 function tord(t){if(!t)return 9;if(t.includes('T1'))return 1;if(t.includes('T2'))return 2;if(t.includes('T3'))return 3;return 5;}
 function tcls(t){if(!t)return'';if(t.includes('T1'))return't1';if(t.includes('T2'))return't2';if(t.includes('T3'))return't3';return't4';}
-function fm(v){const n=parseFloat(v);return isNaN(n)||n===0?'Ã¢ÂÂ':'$'+n.toFixed(3);}
-function wr(rows){const res=rows.filter(r=>['WIN','LOSS','STOPPED'].includes(r._oc));if(!res.length)return'Ã¢ÂÂ';const w=res.filter(r=>r._oc==='WIN').length;return Math.round(w/res.length*100)+'% ('+w+'/'+res.length+')';}
-function ar(rows){const res=rows.filter(r=>['TARGET_HIT','STOPPED'].includes(r._oc)&&r._rr!==''&&!isNaN(parseFloat(r._rr)));if(!res.length)return'Ã¢ÂÂ';const avg=res.reduce((s,r)=>s+parseFloat(r._rr),0)/res.length;return(avg>=0?'+':'')+avg.toFixed(2)+'R';}
-function ea(rows){const c=rows.filter(r=>r._lpx&&r.entry&&parseFloat(r.entry)>0);if(!c.length)return'Ã¢ÂÂ';const ok=c.filter(r=>Math.abs(parseFloat(r._lpx)-parseFloat(r.entry))/parseFloat(r.entry)*100<=2).length;return Math.round(ok/c.length*100)+'%';}
+function fm(v){const n=parseFloat(v);return isNaN(n)||n===0?'ÃÂ¢ÃÂÃÂ':'$'+n.toFixed(3);}
+function wr(rows){const res=rows.filter(r=>r._oc==='TARGET_HIT'||r._oc==='STOPPED');if(!res.length)return'—';const w=res.filter(r=>r._oc==='TARGET_HIT').length;return Math.round(w/res.length*100)+'% ('+w+'/'+res.length+')';}
+function ar(rows){const res=rows.filter(r=>['TARGET_HIT','STOPPED'].includes(r._oc)&&r._rr!==''&&!isNaN(parseFloat(r._rr)));if(!res.length)return'ÃÂ¢ÃÂÃÂ';const avg=res.reduce((s,r)=>s+parseFloat(r._rr),0)/res.length;return(avg>=0?'+':'')+avg.toFixed(2)+'R';}
+function ea(rows){const c=rows.filter(r=>r._lpx&&r.entry&&parseFloat(r.entry)>0);if(!c.length)return'ÃÂ¢ÃÂÃÂ';const ok=c.filter(r=>Math.abs(parseFloat(r._lpx)-parseFloat(r.entry))/parseFloat(r.entry)*100<=2).length;return Math.round(ok/c.length*100)+'%';}
 async function loadFolder(){
   try{
     const dir=await window.showDirectoryPicker();
@@ -92,8 +92,8 @@ async function loadFolder(){
     dates.forEach(d=>{const o=document.createElement('option');o.value=d;o.textContent=d;ds.appendChild(o);});
     document.getElementById('controls').style.display='flex';
     document.getElementById('scoreboard').style.display='flex';
-    document.getElementById('file-summary').textContent=sf.length+' scans ÃÂ· '+cf.length+' checks ÃÂ· '+R.length+' setups';
-    document.getElementById('status').textContent='Ã¢ÂÂ Loaded';
+    document.getElementById('file-summary').textContent=sf.length+' scans ÃÂÃÂ· '+cf.length+' checks ÃÂÃÂ· '+R.length+' setups';
+    document.getElementById('status').textContent='ÃÂ¢ÃÂÃÂ Loaded';
     applyFilters();
   }catch(e){if(e.name!=='AbortError')document.getElementById('status').textContent='Error: '+e.message;}
 }
@@ -125,14 +125,14 @@ function applyFilters(){
   });
   const oc2c=o=>o==='TARGET_HIT'?'oc-win':o==='WINNING'?'oc-live':o==='STOPPED'?'oc-stop':o==='LOSING'?'oc-loss':o==='NO_FILL'?'oc-nofill':'oc-none';
   const rc=v=>{const n=parseFloat(v);if(isNaN(n))return'';return n>0?'style="color:#22c55e;font-weight:600"':'style="color:#ef4444"';};
-  const dc=v=>{if(!v||v==='Ã¢ÂÂ')return'';const n=Math.abs(parseFloat(v));if(isNaN(n))return'';if(n<=1)return'style="color:#22c55e"';if(n<=3)return'style="color:#fbbf24"';return'style="color:#ef4444"';};
+  const dc=v=>{if(!v||v==='ÃÂ¢ÃÂÃÂ')return'';const n=Math.abs(parseFloat(v));if(isNaN(n))return'';if(n<=1)return'style="color:#22c55e"';if(n<=3)return'style="color:#fbbf24"';return'style="color:#ef4444"';};
   document.getElementById('tb').innerHTML=f.map(r=>{
     const sc2=r._src==='PENNY'?'src-penny':r._src==='BIGCAP'?'src-bigcap':'src-swing';
     const scol=r._src==='PENNY'?'#22c55e':r._src==='BIGCAP'?'#60a5fa':'#a78bfa';
     const sicol=r.side==='Long'?'#22c55e':'#ef4444';
     const fn=parseFloat(r.fem)||0;
     const fcol=fn>=80?'#fbbf24':fn>=60?'#22c55e':'#60a5fa';
-    return '<tr class="'+sc2+'"><td style="color:#6b7280;font-size:11px">'+r._date+'</td><td style="font-size:10px;font-weight:700;color:'+scol+'">'+r._src+'</td><td style="font-weight:700">'+r.ticker+'</td><td style="color:'+sicol+';font-weight:600">'+r.side+'</td><td style="color:#94a3b8;font-size:11px">'+r.mode+'</td><td class="'+tcls(r.tier)+'">'+r.tier+'</td><td style="color:'+fcol+';font-weight:600">'+r.fem+'</td><td>'+fm(r.entry)+'</td><td style="color:#ef4444">'+fm(r.stop)+'</td><td style="color:#22c55e">'+fm(r.t1)+'</td><td style="font-weight:600">'+(r.rr?r.rr+'x':'Ã¢ÂÂ')+'</td><td style="color:#94a3b8">'+r.float_label+'</td><td class="'+oc2c(r._oc)+'">'+( r._oc||'Ã¢ÂÂ')+'</td><td '+rc(r._rr)+'>'+( r._rr?r._rr+'R':'Ã¢ÂÂ')+'</td><td style="color:#94a3b8">'+(r._lpx?'$'+parseFloat(r._lpx).toFixed(3):'Ã¢ÂÂ')+'</td><td '+dc(r._ed)+'>'+( r._ed||'Ã¢ÂÂ')+'</td></tr>';
+    return '<tr class="'+sc2+'"><td style="color:#6b7280;font-size:11px">'+r._date+'</td><td style="font-size:10px;font-weight:700;color:'+scol+'">'+r._src+'</td><td style="font-weight:700">'+r.ticker+'</td><td style="color:'+sicol+';font-weight:600">'+r.side+'</td><td style="color:#94a3b8;font-size:11px">'+r.mode+'</td><td class="'+tcls(r.tier)+'">'+r.tier+'</td><td style="color:'+fcol+';font-weight:600">'+r.fem+'</td><td>'+fm(r.entry)+'</td><td style="color:#ef4444">'+fm(r.stop)+'</td><td style="color:#22c55e">'+fm(r.t1)+'</td><td style="font-weight:600">'+(r.rr?r.rr+'x':'ÃÂ¢ÃÂÃÂ')+'</td><td style="color:#94a3b8">'+r.float_label+'</td><td class="'+oc2c(r._oc)+'">'+( r._oc||'ÃÂ¢ÃÂÃÂ')+'</td><td '+rc(r._rr)+'>'+( r._rr?r._rr+'R':'ÃÂ¢ÃÂÃÂ')+'</td><td style="color:#94a3b8">'+(r._lpx?'$'+parseFloat(r._lpx).toFixed(3):'ÃÂ¢ÃÂÃÂ')+'</td><td '+dc(r._ed)+'>'+( r._ed||'ÃÂ¢ÃÂÃÂ')+'</td></tr>';
   }).join('');
   document.getElementById('empty').style.display=f.length===0&&R.length>0?'block':'none';
   document.getElementById('summary').textContent=f.length+' setups';
