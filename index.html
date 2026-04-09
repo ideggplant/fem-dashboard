@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FEM Dashboard — Panther Analytics</title>
+<title>FEM Dashboard â Panther Analytics</title>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1117;color:#e2e8f0;font-size:13px}
@@ -80,30 +80,30 @@
 <body>
 
 <div id="header">
-  <h1>📊 FEM DASHBOARD</h1>
+  <h1>ð FEM DASHBOARD</h1>
   <div class="subtitle" id="subtitle">Panther Analytics</div>
   <div id="status">Load your folder to begin</div>
-  <button class="btn g" onclick="loadFolder()">📁 Load FEM_SCANS Folder</button>
-  <button class="btn" id="refreshBtn" onclick="refresh()" style="display:none">🔄 Refresh</button>
+  <button class="btn g" onclick="loadFolder()">ð Load FEM_SCANS Folder</button>
+  <button class="btn" id="refreshBtn" onclick="refresh()" style="display:none">ð Refresh</button>
 </div>
 
 <div id="tabs" style="display:none">
-  <div class="tab active" onclick="showTab('dash')">📊 Dashboard</div>
-  <div class="tab" onclick="showTab('morning');renderMorning()">🌅 Morning</div>
-  <div class="tab" onclick="showTab('setups')">🎯 Today's Setups</div>
-  <div class="tab" onclick="showTab('log')">📋 Test Log</div>
-  <div class="tab" onclick="showTab('wr')">🔍 Win Rates</div>
-  <div class="tab" onclick="showTab('bc')">📈 BigCap</div>
-  <div class="tab" onclick="showTab('perf')">⚡ Performance</div>
+  <div class="tab active" onclick="showTab('dash')">ð Dashboard</div>
+  <div class="tab" onclick="showTab('morning');renderMorning()">ð Morning</div>
+  <div class="tab" onclick="showTab('setups')">ð¯ Today's Setups</div>
+  <div class="tab" onclick="showTab('log')">ð Test Log</div>
+  <div class="tab" onclick="showTab('wr')">ð Win Rates</div>
+  <div class="tab" onclick="showTab('bc')">ð BigCap</div>
+  <div class="tab" onclick="showTab('perf')">â¡ Performance</div>
 </div>
 
 <div id="content">
   <div id="load-screen">
-    <div class="hero-icon">📊</div>
+    <div class="hero-icon">ð</div>
     <h2>FEM Dashboard</h2>
-    <p>Panther Analytics · Scan Tracker & Win Rate Monitor</p>
-    <button class="btn g" onclick="loadFolder()" style="font-size:14px;padding:12px 28px">📁 Load FEM_SCANS Folder</button>
-    <p style="font-size:11px;margin-top:4px">Select your FEM_SCANS folder — all CSVs load instantly</p>
+    <p>Panther Analytics Â· Scan Tracker & Win Rate Monitor</p>
+    <button class="btn g" onclick="loadFolder()" style="font-size:14px;padding:12px 28px">ð Load FEM_SCANS Folder</button>
+    <p style="font-size:11px;margin-top:4px">Select your FEM_SCANS folder â all CSVs load instantly</p>
   </div>
   <div class="pane" id="pane-dash"></div>
   <div class="pane" id="pane-morning"></div>
@@ -115,12 +115,12 @@
 </div>
 
 <script>
-// ── STATE ────────────────────────────────────────────────────────────────────
+// ââ STATE ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 let DIR = null;
 let D = {check:[],swing:[],backtest:[],penny:[],bigcap:[],outcomes:[],latestPenny:[],latestBigcap:[]};
 let morningData = {};
 
-// ── CSV ───────────────────────────────────────────────────────────────────────
+// ââ CSV âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 function parseCSV(txt){
   const lines=txt.trim().split('\n');if(lines.length<2)return[];
   const hdr=splitLine(lines[0]).map(h=>h.trim().replace(/"/g,''));
@@ -138,7 +138,7 @@ function splitLine(l){
   r.push(c);return r;
 }
 
-// ── CLASSIFIERS ───────────────────────────────────────────────────────────────
+// ââ CLASSIFIERS âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 function classOC(o){
   const u=(o||'').toUpperCase();
   if(['WIN','WIN_T1','TARGET_HIT','WINNING'].includes(u))return'WIN';
@@ -157,17 +157,17 @@ function tcls(t){
 }
 function dateFromName(n){const m=n.match(/(\d{4}-\d{2}-\d{2})/);return m?m[1]:''}
 
-// ── LOAD FOLDER ───────────────────────────────────────────────────────────────
+// ââ LOAD FOLDER âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 async function loadFolder(){
   try{DIR=await window.showDirectoryPicker({mode:'read'});
-    document.getElementById('subtitle').textContent='📁 '+DIR.name;
+    document.getElementById('subtitle').textContent='ð '+DIR.name;
     await processFiles();
   }catch(e){if(e.name!=='AbortError')setS('Error: '+e.message,true);}
 }
 async function refresh(){if(!DIR)return loadFolder();await processFiles();}
 
 async function processFiles(){
-  setS('⏳ Loading files…','spin');
+  setS('â³ Loading filesâ¦','spin');
   D={check:[],swing:[],backtest:[],penny:[],bigcap:[],outcomes:[],latestPenny:[],latestBigcap:[]};
 
   const penny=[],check=[],swing=[],bt=[],bc=[];
@@ -178,7 +178,7 @@ async function processFiles(){
     else if(n.startsWith('fem_check_'))check.push(e);
     else if(n.startsWith('fem_swing_'))swing.push(e);
     else if(n.startsWith('fem_backtest_'))bt.push(e);
-    else if(n.startsWith('fem_scan_v8_'))bc.push(e);
+    else if(n.startsWith('fem_scan_v8_')||n.startsWith('fem_bigcap_scan_'))bc.push(e);
   }
   const srt=a=>a.sort((x,y)=>x.name.localeCompare(y.name));
   srt(penny);srt(check);srt(swing);srt(bt);srt(bc);
@@ -221,7 +221,7 @@ async function processFiles(){
   D.latestBigcap=D.bigcap.length?D.bigcap[D.bigcap.length-1].rows:[];
 
   const tot=penny.length+check.length+swing.length+bt.length+bc.length;
-  setS(`✓ ${tot} files · ${D.outcomes.length.toLocaleString()} resolved trades`,false);
+  setS(`â ${tot} files Â· ${D.outcomes.length.toLocaleString()} resolved trades`,false);
   document.getElementById('status').className='ok';
   document.getElementById('tabs').style.display='flex';
   document.getElementById('load-screen').style.display='none';
@@ -242,7 +242,7 @@ function showTab(id){
   if(tabs[map[id]])tabs[map[id]].classList.add('active');
 }
 
-// ── HELPERS ──────────────────────────────────────────────────────────────────
+// ââ HELPERS ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 function wr(rows){
   const res=rows.filter(r=>['WIN','LOSS','STOP'].includes(r._oc));
   const w=res.filter(r=>r._oc==='WIN');
@@ -250,23 +250,23 @@ function wr(rows){
 }
 function nr(rows){return rows.reduce((s,r)=>s+(r._r||0),0);}
 function avgW(rows){const w=rows.filter(r=>r._oc==='WIN');return w.length?w.reduce((s,r)=>s+(r._r||0),0)/w.length:0;}
-function fR(v){const n=parseFloat(v);if(isNaN(n))return'—';return`<span style="color:${n>0?'#22c55e':n<0?'#ef4444':'#6b7280'}">${n>0?'+':''}${n.toFixed(2)}R</span>`}
-function fWR(w,t){if(!t)return'—';const p=(w/t*100).toFixed(1);const c=w/t*100>=55?'wg':w/t*100>=40?'wo':'wb';return`<span class="${c}">${p}%</span>`}
+function fR(v){const n=parseFloat(v);if(isNaN(n))return'â';return`<span style="color:${n>0?'#22c55e':n<0?'#ef4444':'#6b7280'}">${n>0?'+':''}${n.toFixed(2)}R</span>`}
+function fWR(w,t){if(!t)return'â';const p=(w/t*100).toFixed(1);const c=w/t*100>=55?'wg':w/t*100>=40?'wo':'wb';return`<span class="${c}">${p}%</span>`}
 function renderAll(){renderDash();renderSetups();renderLog();renderWR();renderBC();renderPerf();}
 
-// ── DASHBOARD ────────────────────────────────────────────────────────────────
+// ââ DASHBOARD ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 function renderDash(){
   const all=D.outcomes;
   const W=wr(all),NR=nr(all);
   const totalFiles=D.penny.length+D.check.length+D.swing.length+D.backtest.length+D.bigcap.length;
   const allRows=[...D.penny,...D.check,...D.swing,...D.backtest].flatMap(f=>f.rows);
-  const latestDate=D.penny.length?D.penny[D.penny.length-1].date:'—';
+  const latestDate=D.penny.length?D.penny[D.penny.length-1].date:'â';
 
   const kpis=[
     {l:'Scan Files',v:totalFiles,c:''},
     {l:'Total Setups',v:allRows.length.toLocaleString(),c:''},
     {l:'Resolved Trades',v:W.total.toLocaleString(),c:''},
-    {l:'Overall Win Rate',v:W.total?W.pct.toFixed(1)+'%':'—',c:W.pct>=50?'g':W.pct>=40?'y':'r'},
+    {l:'Overall Win Rate',v:W.total?W.pct.toFixed(1)+'%':'â',c:W.pct>=50?'g':W.pct>=40?'y':'r'},
     {l:'Net R (All)',v:NR.toFixed(0)+'R',c:NR>0?'g':'r'},
     {l:'Avg R / Winner',v:avgW(all).toFixed(2)+'R',c:'g'},
     {l:'Total Wins',v:W.wins.toLocaleString(),c:'g'},
@@ -303,7 +303,7 @@ function renderDash(){
     <div class="tw"><table><tr><th>Scan Type</th><th>Trades</th><th>Wins</th><th>Losses</th><th>Win Rate</th><th>Net R</th></tr>${typeRows}</table></div>`;
 }
 
-// ── MORNING REPORT ────────────────────────────────────────────────────────────
+// ââ MORNING REPORT ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 const SYMS=['SPY','QQQ','IWM','VIX','XLF','XLK','XLE','GLD','TLT'];
 
 async function renderMorning(){
@@ -318,7 +318,7 @@ async function renderMorning(){
         morningData._date=j.date;
       }
     }catch(e){
-      // No JSON file — try localStorage
+      // No JSON file â try localStorage
       const saved=localStorage.getItem('fem_morning');
       if(saved) try{morningData=JSON.parse(saved);}catch(e2){}
     }
@@ -335,13 +335,13 @@ function buildMorningPane(){
     const d=morningData[sym]||{};
     const prev=parseFloat(d.prev)||0,cur=parseFloat(d.cur)||0;
     const chg=prev&&cur?((cur-prev)/prev*100):null;
-    const flag=chg===null?'⬜':chg>0.5?'✅':chg<-0.5?'⛔':'⚠️';
-    const chgStr=chg===null?'—':`${chg>0?'+':''}${chg.toFixed(2)}%`;
+    const flag=chg===null?'â¬':chg>0.5?'â':chg<-0.5?'â':'â ï¸';
+    const chgStr=chg===null?'â':`${chg>0?'+':''}${chg.toFixed(2)}%`;
     const chgCls=chg===null?'fl':chg>0?'up':'dn';
     return`<div class="tc">
       <div class="sym">${flag} ${sym}</div>
       <div class="chg ${chgCls}">${chgStr}</div>
-      <div class="det">Prev: ${prev||'—'} &nbsp;|&nbsp; Live: ${cur||'—'}</div>
+      <div class="det">Prev: ${prev||'â'} &nbsp;|&nbsp; Live: ${cur||'â'}</div>
       <div style="display:flex;gap:4px;margin-top:6px">
         <input type="number" step="0.01" placeholder="Prev Close" value="${d.prev||''}" onchange="setM('${sym}','prev',this.value)">
         <input type="number" step="0.01" placeholder="Live Price" value="${d.cur||''}" onchange="setM('${sym}','cur',this.value)">
@@ -353,17 +353,17 @@ function buildMorningPane(){
   const noteBg  = hasData ? '#0f2a1a' : '#1a1400';
   const noteBdr = hasData ? '#166534' : '#854d0e';
   const noteHTML = hasData
-    ? `<span style="color:#22c55e;font-size:13px">✅ Prices loaded from <strong>morning_prices.json</strong> — ${morningData._date||'today'}</span>`
-    : `<span style="font-size:13px">⚡ <strong style="color:#fbbf24">How to populate:</strong>&nbsp;
+    ? `<span style="color:#22c55e;font-size:13px">â Prices loaded from <strong>morning_prices.json</strong> â ${morningData._date||'today'}</span>`
+    : `<span style="font-size:13px">â¡ <strong style="color:#fbbf24">How to populate:</strong>&nbsp;
         Double-click <code style="background:#0d1117;padding:2px 8px;border-radius:4px;color:#60a5fa;font-size:12px">RUN_FETCH_PRICES.bat</code>
-        in your FEM_SCANS folder, then click <strong>🔄 Refresh</strong> above.
+        in your FEM_SCANS folder, then click <strong>ð Refresh</strong> above.
         &nbsp;Or type prices directly into the boxes below.</span>`;
 
   document.getElementById('pane-morning').innerHTML=`
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;flex-wrap:wrap">
-      <div class="sec" style="margin:0">MORNING REGIME — ${today}</div>
+      <div class="sec" style="margin:0">MORNING REGIME â ${today}</div>
       <div class="rb ${rcls}">REGIME: ${regime}</div>
-      <button class="btn" onclick="clearM()">🗑 Clear</button>
+      <button class="btn" onclick="clearM()">ð Clear</button>
     </div>
     <div style="background:${noteBg};border:1px solid ${noteBdr};border-radius:6px;padding:10px 14px;margin-bottom:14px;line-height:1.7">
       ${noteHTML}
@@ -372,9 +372,9 @@ function buildMorningPane(){
     <div class="sec">Decision Guide</div>
     <div class="tw"><table>
       <tr><th>Regime</th><th>Condition</th><th>Action</th></tr>
-      <tr><td class="wg">✅ INTACT</td><td>SPY/QQQ/IWM all green, VIX &lt; 25</td><td>Full size — execute all T1/T2 setups</td></tr>
-      <tr class="alt"><td class="wo">⚠️ CAUTION</td><td>Mixed signals · VIX 25-30</td><td>Half size — T1 only, tighten stops</td></tr>
-      <tr><td class="wb">⛔ COMPROMISED</td><td>SPY+QQQ both red · VIX &gt; 30</td><td>Sit out — no new entries</td></tr>
+      <tr><td class="wg">â INTACT</td><td>SPY/QQQ/IWM all green, VIX &lt; 25</td><td>Full size â execute all T1/T2 setups</td></tr>
+      <tr class="alt"><td class="wo">â ï¸ CAUTION</td><td>Mixed signals Â· VIX 25-30</td><td>Half size â T1 only, tighten stops</td></tr>
+      <tr><td class="wb">â COMPROMISED</td><td>SPY+QQQ both red Â· VIX &gt; 30</td><td>Sit out â no new entries</td></tr>
     </table></div>`;
 }
 
@@ -405,34 +405,34 @@ function calcRegime(){
 }
 
 
-// ── TODAY'S SETUPS ────────────────────────────────────────────────────────────
+// ââ TODAY'S SETUPS ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 function renderSetups(){
   const rows=D.latestPenny;
   const lf=D.penny.length?D.penny[D.penny.length-1]:null;
   if(!rows.length){document.getElementById('pane-setups').innerHTML='<div style="padding:40px;text-align:center;color:#6b7280">No penny scan files found</div>';return;}
 
   const rowsHTML=rows.map((r,i)=>`<tr class="${i%2?'alt':''}">
-    <td style="font-weight:700">${r.ticker||'—'}</td>
-    <td style="color:${r.side==='Long'?'#22c55e':'#ef4444'}">${r.side||'—'}</td>
-    <td style="color:#94a3b8;font-size:11px">${r.mode||'—'}</td>
-    <td class="${tcls(r.tier)}">${r.tier||'—'}</td>
-    <td style="color:${parseFloat(r.fem)>=80?'#fbbf24':parseFloat(r.fem)>=60?'#60a5fa':'#94a3b8'};font-weight:600">${r.fem||'—'}</td>
+    <td style="font-weight:700">${r.ticker||'â'}</td>
+    <td style="color:${r.side==='Long'?'#22c55e':'#ef4444'}">${r.side||'â'}</td>
+    <td style="color:#94a3b8;font-size:11px">${r.mode||'â'}</td>
+    <td class="${tcls(r.tier)}">${r.tier||'â'}</td>
+    <td style="color:${parseFloat(r.fem)>=80?'#fbbf24':parseFloat(r.fem)>=60?'#60a5fa':'#94a3b8'};font-weight:600">${r.fem||'â'}</td>
     <td>$${parseFloat(r.entry||0).toFixed(3)}</td>
     <td style="color:#ef4444">$${parseFloat(r.stop||0).toFixed(3)}</td>
     <td style="color:#22c55e">$${parseFloat(r.t1||0).toFixed(3)}</td>
-    <td style="font-weight:600">${r.rr||'—'}x</td>
-    <td style="color:#94a3b8">${r.float_label||'—'}</td>
-    <td class="${r.proximity==='CLOSE'||r.proximity==='INSIDE'?'pc':'pw'}">${r.proximity||'—'}</td>
-    <td style="font-size:10px;color:#6b7280;max-width:160px;overflow:hidden;text-overflow:ellipsis" title="${(r.news||'').replace(/"/g,"'")}">${(r.news||'').substring(0,55)||'—'}</td>
+    <td style="font-weight:600">${r.rr||'â'}x</td>
+    <td style="color:#94a3b8">${r.float_label||'â'}</td>
+    <td class="${r.proximity==='CLOSE'||r.proximity==='INSIDE'?'pc':'pw'}">${r.proximity||'â'}</td>
+    <td style="font-size:10px;color:#6b7280;max-width:160px;overflow:hidden;text-overflow:ellipsis" title="${(r.news||'').replace(/"/g,"'")}">${(r.news||'').substring(0,55)||'â'}</td>
   </tr>`).join('');
 
   document.getElementById('pane-setups').innerHTML=`
     <div class="fb">
-      <input type="text" id="sf" placeholder="Filter ticker…" oninput="filterTbl('sf','st-tbl',0)" style="width:150px">
+      <input type="text" id="sf" placeholder="Filter tickerâ¦" oninput="filterTbl('sf','st-tbl',0)" style="width:150px">
       <select id="stier" onchange="filterTbl('sf','st-tbl',0,3,'stier')">
         <option value="">All Tiers</option><option>T1</option><option>T2</option><option>T3</option><option>T4</option><option>T5</option>
       </select>
-      <span style="color:#6b7280;font-size:11px">${lf?.name||''} — ${rows.length} picks</span>
+      <span style="color:#6b7280;font-size:11px">${lf?.name||''} â ${rows.length} picks</span>
     </div>
     <div class="tw"><table id="st-tbl">
       <tr><th>Ticker</th><th>Side</th><th>Mode</th><th>Tier</th><th>FEM</th><th>Entry</th><th>Stop</th><th>T1</th><th>R:R</th><th>Float</th><th>Proximity</th><th>News</th></tr>
@@ -456,7 +456,7 @@ function filterTbl(inputId,tblId,col,tierCol,tierId){
   });
 }
 
-// ── TEST LOG ──────────────────────────────────────────────────────────────────
+// ââ TEST LOG ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 function renderLog(){
   const all=[...D.check,...D.swing,...D.backtest].flatMap(f=>f.rows)
     .filter(r=>['WIN','LOSS','STOP','LIVE','NO-FILL'].includes(r._oc))
@@ -466,7 +466,7 @@ function renderLog(){
 
   document.getElementById('pane-log').innerHTML=`
     <div class="fb">
-      <input type="text" id="lf" placeholder="Filter ticker…" oninput="filterLog()" style="width:140px">
+      <input type="text" id="lf" placeholder="Filter tickerâ¦" oninput="filterLog()" style="width:140px">
       <select id="loc" onchange="filterLog()"><option value="">All Outcomes</option><option>WIN</option><option>LOSS</option><option>STOP</option><option>LIVE</option><option>NO-FILL</option></select>
       <select id="ltype" onchange="filterLog()"><option value="">All Types</option><option>PENNY SCAN</option><option>SWING SCAN</option><option>BACKTEST</option></select>
       <span style="color:#6b7280;font-size:11px">${all.length.toLocaleString()} records</span>
@@ -475,14 +475,14 @@ function renderLog(){
       <tr><th>Date</th><th>Ticker</th><th>Tier</th><th>Side</th><th>Type</th><th>Entry</th><th>Outcome</th><th>Result R</th><th>R:R</th></tr>
       ${all.map((r,i)=>`<tr class="${i%2?'alt':''}">
         <td style="font-size:11px;color:#6b7280">${(r._d||'').substring(0,10)}</td>
-        <td style="font-weight:700">${r.ticker||'—'}</td>
-        <td class="${tcls(r.tier)}" style="font-size:11px">${r.tier||'—'}</td>
-        <td style="color:${r.side==='Long'?'#22c55e':'#ef4444'};font-size:11px">${r.side||'—'}</td>
-        <td style="color:#6b7280;font-size:11px">${r._t||'—'}</td>
-        <td style="font-size:11px">${r.entry?'$'+r.entry:'—'}</td>
+        <td style="font-weight:700">${r.ticker||'â'}</td>
+        <td class="${tcls(r.tier)}" style="font-size:11px">${r.tier||'â'}</td>
+        <td style="color:${r.side==='Long'?'#22c55e':'#ef4444'};font-size:11px">${r.side||'â'}</td>
+        <td style="color:#6b7280;font-size:11px">${r._t||'â'}</td>
+        <td style="font-size:11px">${r.entry?'$'+r.entry:'â'}</td>
         <td>${ocHTML(r._oc)}</td>
         <td>${fR(r._r)}</td>
-        <td style="font-size:11px">${r.rr||'—'}</td>
+        <td style="font-size:11px">${r.rr||'â'}</td>
       </tr>`).join('')}
     </table></div></div>`;
 }
@@ -496,7 +496,7 @@ function filterLog(){
   });
 }
 
-// ── WIN RATES ─────────────────────────────────────────────────────────────────
+// ââ WIN RATES âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 function renderWR(){
   const types=['PENNY SCAN','SWING SCAN','BACKTEST'];
   const tiers=['T1','T2','T3','T4','T5','SHORT'];
@@ -516,7 +516,7 @@ function renderWR(){
       const sub=D.outcomes.filter(r=>r._t===type&&r.tier&&r.tier.toUpperCase().includes(tier));
       const W=wr(sub);
       const cls=W.total===0?'':W.pct>=55?'wg':W.pct>=40?'wo':'wb';
-      cells+=`<td class="mc"><span class="${cls}">${W.total?W.pct.toFixed(1)+'%':'—'}</span><br><small style="color:#6b7280">${W.total}</small></td>`;
+      cells+=`<td class="mc"><span class="${cls}">${W.total?W.pct.toFixed(1)+'%':'â'}</span><br><small style="color:#6b7280">${W.total}</small></td>`;
     }
     const allSub=D.outcomes.filter(r=>r.tier&&r.tier.toUpperCase().includes(tier));
     const W=wr(allSub);
@@ -543,7 +543,7 @@ function renderWR(){
   document.getElementById('pane-wr').innerHTML=`
     <div class="sec">Win Rates by Scan Type</div>
     <div class="tw"><table><tr><th>Scan Type</th><th>Trades</th><th>Wins</th><th>Losses</th><th>Win Rate</th><th>Net R</th><th>Avg Win</th><th>Avg Loss</th></tr>${typeRows}</table></div>
-    <div class="sec">Tier × Scan Type Matrix</div>
+    <div class="sec">Tier Ã Scan Type Matrix</div>
     <div class="tw"><table><tr><th>Tier</th><th>Penny WR</th><th>Swing WR</th><th>Backtest WR</th><th>Overall</th></tr>${matrixRows}</table></div>
     <div class="sec">Penny Scan by Date (Last 15)</div>
     <div class="tw"><table><tr><th>Date</th><th>Trades</th><th>Wins</th><th>Losses</th><th>Win Rate</th><th>Net R</th></tr>
@@ -551,39 +551,39 @@ function renderWR(){
     </table></div>`;
 }
 
-// ── BIGCAP ────────────────────────────────────────────────────────────────────
+// ââ BIGCAP ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 function renderBC(){
   const rows=D.latestBigcap;
   if(!rows.length){document.getElementById('pane-bc').innerHTML='<div style="padding:40px;text-align:center;color:#6b7280">No fem_scan_v8 files found</div>';return;}
   const lf=D.bigcap[D.bigcap.length-1];
-  const sb=v=>{const n=parseInt(v)||0;const c=n>=80?'#fbbf24':n>=60?'#22c55e':n>=40?'#60a5fa':'#6f7280';return`<span style="color:${c};font-weight:${n>=70?700:400}">${n||'—'}</span>`};
+  const sb=v=>{const n=parseInt(v)||0;const c=n>=80?'#fbbf24':n>=60?'#22c55e':n>=40?'#60a5fa':'#6f7280';return`<span style="color:${c};font-weight:${n>=70?700:400}">${n||'â'}</span>`};
 
   document.getElementById('pane-bc').innerHTML=`
     <div class="fb">
-      <input type="text" id="bcf" placeholder="Filter ticker…" oninput="filterTbl('bcf','bc-tbl',0)" style="width:140px">
+      <input type="text" id="bcf" placeholder="Filter tickerâ¦" oninput="filterTbl('bcf','bc-tbl',0)" style="width:140px">
       <select id="bctier" onchange="filterTbl('bcf','bc-tbl',0,2,'bctier')">
         <option value="">All Tiers</option><option>T1-CONVICTION</option><option>T2-STRONG</option><option>T3-WATCH</option>
       </select>
-      <span style="color:#6b7280;font-size:11px">${lf.name} — ${rows.length} picks</span>
+      <span style="color:#6b7280;font-size:11px">${lf.name} â ${rows.length} picks</span>
     </div>
     <div class="tw"><table id="bc-tbl">
       <tr><th>Ticker</th><th>Side</th><th>Tier</th><th>FEM</th><th>L1</th><th>L2</th><th>L3</th><th>L4</th><th>L5</th><th>L6</th><th>L7</th><th>Entry</th><th>Stop</th><th>T1</th><th>R:R</th><th>Proximity</th></tr>
       ${rows.map((r,i)=>`<tr class="${i%2?'alt':''}">
-        <td style="font-weight:700">${r.ticker||'—'}</td>
-        <td style="color:${r.side==='Long'||r.side==='LONG'?'#22c55e':'#ef4444'}">${r.side||'—'}</td>
-        <td class="${tcls(r.tier)}" style="font-size:11px">${r.tier||'—'}</td>
+        <td style="font-weight:700">${r.ticker||'â'}</td>
+        <td style="color:${r.side==='Long'||r.side==='LONG'?'#22c55e':'#ef4444'}">${r.side||'â'}</td>
+        <td class="${tcls(r.tier)}" style="font-size:11px">${r.tier||'â'}</td>
         <td>${sb(r.fem)}</td><td>${sb(r.l1)}</td><td>${sb(r.l2)}</td><td>${sb(r.l3)}</td>
         <td>${sb(r.l4)}</td><td>${sb(r.l5)}</td><td>${sb(r.l6)}</td><td>${sb(r.l7)}</td>
         <td>$${parseFloat(r.entry||0).toFixed(2)}</td>
         <td style="color:#ef4444">$${parseFloat(r.stop||0).toFixed(2)}</td>
         <td style="color:#22c55e">$${parseFloat(r.t1||0).toFixed(2)}</td>
-        <td>${r.rr||'—'}x</td>
-        <td class="${r.proximity==='CLOSE'||r.proximity==='INSIDE'?'pc':'pw'}">${r.proximity||'—'}</td>
+        <td>${r.rr||'â'}x</td>
+        <td class="${r.proximity==='CLOSE'||r.proximity==='INSIDE'?'pc':'pw'}">${r.proximity||'â'}</td>
       </tr>`).join('')}
     </table></div>`;
 }
 
-// ── PERFORMANCE ───────────────────────────────────────────────────────────────
+// ââ PERFORMANCE âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 function renderPerf(){
   const all=D.outcomes;
   const sideRows=['Long','Short'].map((side,i)=>{
