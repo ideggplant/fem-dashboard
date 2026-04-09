@@ -10,115 +10,133 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1117;color:#e2e8f0;fo
 #header{background:#161b22;border-bottom:2px solid #21262d;padding:10px 18px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
 #header h1{font-size:15px;font-weight:700;color:#60a5fa;letter-spacing:1px}
 #load-btn{background:#22c55e;color:#fff;border:none;padding:7px 16px;border-radius:5px;cursor:pointer;font-size:12px;font-weight:600}
-#load-btn:hover{background:#16a34a}
-#status{font-size:11px;color:#6b7280}
+#status{font-size:11px;color:#6b7280;margin-top:2px}
 #controls{padding:10px 18px;background:#0d1117;border-bottom:1px solid #21262d;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-input[type=text]{background:#161b22;border:1px solid #30363d;color:#e2e8f0;padding:5px 10px;border-radius:4px;font-size:12px;width:160px}
+input[type=text]{background:#161b22;border:1px solid #30363d;color:#e2e8f0;padding:5px 10px;border-radius:4px;font-size:12px;width:150px}
 select{background:#161b22;border:1px solid #30363d;color:#e2e8f0;padding:5px 8px;border-radius:4px;font-size:12px}
+#scoreboard{padding:10px 18px;background:#0d1117;border-bottom:1px solid #21262d;display:none;gap:20px;flex-wrap:wrap;align-items:center}
+.kpi{background:#161b22;border:1px solid #21262d;border-radius:6px;padding:8px 14px}
+.kpi .lbl{font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
+.kpi .val{font-size:17px;font-weight:700}
+.kpi.t1 .val{color:#fbbf24}.kpi.t2 .val{color:#22c55e}.kpi.t3 .val{color:#60a5fa}.kpi.all .val{color:#e2e8f0}
 .tw{overflow-x:auto}
 table{width:100%;border-collapse:collapse;font-size:12px}
 th{background:#1e2533;color:#94a3b8;padding:7px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;position:sticky;top:0;z-index:2}
 td{padding:6px 10px;border-top:1px solid #1a2533;white-space:nowrap}
 tr:hover td{background:#1a2533}
-.t1{color:#fbbf24;font-weight:700}.t2{color:#22c55e;font-weight:600}.t3{color:#60a5fa}.t4{color:#94a3b8}.t5{color:#6b7280}
-.src-penny{background:#0d1a0d;border-left:3px solid #22c55e}
-.src-bigcap{background:#0d1020;border-left:3px solid #60a5fa}
-.src-swing{background:#160d20;border-left:3px solid #a78bfa}
+.t1{color:#fbbf24;font-weight:700}.t2{color:#22c55e;font-weight:600}.t3{color:#60a5fa}.t4{color:#94a3b8}
+.src-penny{border-left:3px solid #22c55e}
+.src-bigcap{border-left:3px solid #60a5fa}
+.src-swing{border-left:3px solid #a78bfa}
+.oc-win{color:#22c55e;font-weight:700}.oc-loss{color:#ef4444;font-weight:700}
+.oc-stop{color:#ef4444}.oc-live{color:#fbbf24}.oc-nofill{color:#6b7280}.oc-none{color:#374151}
 #empty{padding:60px;text-align:center;color:#6b7280;display:none}
 </style>
 </head>
 <body>
 <div id="header">
-  <div><h1>FEM SETUPS</h1><div class="sub" id="status">Load your Master Fem Fresh Scans folder</div></div>
+  <div><h1>FEM SETUPS</h1><div id="status">Load your Master Fem Fresh Scans folder to begin</div></div>
   <div style="display:flex;align-items:center;gap:12px">
     <div id="file-summary" style="font-size:11px;color:#6b7280"></div>
     <button id="load-btn" onclick="loadFolder()">📂 Load Folder</button>
   </div>
 </div>
+<div id="scoreboard">
+  <div class="kpi all"><div class="lbl">All Win Rate</div><div class="val" id="sc-all">—</div></div>
+  <div class="kpi t1"><div class="lbl">T1 Win Rate</div><div class="val" id="sc-t1">—</div></div>
+  <div class="kpi t2"><div class="lbl">T2 Win Rate</div><div class="val" id="sc-t2">—</div></div>
+  <div class="kpi t3"><div class="lbl">T3 Win Rate</div><div class="val" id="sc-t3">—</div></div>
+  <div class="kpi all"><div class="lbl">Avg R</div><div class="val" id="sc-r">—</div></div>
+  <div class="kpi t1"><div class="lbl">T1 Avg R</div><div class="val" id="sc-r1">—</div></div>
+  <div class="kpi all"><div class="lbl">Entry Accuracy</div><div class="val" id="sc-ea">—</div></div>
+</div>
 <div id="controls" style="display:none">
-  <input type="text" id="filter-ticker" placeholder="Filter ticker..." oninput="applyFilters()">
-  <select id="filter-source" onchange="applyFilters()">
-    <option value="">All Sources</option>
-    <option value="PENNY">Penny</option>
-    <option value="BIGCAP">BigCap</option>
-    <option value="SWING">Swing</option>
-  </select>
-  <select id="filter-side" onchange="applyFilters()">
-    <option value="">Both Sides</option>
-    <option value="Long">Long</option>
-    <option value="Short">Short</option>
-  </select>
-  <select id="filter-date" onchange="applyFilters()"><option value="">All Dates</option></select>
-  <span id="summary" style="font-size:11px;color:#6b7280;margin-left:8px"></span>
+  <input type="text" id="ft" placeholder="Filter ticker…" oninput="applyFilters()">
+  <select id="fs" onchange="applyFilters()"><option value="">All Sources</option><option value="PENNY">Penny</option><option value="BIGCAP">BigCap</option><option value="SWING">Swing</option></select>
+  <select id="fside" onchange="applyFilters()"><option value="">Both Sides</option><option value="Long">Long</option><option value="Short">Short</option></select>
+  <select id="ftier" onchange="applyFilters()"><option value="">All Tiers</option><option value="T1">T1</option><option value="T2">T2</option><option value="T3">T3</option></select>
+  <select id="foc" onchange="applyFilters()"><option value="">All Outcomes</option><option value="WIN">WIN</option><option value="LOSS">LOSS</option><option value="STOPPED">STOPPED</option><option value="LIVE">LIVE</option></select>
+  <select id="fd" onchange="applyFilters()"><option value="">All Dates</option></select>
+  <span id="summary" style="font-size:11px;color:#6b7280;margin-left:4px"></span>
 </div>
 <div class="tw">
-  <table id="main-tbl">
-    <thead><tr><th>Date</th><th>Source</th><th>Ticker</th><th>Side</th><th>Mode</th><th>Tier</th><th>FEM</th><th>Entry</th><th>Stop</th><th>T1</th><th>R:R</th><th>Float</th><th>Proximity</th></tr></thead>
-    <tbody id="tbl-body"></tbody>
-  </table>
+  <table><thead><tr><th>Date</th><th>Src</th><th>Ticker</th><th>Side</th><th>Mode</th><th>Tier</th><th>FEM</th><th>Entry</th><th>Stop</th><th>T1</th><th>R:R</th><th>Float</th><th>Outcome</th><th>Result R</th><th>Last Px</th><th>Entry Δ%</th></tr></thead>
+  <tbody id="tb"></tbody></table>
 </div>
 <div id="empty">No setups match your filters.</div>
 <script>
-let ALL_ROWS=[];
-function parseCSV(t){const l=t.trim().split('\n');if(l.length<2)return[];const h=l[0].split(',').map(x=>x.trim().toLowerCase());return l.slice(1).map(line=>{const v=line.split(',');const o={};h.forEach((k,i)=>o[k]=(v[i]||'').trim());return o;});}
-function dateFromName(n){const m=n.match(/(\d{4}-\d{2}-\d{2})/g);return m?m[m.length-1]:'?';}
-function srcFromName(n){if(n.startsWith('fem_penny_scan_'))return'PENNY';if(n.startsWith('fem_scan_v8_')||n.startsWith('fem_bigcap_scan_'))return'BIGCAP';if(n.startsWith('fem_swing_'))return'SWING';return null;}
-function tierOrd(t){if(!t)return 9;if(t.includes('T1'))return 1;if(t.includes('T2'))return 2;if(t.includes('T3'))return 3;if(t.includes('T4'))return 4;return 5;}
-function tierCls(t){if(!t)return'';if(t.includes('T1'))return't1';if(t.includes('T2'))return't2';if(t.includes('T3'))return't3';return't4';}
-function fmt(v){const n=parseFloat(v);if(isNaN(n)||n===0)return'--';return'$'+n.toFixed(3);}
+let R=[];
+function csv(t){const l=t.trim().split('\n');if(l.length<2)return[];const h=l[0].split(',').map(x=>x.trim().toLowerCase());return l.slice(1).map(line=>{const v=line.split(',');const o={};h.forEach((k,i)=>o[k]=(v[i]||'').trim());return o;}).filter(r=>r.ticker);}
+function dfn(n){const m=n.match(/(\d{4}-\d{2}-\d{2})/g);return m?m[m.length-1]:'?';}
+function src(n){if(n.startsWith('fem_penny_scan_'))return'PENNY';if(n.startsWith('fem_scan_v8_')||n.startsWith('fem_bigcap_scan_'))return'BIGCAP';if(n.startsWith('fem_swing_'))return'SWING';return null;}
+function isChk(n){return n.startsWith('fem_check_')&&n.endsWith('.csv');}
+function tord(t){if(!t)return 9;if(t.includes('T1'))return 1;if(t.includes('T2'))return 2;if(t.includes('T3'))return 3;return 5;}
+function tcls(t){if(!t)return'';if(t.includes('T1'))return't1';if(t.includes('T2'))return't2';if(t.includes('T3'))return't3';return't4';}
+function fm(v){const n=parseFloat(v);return isNaN(n)||n===0?'—':'$'+n.toFixed(3);}
+function wr(rows){const res=rows.filter(r=>['WIN','LOSS','STOPPED'].includes(r._oc));if(!res.length)return'—';const w=res.filter(r=>r._oc==='WIN').length;return Math.round(w/res.length*100)+'% ('+w+'/'+res.length+')';}
+function ar(rows){const res=rows.filter(r=>r._oc&&r._rr!==''&&!isNaN(parseFloat(r._rr)));if(!res.length)return'—';const avg=res.reduce((s,r)=>s+parseFloat(r._rr),0)/res.length;return(avg>=0?'+':'')+avg.toFixed(2)+'R';}
+function ea(rows){const c=rows.filter(r=>r._lpx&&r.entry&&parseFloat(r.entry)>0);if(!c.length)return'—';const ok=c.filter(r=>Math.abs(parseFloat(r._lpx)-parseFloat(r.entry))/parseFloat(r.entry)*100<=2).length;return Math.round(ok/c.length*100)+'%';}
 async function loadFolder(){
   try{
     const dir=await window.showDirectoryPicker();
-    const files=[];
-    for await(const e of dir.values()){
-      if(e.kind!=='file'||!e.name.endsWith('.csv'))continue;
-      const src=srcFromName(e.name);
-      if(!src)continue;
-      files.push({entry:e,name:e.name,src,date:dateFromName(e.name)});
-    }
-    files.sort((a,b)=>a.name.localeCompare(b.name));
-    ALL_ROWS=[];
-    for(const f of files){
-      const text=await(await f.entry.getFile()).text();
-      parseCSV(text).forEach(r=>{
-        ALL_ROWS.push({_src:f.src,_date:f.date,ticker:r.ticker||r.symbol||'',side:r.side||'',mode:r.mode||'',tier:r.tier||'',fem:r.fem||'',entry:r.entry||'',stop:r.stop||'',t1:r.t1||'',rr:r.rr||'',float_label:r.float_label||r.float||'',proximity:r.proximity||''});
-      });
-    }
-    ALL_ROWS.sort((a,b)=>{if(b._date!==a._date)return b._date.localeCompare(a._date);const td=tierOrd(a.tier)-tierOrd(b.tier);if(td)return td;return(parseFloat(b.fem)||0)-(parseFloat(a.fem)||0);});
-    const dates=[...new Set(ALL_ROWS.map(r=>r._date))].sort().reverse();
-    const ds=document.getElementById('filter-date');
-    ds.innerHTML='<option value="">All Dates</option>';
+    const sf=[],cf=[];
+    for await(const e of dir.values()){if(e.kind!=='file'||!e.name.endsWith('.csv'))continue;if(isChk(e.name))cf.push(e);else if(src(e.name))sf.push(e);}
+    const om={};
+    for(const e of cf){const rows=csv(await(await e.getFile()).text());rows.forEach(r=>{const sd=r.scan_date||dfn(e.name);const k=r.ticker.toUpperCase()+'|'+sd;om[k]={oc:r.outcome||'',rr:r.result_r||'',lpx:r.last_px||''};});}
+    sf.sort((a,b)=>a.name.localeCompare(b.name));
+    R=[];
+    for(const e of sf){const s=src(e.name);const d=dfn(e.name);csv(await(await e.getFile()).text()).forEach(r=>{const k=r.ticker.toUpperCase()+'|'+d;const oc=om[k]||{};let ed='';if(oc.lpx&&r.entry&&parseFloat(r.entry)>0){const dv=(parseFloat(oc.lpx)-parseFloat(r.entry))/parseFloat(r.entry)*100;ed=(dv>=0?'+':'')+dv.toFixed(1)+'%';}R.push({_src:s,_date:d,_oc:oc.oc||'',_rr:oc.rr||'',_lpx:oc.lpx||'',_ed:ed,ticker:r.ticker,side:r.side||'',mode:r.mode||'',tier:r.tier||'',fem:r.fem||'',entry:r.entry||'',stop:r.stop||'',t1:r.t1||'',rr:r.rr||'',float_label:r.float_label||r.float||'',proximity:r.proximity||''});});}
+    R.sort((a,b)=>{if(b._date!==a._date)return b._date.localeCompare(a._date);const td=tord(a.tier)-tord(b.tier);if(td)return td;return(parseFloat(b.fem)||0)-(parseFloat(a.fem)||0);});
+    const dates=[...new Set(R.map(r=>r._date))].sort().reverse();
+    const ds=document.getElementById('fd');ds.innerHTML='<option value="">All Dates</option>';
     dates.forEach(d=>{const o=document.createElement('option');o.value=d;o.textContent=d;ds.appendChild(o);});
     document.getElementById('controls').style.display='flex';
-    document.getElementById('file-summary').textContent=files.length+' files / '+ALL_ROWS.length+' setups';
-    document.getElementById('status').textContent='Loaded '+files.length+' scan files';
+    document.getElementById('scoreboard').style.display='flex';
+    document.getElementById('file-summary').textContent=sf.length+' scans · '+cf.length+' checks · '+R.length+' setups';
+    document.getElementById('status').textContent='✓ Loaded';
     applyFilters();
   }catch(e){if(e.name!=='AbortError')document.getElementById('status').textContent='Error: '+e.message;}
 }
+function sb(rows){
+  const t1=rows.filter(r=>r.tier.includes('T1')),t2=rows.filter(r=>r.tier.includes('T2')),t3=rows.filter(r=>r.tier.includes('T3'));
+  document.getElementById('sc-all').textContent=wr(rows);
+  document.getElementById('sc-t1').textContent=wr(t1);
+  document.getElementById('sc-t2').textContent=wr(t2);
+  document.getElementById('sc-t3').textContent=wr(t3);
+  document.getElementById('sc-r').textContent=ar(rows);
+  document.getElementById('sc-r1').textContent=ar(t1);
+  document.getElementById('sc-ea').textContent=ea(rows);
+}
 function applyFilters(){
-  const tk=document.getElementById('filter-ticker').value.toLowerCase();
-  const src=document.getElementById('filter-source').value;
-  const side=document.getElementById('filter-side').value;
-  const date=document.getElementById('filter-date').value;
-  const f=ALL_ROWS.filter(r=>{
+  const tk=document.getElementById('ft').value.toLowerCase();
+  const sc=document.getElementById('fs').value;
+  const si=document.getElementById('fside').value;
+  const ti=document.getElementById('ftier').value;
+  const oc=document.getElementById('foc').value;
+  const dt=document.getElementById('fd').value;
+  const f=R.filter(r=>{
     if(tk&&!r.ticker.toLowerCase().includes(tk))return false;
-    if(src&&r._src!==src)return false;
-    if(side&&r.side!==side)return false;
-    if(date&&r._date!==date)return false;
+    if(sc&&r._src!==sc)return false;
+    if(si&&r.side!==si)return false;
+    if(ti&&!r.tier.includes(ti))return false;
+    if(oc&&r._oc!==oc)return false;
+    if(dt&&r._date!==dt)return false;
     return true;
   });
-  document.getElementById('tbl-body').innerHTML=f.map(r=>{
-    const sc=r._src==='PENNY'?'src-penny':r._src==='BIGCAP'?'src-bigcap':'src-swing';
-    const scol=r.side==='Long'?'#22c55e':'#ef4444';
+  const oc2c=o=>o==='WIN'?'oc-win':o==='LOSS'?'oc-loss':o==='STOPPED'?'oc-stop':o==='LIVE'?'oc-live':o==='NO-FILL'?'oc-nofill':'oc-none';
+  const rc=v=>{const n=parseFloat(v);if(isNaN(n))return'';return n>0?'style="color:#22c55e;font-weight:600"':'style="color:#ef4444"';};
+  const dc=v=>{if(!v||v==='—')return'';const n=Math.abs(parseFloat(v));if(isNaN(n))return'';if(n<=1)return'style="color:#22c55e"';if(n<=3)return'style="color:#fbbf24"';return'style="color:#ef4444"';};
+  document.getElementById('tb').innerHTML=f.map(r=>{
+    const sc2=r._src==='PENNY'?'src-penny':r._src==='BIGCAP'?'src-bigcap':'src-swing';
+    const scol=r._src==='PENNY'?'#22c55e':r._src==='BIGCAP'?'#60a5fa':'#a78bfa';
+    const sicol=r.side==='Long'?'#22c55e':'#ef4444';
     const fn=parseFloat(r.fem)||0;
     const fcol=fn>=80?'#fbbf24':fn>=60?'#22c55e':'#60a5fa';
-    const srcCol=r._src==='PENNY'?'#22c55e':r._src==='BIGCAP'?'#60a5fa':'#a78bfa';
-    const pcol=r.proximity==='WAITING'?'#6b7280':r.proximity==='CLOSE'||r.proximity==='INSIDE'?'#fbbf24':'#22c55e';
-    return '<tr class="'+sc+'"><td style="color:#6b7280;font-size:11px">'+r._date+'</td><td style="font-size:10px;font-weight:700;color:'+srcCol+'">'+r._src+'</td><td style="font-weight:700">'+r.ticker+'</td><td style="color:'+scol+';font-weight:600">'+r.side+'</td><td style="color:#94a3b8;font-size:11px">'+r.mode+'</td><td class="'+tierCls(r.tier)+'">'+r.tier+'</td><td style="color:'+fcol+';font-weight:600">'+r.fem+'</td><td>'+fmt(r.entry)+'</td><td style="color:#ef4444">'+fmt(r.stop)+'</td><td style="color:#22c55e">'+fmt(r.t1)+'</td><td style="font-weight:600">'+(r.rr?r.rr+'x':'--')+'</td><td style="color:#94a3b8">'+r.float_label+'</td><td style="color:'+pcol+'">'+r.proximity+'</td></tr>';
+    return '<tr class="'+sc2+'"><td style="color:#6b7280;font-size:11px">'+r._date+'</td><td style="font-size:10px;font-weight:700;color:'+scol+'">'+r._src+'</td><td style="font-weight:700">'+r.ticker+'</td><td style="color:'+sicol+';font-weight:600">'+r.side+'</td><td style="color:#94a3b8;font-size:11px">'+r.mode+'</td><td class="'+tcls(r.tier)+'">'+r.tier+'</td><td style="color:'+fcol+';font-weight:600">'+r.fem+'</td><td>'+fm(r.entry)+'</td><td style="color:#ef4444">'+fm(r.stop)+'</td><td style="color:#22c55e">'+fm(r.t1)+'</td><td style="font-weight:600">'+(r.rr?r.rr+'x':'—')+'</td><td style="color:#94a3b8">'+r.float_label+'</td><td class="'+oc2c(r._oc)+'">'+( r._oc||'—')+'</td><td '+rc(r._rr)+'>'+( r._rr?r._rr+'R':'—')+'</td><td style="color:#94a3b8">'+(r._lpx?'$'+parseFloat(r._lpx).toFixed(3):'—')+'</td><td '+dc(r._ed)+'>'+( r._ed||'—')+'</td></tr>';
   }).join('');
-  const emp=document.getElementById('empty');
-  emp.style.display=f.length===0&&ALL_ROWS.length>0?'block':'none';
+  document.getElementById('empty').style.display=f.length===0&&R.length>0?'block':'none';
   document.getElementById('summary').textContent=f.length+' setups';
+  sb(f);
 }
 </script>
 </body>
