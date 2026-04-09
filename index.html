@@ -3,623 +3,122 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FEM Dashboard â Panther Analytics</title>
+<title>FEM Setups</title>
 <style>
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1117;color:#e2e8f0;font-size:13px}
-  #header{background:#1a1f2e;border-bottom:2px solid #2d4a7a;padding:10px 18px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100;flex-wrap:wrap}
-  #header h1{font-size:16px;font-weight:700;color:#60a5fa;letter-spacing:1px;white-space:nowrap}
-  .subtitle{font-size:11px;color:#6b7280;flex:1;min-width:120px}
-  .btn{background:#2563eb;color:#fff;border:none;padding:7px 13px;border-radius:5px;cursor:pointer;font-size:12px;font-weight:600;white-space:nowrap}
-  .btn:hover{background:#1d4ed8}.btn:disabled{opacity:.5;cursor:default}
-  .btn.g{background:#16a34a}.btn.g:hover{background:#15803d}
-  .btn.o{background:#d97706}.btn.o:hover{background:#b45309}
-  #status{font-size:11px;color:#6b7280;white-space:nowrap}
-  #status.ok{color:#22c55e}#status.err{color:#ef4444}#status.spin{color:#60a5fa}
-
-  #tabs{display:flex;background:#161b22;border-bottom:1px solid #2a2f3a;overflow-x:auto;padding:0 8px}
-  .tab{padding:10px 15px;cursor:pointer;font-size:12px;font-weight:600;color:#6b7280;border-bottom:3px solid transparent;white-space:nowrap;transition:all .15s}
-  .tab:hover{color:#e2e8f0}.tab.active{color:#60a5fa;border-bottom-color:#3b82f6}
-
-  #content{padding:16px}
-  .pane{display:none}.pane.active{display:block}
-
-  .kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:18px}
-  .kpi{background:#161b22;border:1px solid #2a2f3a;border-radius:8px;padding:12px 14px}
-  .kpi .lbl{font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
-  .kpi .val{font-size:22px;font-weight:700;color:#60a5fa}
-  .kpi .val.g{color:#22c55e}.kpi .val.r{color:#ef4444}.kpi .val.y{color:#eab308}
-
-  .sec{font-size:12px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.8px;margin:16px 0 8px;border-left:3px solid #3b82f6;padding-left:8px}
-  .tw{overflow-x:auto;margin-bottom:18px;border-radius:6px;border:1px solid #2a2f3a}
-  table{width:100%;border-collapse:collapse;font-size:12px}
-  th{background:#1e2533;color:#94a3b8;padding:8px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;position:sticky;top:0;z-index:2}
-  td{padding:7px 10px;border-top:1px solid #1e2533;white-space:nowrap}
-  tr:hover td{background:#1a1f2e}
-  .w{background:#0f2a1a;color:#22c55e;font-weight:700}
-  .l{background:#2a0f0f;color:#ef4444;font-weight:700}
-  .lv{background:#0f1a2a;color:#60a5fa;font-weight:700}
-  .nf{color:#6b7280}.st{color:#f97316}
-  .t1{color:#fbbf24;font-weight:700}.t2{color:#60a5fa;font-weight:600}
-  .t3{color:#a78bfa}.t4{color:#34d399}.t5{color:#6b7280}.ts{color:#f87171}
-  .wg{color:#22c55e;font-weight:700}.wo{color:#eab308;font-weight:600}.wb{color:#ef4444}
-  .pc{color:#22c55e}.pw{color:#eab308}
-  .alt{background:#0f1117}
-
-  .mg{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px;margin-bottom:16px}
-  .tc{background:#161b22;border:1px solid #2a2f3a;border-radius:8px;padding:12px}
-  .tc .sym{font-size:15px;font-weight:700;color:#e2e8f0;margin-bottom:4px}
-  .tc .chg{font-size:22px;font-weight:700}
-  .tc .chg.up{color:#22c55e}.tc .chg.dn{color:#ef4444}.tc .chg.fl{color:#6b7280}
-  .tc .det{font-size:10px;color:#6b7280;margin-top:3px}
-  .tc input{width:88px;background:#0d1117;border:1px solid #2a2f3a;color:#e2e8f0;padding:4px 6px;border-radius:4px;font-size:11px;margin-top:6px}
-  .rb{padding:12px 20px;border-radius:8px;font-size:15px;font-weight:700;display:inline-block}
-  .ri{background:#0f2a1a;color:#22c55e;border:1px solid #166534}
-  .rc{background:#1a1a00;color:#eab308;border:1px solid #854d0e}
-  .rk{background:#2a0f0f;color:#ef4444;border:1px solid #991b1b}
-  .rp{background:#1a1f2e;color:#6b7280;border:1px solid #374151}
-
-  .fb{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
-  .fb input,.fb select{background:#161b22;border:1px solid #2a2f3a;color:#e2e8f0;padding:6px 10px;border-radius:5px;font-size:12px}
-  .fb input::placeholder{color:#4b5563}
-
-  .lw{max-height:580px;overflow-y:auto}
-  .lw::-webkit-scrollbar{width:5px}
-  .lw::-webkit-scrollbar-track{background:#0d1117}
-  .lw::-webkit-scrollbar-thumb{background:#2a2f3a;border-radius:3px}
-
-  #load-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;text-align:center;gap:16px}
-  #load-screen h2{font-size:22px;color:#60a5fa}
-  #load-screen p{color:#6b7280;max-width:420px;line-height:1.7}
-  .hero-icon{font-size:56px;margin-bottom:4px}
-  .note-box{background:#161b22;border:1px solid #2a2f3a;border-radius:6px;padding:8px 12px;font-size:11px;color:#94a3b8;margin-bottom:10px}
-  .note-box strong{color:#60a5fa}
-  .mc{text-align:center;padding:6px 8px!important}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1117;color:#e2e8f0;font-size:13px}
+#header{background:#161b22;border-bottom:2px solid #21262d;padding:10px 18px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+#header h1{font-size:15px;font-weight:700;color:#60a5fa;letter-spacing:1px}
+#load-btn{background:#22c55e;color:#fff;border:none;padding:7px 16px;border-radius:5px;cursor:pointer;font-size:12px;font-weight:600}
+#load-btn:hover{background:#16a34a}
+#status{font-size:11px;color:#6b7280}
+#controls{padding:10px 18px;background:#0d1117;border-bottom:1px solid #21262d;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+input[type=text]{background:#161b22;border:1px solid #30363d;color:#e2e8f0;padding:5px 10px;border-radius:4px;font-size:12px;width:160px}
+select{background:#161b22;border:1px solid #30363d;color:#e2e8f0;padding:5px 8px;border-radius:4px;font-size:12px}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{background:#1e2533;color:#94a3b8;padding:7px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;position:sticky;top:0;z-index:2}
+td{padding:6px 10px;border-top:1px solid #1a2533;white-space:nowrap}
+tr:hover td{background:#1a2533}
+.t1{color:#fbbf24;font-weight:700}.t2{color:#22c55e;font-weight:600}.t3{color:#60a5fa}.t4{color:#94a3b8}.t5{color:#6b7280}
+.src-penny{background:#0d1a0d;border-left:3px solid #22c55e}
+.src-bigcap{background:#0d1020;border-left:3px solid #60a5fa}
+.src-swing{background:#160d20;border-left:3px solid #a78bfa}
+#empty{padding:60px;text-align:center;color:#6b7280;display:none}
 </style>
 </head>
 <body>
-
 <div id="header">
-  <h1>ð FEM DASHBOARD</h1>
-  <div class="subtitle" id="subtitle">Panther Analytics</div>
-  <div id="status">Load your folder to begin</div>
-  <button class="btn g" onclick="loadFolder()">ð Load FEM_SCANS Folder</button>
-  <button class="btn" id="refreshBtn" onclick="refresh()" style="display:none">ð Refresh</button>
-</div>
-
-<div id="tabs" style="display:none">
-  <div class="tab active" onclick="showTab('dash')">ð Dashboard</div>
-  <div class="tab" onclick="showTab('morning');renderMorning()">ð Morning</div>
-  <div class="tab" onclick="showTab('setups')">ð¯ Today's Setups</div>
-  <div class="tab" onclick="showTab('log')">ð Test Log</div>
-  <div class="tab" onclick="showTab('wr')">ð Win Rates</div>
-  <div class="tab" onclick="showTab('bc')">ð BigCap</div>
-  <div class="tab" onclick="showTab('perf')">â¡ Performance</div>
-</div>
-
-<div id="content">
-  <div id="load-screen">
-    <div class="hero-icon">ð</div>
-    <h2>FEM Dashboard</h2>
-    <p>Panther Analytics Â· Scan Tracker & Win Rate Monitor</p>
-    <button class="btn g" onclick="loadFolder()" style="font-size:14px;padding:12px 28px">ð Load FEM_SCANS Folder</button>
-    <p style="font-size:11px;margin-top:4px">Select your FEM_SCANS folder â all CSVs load instantly</p>
+  <div><h1>FEM SETUPS</h1><div class="sub" id="status">Load your Master Fem Fresh Scans folder</div></div>
+  <div style="display:flex;align-items:center;gap:12px">
+    <div id="file-summary" style="font-size:11px;color:#6b7280"></div>
+    <button id="load-btn" onclick="loadFolder()">📂 Load Folder</button>
   </div>
-  <div class="pane" id="pane-dash"></div>
-  <div class="pane" id="pane-morning"></div>
-  <div class="pane" id="pane-setups"></div>
-  <div class="pane" id="pane-log"></div>
-  <div class="pane" id="pane-wr"></div>
-  <div class="pane" id="pane-bc"></div>
-  <div class="pane" id="pane-perf"></div>
 </div>
-
+<div id="controls" style="display:none">
+  <input type="text" id="filter-ticker" placeholder="Filter ticker..." oninput="applyFilters()">
+  <select id="filter-source" onchange="applyFilters()">
+    <option value="">All Sources</option>
+    <option value="PENNY">Penny</option>
+    <option value="BIGCAP">BigCap</option>
+    <option value="SWING">Swing</option>
+  </select>
+  <select id="filter-side" onchange="applyFilters()">
+    <option value="">Both Sides</option>
+    <option value="Long">Long</option>
+    <option value="Short">Short</option>
+  </select>
+  <select id="filter-date" onchange="applyFilters()"><option value="">All Dates</option></select>
+  <span id="summary" style="font-size:11px;color:#6b7280;margin-left:8px"></span>
+</div>
+<div class="tw">
+  <table id="main-tbl">
+    <thead><tr><th>Date</th><th>Source</th><th>Ticker</th><th>Side</th><th>Mode</th><th>Tier</th><th>FEM</th><th>Entry</th><th>Stop</th><th>T1</th><th>R:R</th><th>Float</th><th>Proximity</th></tr></thead>
+    <tbody id="tbl-body"></tbody>
+  </table>
+</div>
+<div id="empty">No setups match your filters.</div>
 <script>
-// ââ STATE ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-let DIR = null;
-let D = {check:[],swing:[],backtest:[],penny:[],bigcap:[],outcomes:[],latestPenny:[],latestBigcap:[]};
-let morningData = {};
-
-// ââ CSV âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-function parseCSV(txt){
-  const lines=txt.trim().split('\n');if(lines.length<2)return[];
-  const hdr=splitLine(lines[0]).map(h=>h.trim().replace(/"/g,''));
-  return lines.slice(1).map(l=>{
-    const v=splitLine(l),o={};
-    hdr.forEach((h,i)=>o[h]=(v[i]||'').trim().replace(/^"|"$/g,''));
-    return o;
-  }).filter(r=>r[hdr[0]]);
-}
-function splitLine(l){
-  const r=[];let c='',q=false;
-  for(let i=0;i<l.length;i++){
-    if(l[i]==='"'){q=!q}else if(l[i]===','&&!q){r.push(c);c=''}else c+=l[i];
-  }
-  r.push(c);return r;
-}
-
-// ââ CLASSIFIERS âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-function classOC(o){
-  const u=(o||'').toUpperCase();
-  if(['WIN','WIN_T1','TARGET_HIT','WINNING'].includes(u))return'WIN';
-  if(['LOSS','LOSS_STOP','LOSING','PRE_DOWN'].includes(u))return'LOSS';
-  if(['STOPPED'].includes(u))return'STOP';
-  if(['NO_FILL','NO_ENTRY','ENTRY_NOT_REACHED'].includes(u))return'NO-FILL';
-  if(['OPEN','LIVE'].includes(u))return'LIVE';
-  return'OTHER';
-}
-function tcls(t){
-  if(!t)return'';
-  if(t.includes('T1'))return't1';if(t.includes('T2'))return't2';
-  if(t.includes('T3'))return't3';if(t.includes('T4'))return't4';
-  if(t.includes('T5'))return't5';
-  if(t.toUpperCase().includes('SHORT'))return'ts';return'';
-}
-function dateFromName(n){const m=n.match(/(\d{4}-\d{2}-\d{2})/);return m?m[1]:''}
-
-// ââ LOAD FOLDER âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+let ALL_ROWS=[];
+function parseCSV(t){const l=t.trim().split('\n');if(l.length<2)return[];const h=l[0].split(',').map(x=>x.trim().toLowerCase());return l.slice(1).map(line=>{const v=line.split(',');const o={};h.forEach((k,i)=>o[k]=(v[i]||'').trim());return o;});}
+function dateFromName(n){const m=n.match(/(\d{4}-\d{2}-\d{2})/g);return m?m[m.length-1]:'?';}
+function srcFromName(n){if(n.startsWith('fem_penny_scan_'))return'PENNY';if(n.startsWith('fem_scan_v8_')||n.startsWith('fem_bigcap_scan_'))return'BIGCAP';if(n.startsWith('fem_swing_'))return'SWING';return null;}
+function tierOrd(t){if(!t)return 9;if(t.includes('T1'))return 1;if(t.includes('T2'))return 2;if(t.includes('T3'))return 3;if(t.includes('T4'))return 4;return 5;}
+function tierCls(t){if(!t)return'';if(t.includes('T1'))return't1';if(t.includes('T2'))return't2';if(t.includes('T3'))return't3';return't4';}
+function fmt(v){const n=parseFloat(v);if(isNaN(n)||n===0)return'--';return'$'+n.toFixed(3);}
 async function loadFolder(){
-  try{DIR=await window.showDirectoryPicker({mode:'read'});
-    document.getElementById('subtitle').textContent='ð '+DIR.name;
-    await processFiles();
-  }catch(e){if(e.name!=='AbortError')setS('Error: '+e.message,true);}
-}
-async function refresh(){if(!DIR)return loadFolder();await processFiles();}
-
-async function processFiles(){
-  setS('â³ Loading filesâ¦','spin');
-  D={check:[],swing:[],backtest:[],penny:[],bigcap:[],outcomes:[],latestPenny:[],latestBigcap:[]};
-
-  const penny=[],check=[],swing=[],bt=[],bc=[];
-  for await(const e of DIR.values()){
-    if(e.kind!=='file'||!e.name.endsWith('.csv'))continue;
-    const n=e.name;
-    if(n.startsWith('fem_penny_scan_'))penny.push(e);
-    else if(n.startsWith('fem_check_'))check.push(e);
-    else if(n.startsWith('fem_swing_'))swing.push(e);
-    else if(n.startsWith('fem_backtest_'))bt.push(e);
-    else if(n.startsWith('fem_scan_v8_')||n.startsWith('fem_bigcap_scan_'))bc.push(e);
-  }
-  const srt=a=>a.sort((x,y)=>x.name.localeCompare(y.name));
-  srt(penny);srt(check);srt(swing);srt(bt);srt(bc);
-
-  async function readF(e){return parseCSV(await(await e.getFile()).text());}
-
-  for(const e of penny){
-    const rows=await readF(e),d=dateFromName(e.name);
-    rows.forEach(r=>{r._t='PENNY SCAN';r._d=d;});
-    D.penny.push({name:e.name,date:d,rows});
-  }
-  for(const e of check){
-    const rows=await readF(e),d=dateFromName(e.name);
-    rows.forEach(r=>{r._t='PENNY SCAN';r._d=r.scan_date||d;r._oc=classOC(r.outcome);r._r=parseFloat(r.result_r)||0;});
-    D.check.push({name:e.name,date:d,rows});
-    D.outcomes.push(...rows.filter(r=>['WIN','LOSS','STOP'].includes(r._oc)));
-  }
-  for(const e of swing){
-    const rows=await readF(e),d=dateFromName(e.name);
-    rows.forEach(r=>{r._t='SWING SCAN';r._d=r.scan_date||d;r._oc=classOC(r.outcome);r._r=parseFloat(r.result_r)||0;});
-    D.swing.push({name:e.name,date:d,rows});
-    D.outcomes.push(...rows.filter(r=>['WIN','LOSS','STOP'].includes(r._oc)));
-  }
-  for(const e of bt){
-    const rows=await readF(e),d=dateFromName(e.name);
-    if(rows[0]&&'final_r'in rows[0]){
-      rows.forEach(r=>{const fr=parseFloat(r.final_r);r._t='BACKTEST';r._d=r.touch_date||d;r._oc=fr>0?'WIN':fr<=-0.9?'LOSS':'STOP';r._r=isNaN(fr)?0:fr;});
-    }else{
-      rows.forEach(r=>{r._t='BACKTEST';r._d=d;r._oc=classOC(r.outcome);r._r=parseFloat(r.result_r)||0;});
+  try{
+    const dir=await window.showDirectoryPicker();
+    const files=[];
+    for await(const e of dir.values()){
+      if(e.kind!=='file'||!e.name.endsWith('.csv'))continue;
+      const src=srcFromName(e.name);
+      if(!src)continue;
+      files.push({entry:e,name:e.name,src,date:dateFromName(e.name)});
     }
-    D.backtest.push({name:e.name,date:d,rows});
-    D.outcomes.push(...rows.filter(r=>['WIN','LOSS','STOP'].includes(r._oc)));
-  }
-  for(const e of bc){
-    const rows=await readF(e),d=dateFromName(e.name);
-    D.bigcap.push({name:e.name,date:d,rows});
-  }
-
-  D.latestPenny=D.penny.length?D.penny[D.penny.length-1].rows:[];
-  D.latestBigcap=D.bigcap.length?D.bigcap[D.bigcap.length-1].rows:[];
-
-  const tot=penny.length+check.length+swing.length+bt.length+bc.length;
-  setS(`â ${tot} files Â· ${D.outcomes.length.toLocaleString()} resolved trades`,false);
-  document.getElementById('status').className='ok';
-  document.getElementById('tabs').style.display='flex';
-  document.getElementById('load-screen').style.display='none';
-  document.getElementById('refreshBtn').style.display='';
-
-  renderAll();
-  showTab('dash');
-  renderMorning();
-}
-
-function setS(m,t){const e=document.getElementById('status');e.textContent=m;e.className=t===true?'err':t==='spin'?'spin':'';}
-function showTab(id){
-  document.querySelectorAll('.pane').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  const p=document.getElementById('pane-'+id);if(p)p.classList.add('active');
-  const map={dash:0,morning:1,setups:2,log:3,wr:4,bc:5,perf:6};
-  const tabs=document.querySelectorAll('.tab');
-  if(tabs[map[id]])tabs[map[id]].classList.add('active');
-}
-
-// ââ HELPERS ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-function wr(rows){
-  const res=rows.filter(r=>['WIN','LOSS','STOP'].includes(r._oc));
-  const w=res.filter(r=>r._oc==='WIN');
-  return{wins:w.length,total:res.length,pct:res.length?w.length/res.length*100:0};
-}
-function nr(rows){return rows.reduce((s,r)=>s+(r._r||0),0);}
-function avgW(rows){const w=rows.filter(r=>r._oc==='WIN');return w.length?w.reduce((s,r)=>s+(r._r||0),0)/w.length:0;}
-function fR(v){const n=parseFloat(v);if(isNaN(n))return'â';return`<span style="color:${n>0?'#22c55e':n<0?'#ef4444':'#6b7280'}">${n>0?'+':''}${n.toFixed(2)}R</span>`}
-function fWR(w,t){if(!t)return'â';const p=(w/t*100).toFixed(1);const c=w/t*100>=55?'wg':w/t*100>=40?'wo':'wb';return`<span class="${c}">${p}%</span>`}
-function renderAll(){renderDash();renderSetups();renderLog();renderWR();renderBC();renderPerf();}
-
-// ââ DASHBOARD ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-function renderDash(){
-  const all=D.outcomes;
-  const W=wr(all),NR=nr(all);
-  const totalFiles=D.penny.length+D.check.length+D.swing.length+D.backtest.length+D.bigcap.length;
-  const allRows=[...D.penny,...D.check,...D.swing,...D.backtest].flatMap(f=>f.rows);
-  const latestDate=D.penny.length?D.penny[D.penny.length-1].date:'â';
-
-  const kpis=[
-    {l:'Scan Files',v:totalFiles,c:''},
-    {l:'Total Setups',v:allRows.length.toLocaleString(),c:''},
-    {l:'Resolved Trades',v:W.total.toLocaleString(),c:''},
-    {l:'Overall Win Rate',v:W.total?W.pct.toFixed(1)+'%':'â',c:W.pct>=50?'g':W.pct>=40?'y':'r'},
-    {l:'Net R (All)',v:NR.toFixed(0)+'R',c:NR>0?'g':'r'},
-    {l:'Avg R / Winner',v:avgW(all).toFixed(2)+'R',c:'g'},
-    {l:'Total Wins',v:W.wins.toLocaleString(),c:'g'},
-    {l:'Total Losses',v:(W.total-W.wins).toLocaleString(),c:'r'},
-    {l:'Latest Penny Scan',v:latestDate,c:''},
-  ];
-
-  const tiers=['T1','T2','T3','T4','T5','SHORT'];
-  const typeList=['PENNY SCAN','SWING SCAN','BACKTEST'];
-
-  let tierRows=tiers.map((t,i)=>{
-    const sub=all.filter(r=>r.tier&&r.tier.toUpperCase().includes(t));
-    const W2=wr(sub),NR2=nr(sub);
-    const wPenny=wr(all.filter(r=>r._t==='PENNY SCAN'&&r.tier&&r.tier.toUpperCase().includes(t)));
-    const wSwing=wr(all.filter(r=>r._t==='SWING SCAN'&&r.tier&&r.tier.toUpperCase().includes(t)));
-    return`<tr class="${i%2?'alt':''}"><td class="${tcls(t)}" style="font-weight:700">${t}</td>
-      <td>${W2.total}</td><td style="color:#22c55e">${W2.wins}</td><td style="color:#ef4444">${W2.total-W2.wins}</td>
-      <td>${fWR(W2.wins,W2.total)}</td><td>${fR(NR2)}</td>
-      <td>${fWR(wPenny.wins,wPenny.total)}</td><td>${fWR(wSwing.wins,wSwing.total)}</td></tr>`;
-  }).join('');
-
-  let typeRows=typeList.map((t,i)=>{
-    const sub=all.filter(r=>r._t===t);const W2=wr(sub),NR2=nr(sub);
-    return`<tr class="${i%2?'alt':''}"><td style="font-weight:700">$tt}</td>
-      <td>${W2.total}</td><td style="color:#22c55e">${W2.wins}</td><td style="color:#ef4444">${W2.total-W2.wins}</td>
-      <td>${fWR(W2.wins,W2.total)}</td><td>${fR(NR2)}</td></tr>`;
-  }).join('');
-
-  document.getElementById('pane-dash').innerHTML=`
-    <div class="kpi-grid">${kpis.map(k=>`<div class="kpi"><div class="lbl">${k.l}</div><div class="val ${k.c}">${k.v}</div></div>`).join('')}</div>
-    <div class="sec">Tier Breakdown</div>
-    <div class="tw"><table><tr><th>Tier</th><th>Trades</th><th>Wins</th><th>Losses</th><th>Win Rate</th><th>Net R</th><th>WR Penny</th><th>WR Swing</th></tr>${tierRows}</table></div>
-    <div class="sec">By Scan Type</div>
-    <div class="tw"><table><tr><th>Scan Type</th><th>Trades</th><th>Wins</th><th>Losses</th><th>Win Rate</th><th>Net R</th></tr>${typeRows}</table></div>`;
-}
-
-// ââ MORNING REPORT ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-const SYMS=['SPY','QQQ','IWM','VIX','XLF','XLK','XLE','GLD','TLT'];
-
-async function renderMorning(){
-  // 1. Try morning_prices.json from loaded folder
-  if(DIR){
-    try{
-      const fh=await DIR.getFileHandle('morning_prices.json');
-      const txt=await(await fh.getFile()).text();
-      const j=JSON.parse(txt);
-      if(j.tickers){
-        Object.entries(j.tickers).forEach(([s,d])=>{morningData[s]={prev:String(d.prev),cur:String(d.cur)};});
-        morningData._date=j.date;
-      }
-    }catch(e){
-      // No JSON file â try localStorage
-      const saved=localStorage.getItem('fem_morning');
-      if(saved) try{morningData=JSON.parse(saved);}catch(e2){}
+    files.sort((a,b)=>a.name.localeCompare(b.name));
+    ALL_ROWS=[];
+    for(const f of files){
+      const text=await(await f.entry.getFile()).text();
+      parseCSV(text).forEach(r=>{
+        ALL_ROWS.push({_src:f.src,_date:f.date,ticker:r.ticker||r.symbol||'',side:r.side||'',mode:r.mode||'',tier:r.tier||'',fem:r.fem||'',entry:r.entry||'',stop:r.stop||'',t1:r.t1||'',rr:r.rr||'',float_label:r.float_label||r.float||'',proximity:r.proximity||''});
+      });
     }
-  }
-  buildMorningPane();
+    ALL_ROWS.sort((a,b)=>{if(b._date!==a._date)return b._date.localeCompare(a._date);const td=tierOrd(a.tier)-tierOrd(b.tier);if(td)return td;return(parseFloat(b.fem)||0)-(parseFloat(a.fem)||0);});
+    const dates=[...new Set(ALL_ROWS.map(r=>r._date))].sort().reverse();
+    const ds=document.getElementById('filter-date');
+    ds.innerHTML='<option value="">All Dates</option>';
+    dates.forEach(d=>{const o=document.createElement('option');o.value=d;o.textContent=d;ds.appendChild(o);});
+    document.getElementById('controls').style.display='flex';
+    document.getElementById('file-summary').textContent=files.length+' files / '+ALL_ROWS.length+' setups';
+    document.getElementById('status').textContent='Loaded '+files.length+' scan files';
+    applyFilters();
+  }catch(e){if(e.name!=='AbortError')document.getElementById('status').textContent='Error: '+e.message;}
 }
-
-function buildMorningPane(){
-  const today=new Date().toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric',year:'numeric'});
-  const regime=calcRegime();
-  const rcls=regime==='INTACT'?'ri':regime==='CAUTION'?'rc':regime==='COMPROMISED'?'rk':'rp';
-
-  const cards=SYMS.map(sym=>{
-    const d=morningData[sym]||{};
-    const prev=parseFloat(d.prev)||0,cur=parseFloat(d.cur)||0;
-    const chg=prev&&cur?((cur-prev)/prev*100):null;
-    const flag=chg===null?'â¬':chg>0.5?'â':chg<-0.5?'â':'â ï¸';
-    const chgStr=chg===null?'â':`${chg>0?'+':''}${chg.toFixed(2)}%`;
-    const chgCls=chg===null?'fl':chg>0?'up':'dn';
-    return`<div class="tc">
-      <div class="sym">${flag} ${sym}</div>
-      <div class="chg ${chgCls}">${chgStr}</div>
-      <div class="det">Prev: ${prev||'â'} &nbsp;|&nbsp; Live: ${cur||'â'}</div>
-      <div style="display:flex;gap:4px;margin-top:6px">
-        <input type="number" step="0.01" placeholder="Prev Close" value="${d.prev||''}" onchange="setM('${sym}','prev',this.value)">
-        <input type="number" step="0.01" placeholder="Live Price" value="${d.cur||''}" onchange="setM('${sym}','cur',this.value)">
-      </div>
-    </div>`;
-  }).join('');
-
-  const hasData = Object.keys(morningData).filter(k=>k!=='_date').length > 0;
-  const noteBg  = hasData ? '#0f2a1a' : '#1a1400';
-  const noteBdr = hasData ? '#166534' : '#854d0e';
-  const noteHTML = hasData
-    ? `<span style="color:#22c55e;font-size:13px">â Prices loaded from <strong>morning_prices.json</strong> â ${morningData._date||'today'}</span>`
-    : `<span style="font-size:13px">â¡ <strong style="color:#fbbf24">How to populate:</strong>&nbsp;
-        Double-click <code style="background:#0d1117;padding:2px 8px;border-radius:4px;color:#60a5fa;font-size:12px">RUN_FETCH_PRICES.bat</code>
-        in your FEM_SCANS folder, then click <strong>ð Refresh</strong> above.
-        &nbsp;Or type prices directly into the boxes below.</span>`;
-
-  document.getElementById('pane-morning').innerHTML=`
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;flex-wrap:wrap">
-      <div class="sec" style="margin:0">MORNING REGIME â ${today}</div>
-      <div class="rb ${rcls}">REGIME: ${regime}</div>
-      <button class="btn" onclick="clearM()">ð Clear</button>
-    </div>
-    <div style="background:${noteBg};border:1px solid ${noteBdr};border-radius:6px;padding:10px 14px;margin-bottom:14px;line-height:1.7">
-      ${noteHTML}
-    </div>
-    <div class="mg">${cards}</div>
-    <div class="sec">Decision Guide</div>
-    <div class="tw"><table>
-      <tr><th>Regime</th><th>Condition</th><th>Action</th></tr>
-      <tr><td class="wg">â INTACT</td><td>SPY/QQQ/IWM all green, VIX &lt; 25</td><td>Full size â execute all T1/T2 setups</td></tr>
-      <tr class="alt"><td class="wo">â ï¸ CAUTION</td><td>Mixed signals Â· VIX 25-30</td><td>Half size â T1 only, tighten stops</td></tr>
-      <tr><td class="wb">â COMPROMISED</td><td>SPY+QQQ both red Â· VIX &gt; 30</td><td>Sit out â no new entries</td></tr>
-    </table></div>`;
-}
-
-function setM(sym,field,val){
-  if(!morningData[sym])morningData[sym]={};
-  morningData[sym][field]=val;
-  localStorage.setItem('fem_morning',JSON.stringify(morningData));
-  buildMorningPane();
-}
-function clearM(){morningData={};localStorage.removeItem('fem_morning');buildMorningPane();}
-
-function calcRegime(){
-  const majors=['SPY','QQQ','IWM'];
-  let up=0,dn=0;
-  for(const s of majors){
-    const d=morningData[s]||{};
-    const p=parseFloat(d.prev)||0,c=parseFloat(d.cur)||0;
-    if(!p||!c)continue;
-    const chg=(c-p)/p*100;
-    if(chg>0.3)up++;else if(chg<-0.3)dn++;
-  }
-  const vix=parseFloat((morningData['VIX']||{}).cur)||0;
-  if(vix>30||dn>=2)return'COMPROMISED';
-  if(vix>25||dn>=1)return'CAUTION';
-  if(up>=2)return'INTACT';
-  if(!Object.keys(morningData).filter(k=>k!=='_date').length)return'PENDING';
-  return'CAUTION';
-}
-
-
-// ââ TODAY'S SETUPS ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-function renderSetups(){
-  const rows=D.latestPenny;
-  const lf=D.penny.length?D.penny[D.penny.length-1]:null;
-  if(!rows.length){document.getElementById('pane-setups').innerHTML='<div style="padding:40px;text-align:center;color:#6b7280">No penny scan files found</div>';return;}
-
-  const rowsHTML=rows.map((r,i)=>`<tr class="${i%2?'alt':''}">
-    <td style="font-weight:700">${r.ticker||'â'}</td>
-    <td style="color:${r.side==='Long'?'#22c55e':'#ef4444'}">${r.side||'â'}</td>
-    <td style="color:#94a3b8;font-size:11px">${r.mode||'â'}</td>
-    <td class="${tcls(r.tier)}">${r.tier||'â'}</td>
-    <td style="color:${parseFloat(r.fem)>=80?'#fbbf24':parseFloat(r.fem)>=60?'#60a5fa':'#94a3b8'};font-weight:600">${r.fem||'â'}</td>
-    <td>$${parseFloat(r.entry||0).toFixed(3)}</td>
-    <td style="color:#ef4444">$${parseFloat(r.stop||0).toFixed(3)}</td>
-    <td style="color:#22c55e">$${parseFloat(r.t1||0).toFixed(3)}</td>
-    <td style="font-weight:600">${r.rr||'â'}x</td>
-    <td style="color:#94a3b8">${r.float_label||'â'}</td>
-    <td class="${r.proximity==='CLOSE'||r.proximity==='INSIDE'?'pc':'pw'}">${r.proximity||'â'}</td>
-    <td style="font-size:10px;color:#6b7280;max-width:160px;overflow:hidden;text-overflow:ellipsis" title="${(r.news||'').replace(/"/g,"'")}">${(r.news||'').substring(0,55)||'â'}</td>
-  </tr>`).join('');
-
-  document.getElementById('pane-setups').innerHTML=`
-    <div class="fb">
-      <input type="text" id="sf" placeholder="Filter tickerâ¦" oninput="filterTbl('sf','st-tbl',0)" style="width:150px">
-      <select id="stier" onchange="filterTbl('sf','st-tbl',0,3,'stier')">
-        <option value="">All Tiers</option><option>T1</option><option>T2</option><option>T3</option><option>T4</option><option>T5</option>
-      </select>
-      <span style="color:#6b7280;font-size:11px">${lf?.name||''} â ${rows.length} picks</span>
-    </div>
-    <div class="tw"><table id="st-tbl">
-      <tr><th>Ticker</th><th>Side</th><th>Mode</th><th>Tier</th><th>FEM</th><th>Entry</th><th>Stop</th><th>T1</th><th>R:R</th><th>Float</th><th>Proximity</th><th>News</th></tr>
-      ${rowsHTML}
-    </table></div>
-    <div class="sec">Previous Penny Scans</div>
-    <div class="tw"><table>
-      <tr><th>File</th><th>Date</th><th>Picks</th></tr>
-      ${D.penny.slice().reverse().slice(0,12).map((f,i)=>`<tr class="${i%2?'alt':''}"><td style="font-size:11px;color:#6b7280">${f.name}</td><td>${f.date}</td><td>${f.rows.length}</td></tr>`).join('')}
-    </table></div>`;
-}
-
-function filterTbl(inputId,tblId,col,tierCol,tierId){
-  const val=document.getElementById(inputId)?.value.toLowerCase()||'';
-  const tier=tierId?document.getElementById(tierId)?.value||'':'';
-  document.querySelectorAll(`#${tblId} tr:not(:first-child)`).forEach(row=>{
-    const cells=row.querySelectorAll('td');if(!cells.length)return;
-    const t=cells[col]?.textContent.toLowerCase()||'';
-    const tr=tierCol!=null?cells[tierCol]?.textContent||'':'';
-    row.style.display=(!val||t.includes(val))&&(!tier||tr.includes(tier))?'':'none';
+function applyFilters(){
+  const tk=document.getElementById('filter-ticker').value.toLowerCase();
+  const src=document.getElementById('filter-source').value;
+  const side=document.getElementById('filter-side').value;
+  const date=document.getElementById('filter-date').value;
+  const f=ALL_ROWS.filter(r=>{
+    if(tk&&!r.ticker.toLowerCase().includes(tk))return false;
+    if(src&&r._src!==src)return false;
+    if(side&&r.side!==side)return false;
+    if(date&&r._date!==date)return false;
+    return true;
   });
-}
-
-// ââ TEST LOG ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-function renderLog(){
-  const all=[...D.check,...D.swing,...D.backtest].flatMap(f=>f.rows)
-    .filter(r=>['WIN','LOSS','STOP','LIVE','NO-FILL'].includes(r._oc))
-    .sort((a,b)=>(b._d||'').localeCompare(a._d||'')).slice(0,3000);
-
-  const ocHTML=o=>{const cls={WIN:'w',LOSS:'l',STOP:'st',LIVE:'lv','NO-FILL':'nf'}[o]||'';return`<span class="${cls}">${o}</span>`};
-
-  document.getElementById('pane-log').innerHTML=`
-    <div class="fb">
-      <input type="text" id="lf" placeholder="Filter tickerâ¦" oninput="filterLog()" style="width:140px">
-      <select id="loc" onchange="filterLog()"><option value="">All Outcomes</option><option>WIN</option><option>LOSS</option><option>STOP</option><option>LIVE</option><option>NO-FILL</option></select>
-      <select id="ltype" onchange="filterLog()"><option value="">All Types</option><option>PENNY SCAN</option><option>SWING SCAN</option><option>BACKTEST</option></select>
-      <span style="color:#6b7280;font-size:11px">${all.length.toLocaleString()} records</span>
-    </div>
-    <div class="lw"><div class="tw"><table id="log-tbl">
-      <tr><th>Date</th><th>Ticker</th><th>Tier</th><th>Side</th><th>Type</th><th>Entry</th><th>Outcome</th><th>Result R</th><th>R:R</th></tr>
-      ${all.map((r,i)=>`<tr class="${i%2?'alt':''}">
-        <td style="font-size:11px;color:#6b7280">${(r._d||'').substring(0,10)}</td>
-        <td style="font-weight:700">${r.ticker||'â'}</td>
-        <td class="${tcls(r.tier)}" style="font-size:11px">${r.tier||'â'}</td>
-        <td style="color:${r.side==='Long'?'#22c55e':'#ef4444'};font-size:11px">${r.side||'â'}</td>
-        <td style="color:#6b7280;font-size:11px">${r._t||'â'}</td>
-        <td style="font-size:11px">${r.entry?'$'+r.entry:'â'}</td>
-        <td>${ocHTML(r._oc)}</td>
-        <td>${fR(r._r)}</td>
-        <td style="font-size:11px">${r.rr||'â'}</td>
-      </tr>`).join('')}
-    </table></div></div>`;
-}
-function filterLog(){
-  const v=document.getElementById('lf').value.toLowerCase();
-  const oc=document.getElementById('loc').value;
-  const tp=document.getElementById('ltype').value;
-  document.querySelectorAll('#log-tbl tr:not(:first-child)').forEach(row=>{
-    const c=row.querySelectorAll('td');if(!c.length)return;
-    row.style.display=(!v||c[1].textContent.toLowerCase().includes(v))&&(!oc||c[6].textContent.includes(oc))&&(!tp||c[4].textContent.includes(tp))?'':'none';
-  });
-}
-
-// ââ WIN RATES âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-function renderWR(){
-  const types=['PENNY SCAN','SWING SCAN','BACKTEST'];
-  const tiers=['T1','T2','T3','T4','T5','SHORT'];
-
-  let typeRows=types.map((t,i)=>{
-    const sub=D.outcomes.filter(r=>r._t===t);
-    const W=wr(sub),NR=nr(sub),aW=avgW(sub);
-    const aL=()=>{const ls=sub.filter(r=>['LOSS','STOP'].includes(r._oc));return ls.length?ls.reduce((s,r)=>s+(r._r||0),0)/ls.length:0};
-    return`<tr class="${i%2?'alt':''}"><td style="font-weight:700">${t}</td>
-      <td>${W.total}</td><td style="color:#22c55e">${W.wins}</td><td style="color:#ef4444">${W.total-W.wins}</td>
-      <td>${fWR(W.wins,W.total)}</td><td>${fR(NR)}</td><td>${fR(aW)}</td><td>${fR(aL())}</td></tr>`;
+  document.getElementById('tbl-body').innerHTML=f.map(r=>{
+    const sc=r._src==='PENNY'?'src-penny':r._src==='BIGCAP'?'src-bigcap':'src-swing';
+    const scol=r.side==='Long'?'#22c55e':'#ef4444';
+    const fn=parseFloat(r.fem)||0;
+    const fcol=fn>=80?'#fbbf24':fn>=60?'#22c55e':'#60a5fa';
+    const srcCol=r._src==='PENNY'?'#22c55e':r._src==='BIGCAP'?'#60a5fa':'#a78bfa';
+    const pcol=r.proximity==='WAITING'?'#6b7280':r.proximity==='CLOSE'||r.proximity==='INSIDE'?'#fbbf24':'#22c55e';
+    return '<tr class="'+sc+'"><td style="color:#6b7280;font-size:11px">'+r._date+'</td><td style="font-size:10px;font-weight:700;color:'+srcCol+'">'+r._src+'</td><td style="font-weight:700">'+r.ticker+'</td><td style="color:'+scol+';font-weight:600">'+r.side+'</td><td style="color:#94a3b8;font-size:11px">'+r.mode+'</td><td class="'+tierCls(r.tier)+'">'+r.tier+'</td><td style="color:'+fcol+';font-weight:600">'+r.fem+'</td><td>'+fmt(r.entry)+'</td><td style="color:#ef4444">'+fmt(r.stop)+'</td><td style="color:#22c55e">'+fmt(r.t1)+'</td><td style="font-weight:600">'+(r.rr?r.rr+'x':'--')+'</td><td style="color:#94a3b8">'+r.float_label+'</td><td style="color:'+pcol+'">'+r.proximity+'</td></tr>';
   }).join('');
-
-  let matrixRows=tiers.map((tier,i)=>{
-    let cells=`<td class="${tcls(tier)}" style="font-weight:700">${tier}</td>`;
-    for(const type of types){
-      const sub=D.outcomes.filter(r=>r._t===type&&r.tier&&r.tier.toUpperCase().includes(tier));
-      const W=wr(sub);
-      const cls=W.total===0?'':W.pct>=55?'wg':W.pct>=40?'wo':'wb';
-      cells+=`<td class="mc"><span class="${cls}">${W.total?W.pct.toFixed(1)+'%':'â'}</span><br><small style="color:#6b7280">${W.total}</small></td>`;
-    }
-    const allSub=D.outcomes.filter(r=>r.tier&&r.tier.toUpperCase().includes(tier));
-    const W=wr(allSub);
-    cells+=`<td class="mc" style="background:#1a1f2e"><strong>${fWR(W.wins,W.total)}</strong><br><small style="color:#6b7280">${W.total}</small></td>`;
-    return`<tr class="${i%2?'alt':''}">${cells}</tr>`;
-  }).join('');
-
-  // Date trend (penny)
-  const byDate={};
-  D.outcomes.filter(r=>r._t==='PENNY SCAN').forEach(r=>{
-    const d=(r._d||'').substring(0,10);
-    if(!byDate[d])byDate[d]={w:0,l:0,rows:[]};
-    if(r._oc==='WIN')byDate[d].w++;else if(['LOSS','STOP'].includes(r._oc))byDate[d].l++;
-    byDate[d].rows.push(r);
-  });
-  const dates=Object.keys(byDate).sort().reverse().slice(0,15);
-  const dateRows=dates.map((d,i)=>{
-    const dd=byDate[d],tot=dd.w+dd.l;
-    return`<tr class="${i%2?'alt':''}"><td>${d}</td><td>${tot}</td>
-      <td style="color:#22c55e">${dd.w}</td><td style="color:#ef4444">${dd.l}</td>
-      <td>${fWR(dd.w,tot)}</td><td>${fR(nr(dd.rows))}</td></tr>`;
-  }).join('');
-
-  document.getElementById('pane-wr').innerHTML=`
-    <div class="sec">Win Rates by Scan Type</div>
-    <div class="tw"><table><tr><th>Scan Type</th><th>Trades</th><th>Wins</th><th>Losses</th><th>Win Rate</th><th>Net R</th><th>Avg Win</th><th>Avg Loss</th></tr>${typeRows}</table></div>
-    <div class="sec">Tier Ã Scan Type Matrix</div>
-    <div class="tw"><table><tr><th>Tier</th><th>Penny WR</th><th>Swing WR</th><th>Backtest WR</th><th>Overall</th></tr>${matrixRows}</table></div>
-    <div class="sec">Penny Scan by Date (Last 15)</div>
-    <div class="tw"><table><tr><th>Date</th><th>Trades</th><th>Wins</th><th>Losses</th><th>Win Rate</th><th>Net R</th></tr>
-      ${dateRows||'<tr><td colspan="6" style="text-align:center;color:#6b7280;padding:16px">No penny scan outcomes yet</td></tr>'}
-    </table></div>`;
-}
-
-// ââ BIGCAP ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-function renderBC(){
-  const rows=D.latestBigcap;
-  if(!rows.length){document.getElementById('pane-bc').innerHTML='<div style="padding:40px;text-align:center;color:#6b7280">No fem_scan_v8 files found</div>';return;}
-  const lf=D.bigcap[D.bigcap.length-1];
-  const sb=v=>{const n=parseInt(v)||0;const c=n>=80?'#fbbf24':n>=60?'#22c55e':n>=40?'#60a5fa':'#6f7280';return`<span style="color:${c};font-weight:${n>=70?700:400}">${n||'â'}</span>`};
-
-  document.getElementById('pane-bc').innerHTML=`
-    <div class="fb">
-      <input type="text" id="bcf" placeholder="Filter tickerâ¦" oninput="filterTbl('bcf','bc-tbl',0)" style="width:140px">
-      <select id="bctier" onchange="filterTbl('bcf','bc-tbl',0,2,'bctier')">
-        <option value="">All Tiers</option><option>T1-CONVICTION</option><option>T2-STRONG</option><option>T3-WATCH</option>
-      </select>
-      <span style="color:#6b7280;font-size:11px">${lf.name} â ${rows.length} picks</span>
-    </div>
-    <div class="tw"><table id="bc-tbl">
-      <tr><th>Ticker</th><th>Side</th><th>Tier</th><th>FEM</th><th>L1</th><th>L2</th><th>L3</th><th>L4</th><th>L5</th><th>L6</th><th>L7</th><th>Entry</th><th>Stop</th><th>T1</th><th>R:R</th><th>Proximity</th></tr>
-      ${rows.map((r,i)=>`<tr class="${i%2?'alt':''}">
-        <td style="font-weight:700">${r.ticker||'â'}</td>
-        <td style="color:${r.side==='Long'||r.side==='LONG'?'#22c55e':'#ef4444'}">${r.side||'â'}</td>
-        <td class="${tcls(r.tier)}" style="font-size:11px">${r.tier||'â'}</td>
-        <td>${sb(r.fem)}</td><td>${sb(r.l1)}</td><td>${sb(r.l2)}</td><td>${sb(r.l3)}</td>
-        <td>${sb(r.l4)}</td><td>${sb(r.l5)}</td><td>${sb(r.l6)}</td><td>${sb(r.l7)}</td>
-        <td>$${parseFloat(r.entry||0).toFixed(2)}</td>
-        <td style="color:#ef4444">$${parseFloat(r.stop||0).toFixed(2)}</td>
-        <td style="color:#22c55e">$${parseFloat(r.t1||0).toFixed(2)}</td>
-        <td>${r.rr||'â'}x</td>
-        <td class="${r.proximity==='CLOSE'||r.proximity==='INSIDE'?'pc':'pw'}">${r.proximity||'â'}</td>
-      </tr>`).join('')}
-    </table></div>`;
-}
-
-// ââ PERFORMANCE âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-function renderPerf(){
-  const all=D.outcomes;
-  const sideRows=['Long','Short'].map((side,i)=>{
-    const sub=all.filter(r=>(r.side||r.direction||'').toLowerCase()===side.toLowerCase());
-    const W=wr(sub),NR=nr(sub);
-    return`<tr class="${i%2?'alt':''}"><td style="font-weight:700;color:${side==='Long'?'#22c55e':'#ef4444'}">${side.toUpperCase()}</td>
-      <td>${W.total}</td><td>${fWR(W.wins,W.total)}</td><td>${fR(NR)}</td>
-      <td>${fR(avgW(sub))}</td></tr>`;
-  }).join('');
-
-  const floats=['NANO','MICRO','LOW','MID','HIGH','MEGA'];
-  const floatRows=floats.map((ft,i)=>{
-    const sub=all.filter(r=>(r.float_label||'').toUpperCase()===ft);
-    if(!sub.length)return'';
-    const W=wr(sub),NR=nr(sub);
-    return`<tr class="${i%2?'alt':''}"><td style="font-weight:600">${ft}</td><td>${W.total}</td><td>${fWR(W.wins,W.total)}</td><td>${fR(NR)}</td></tr>`;
-  }).join('');
-
-  const tmap={};
-  all.forEach(r=>{const t=r.ticker||'';if(!t)return;if(!tmap[t])tmap[t]={t,trades:0,wins:0,nr:0};tmap[t].trades++;if(r._oc==='WIN')tmap[t].wins++;tmap[t].nr+=r._r||0;});
-  const top=Object.values(tmap).sort((a,b)=>b.nr-a.nr).slice(0,20);
-
-  document.getElementById('pane-perf').innerHTML=`
-    <div class="sec">Long vs Short</div>
-    <div class="tw"><table><tr><th>Direction</th><th>Trades</th><th>Win Rate</th><th>Net R</th><th>Avg Win</th></tr>${sideRows}</table></div>
-    <div class="sec">Float Tier Breakdown</div>
-    <div class="tw"><table><tr><th>Float</th><th>Trades</th><th>Win Rate</th><th>Net R</th></tr>
-      ${floatRows||'<tr><td colspan="4" style="text-align:center;color:#6b7280;padding:14px">Float data in outcome files only</td></tr>'}
-    </table></div>
-    <div class="sec">Top 20 Tickers by Net R</div>
-    <div class="tw"><table><tr><th>Ticker</th><th>Trades</th><th>Win Rate</th><th>Net R</th></tr>
-      ${top.map((t,i)=>`<tr class="${i%2?'alt':''}">
-        <td style="font-weight:700">${t.t}</td><td>${t.trades}</td>
-        <td>${fWR(t.wins,t.trades)}</td><td>${fR(t.nr)}</td>
-      </tr>`).join('')}
-    </table></div>`;
+  const emp=document.getElementById('empty');
+  emp.style.display=f.length===0&&ALL_ROWS.length>0?'block':'none';
+  document.getElementById('summary').textContent=f.length+' setups';
 }
 </script>
 </body>
