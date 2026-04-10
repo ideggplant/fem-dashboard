@@ -1,0 +1,5 @@
+ticker,side,mode,tier,fem,entry,stop,t1,rr,risk,last_close,dist_pct,proximity,cluster_gaps,cluster_tfs,tfs,cluster_top,cluster_bot,path,total_genesis,vol_ratio_today,vol_ratio_3d,hot_days,move_pct,total_gaps,n_timeframes,float_m,float_label,float_rotation,va_depth,va_layers,conviction_ticks,clean_air_pct,va_grade,news
+GLP",Long,PULLBACK,T1-STRONG_LONG,94,38.17,36.88,43.89,4.5,3.15,40.71,3.6,APPROACH,6,6,"10m,15m,1d,1h,30m,4h",38.17,36.88,HIGHWAY,10462379928,1.1,0.9,0,14.1,30,8,725.31,MEGA,0.0,5508,4,1505,11.2,A,
+BLIX,Short,RESISTANCE,T2-SHORT,90,107.48,108.38,92.66,3.2,4.25,101.08,6.1,APPROACH,3,3,"10m,15m,1d,1h,30m,4h",108.38,107.48,HIGHWAY,2814511476,0.9,1.0,0,11.0,22,8,9671.35,MEGA,0.01,6410,3,217,6.6,B,
+BRBA,Long,PULLBACK,T2-LONG,81,25.23,23.97,28.04,5.4,1.73,26.70,3.5,APPROACH,3,3,"m10,15m,1d,1h,30m,4h",25.23,23.97,HIGHWAY,10248609132,0.8,1.0,0,13.9,30,8,7772.90,MEGA,0.0,10375,11,1180,6.7,B,
+VGT,Short,RESISTANCE,T2-SHORT,90,248.89,247.51,225.14,4.8,6.29,236.48,6.1,APPROACH,3,3,
