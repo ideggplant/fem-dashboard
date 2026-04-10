@@ -9,8 +9,10 @@
 body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1117;color:#e2e8f0;font-size:13px}
 #header{background:#161b22;border-bottom:2px solid #21262d;padding:10px 18px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
 #header h1{font-size:15px;font-weight:700;color:#60a5fa;letter-spacing:1px}
-#load-btn{background:#22c55e;color:#fff;border:none;padding:7px 16px;border-radius:5px;cursor:pointer;font-size:12px;font-weight:600}
-#load-btn:hover{background:#16a34a}
+#load-btn{background:#374151;color:#9ca3af;border:none;padding:7px 16px;border-radius:5px;cursor:pointer;font-size:12px;font-weight:600}
+#load-btn:hover{background:#4b5563;color:#e2e8f0}
+#reload-btn{background:#1d4ed8;color:#fff;border:none;padding:7px 14px;border-radius:5px;cursor:pointer;font-size:12px;font-weight:600}
+#reload-btn:hover{background:#2563eb}
 #status{font-size:11px;color:#6b7280;margin-top:2px}
 #controls{padding:10px 18px;background:#0d1117;border-bottom:1px solid #21262d;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 input[type=text]{background:#161b22;border:1px solid #30363d;color:#e2e8f0;padding:5px 10px;border-radius:4px;font-size:12px;width:150px}
@@ -21,7 +23,7 @@ select{background:#161b22;border:1px solid #30363d;color:#e2e8f0;padding:5px 8px
 .kpi .val{font-size:18px;font-weight:700}
 .kpi.t1 .val{color:#fbbf24}.kpi.t2 .val{color:#22c55e}.kpi.t3 .val{color:#60a5fa}.kpi.all .val{color:#e2e8f0}
 .tw{overflow-x:auto}
-table{width:100%;border-collapse:collapse;font-size:12py}
+table{width:100%;border-collapse:collapse;font-size:12px}
 th{background:#1e2533;color:#94a3b8;padding:7px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;position:sticky;top:0;z-index:2}
 td{padding:6px 10px;border-top:1px solid #1a2533;white-space:nowrap}
 tr:hover td{background:#1a2533}
@@ -36,18 +38,21 @@ tr:hover td{background:#1a2533}
 .oc-nofill{color:#6b7280}
 .oc-none{color:#374151}
 #empty{padding:60px;text-align:center;color:#6b7280;display:none}
+.gh-badge{font-size:10px;color:#22c55e;background:#0d2311;border:1px solid #22c55e44;border-radius:3px;padding:2px 6px;margin-left:8px}
+.local-badge{font-size:10px;color:#fbbf24;background:#1a1200;border:1px solid #fbbf2444;border-radius:3px;padding:2px 6px;margin-left:8px}
 </style>
 </head>
 <body>
 
 <div id="header">
   <div>
-    <h1>FEM SETUPS</h1>
-    <div id="status">Load your Master Fem Fresh Scans folder to begin</div>
+    <h1>FEM SETUPS <span id="mode-badge"></span></h1>
+    <div id="status">Fetching latest scans from GitHub...</div>
   </div>
-  <div style="display:flex;align-items:center;gap:12px">
+  <div style="display:flex;align-items:center;gap:8px">
     <div id="file-summary" style="font-size:11px;color:#6b7280"></div>
-    <button id="load-btn" onclick="loadFolder()">Load Folder</button>
+    <button id="reload-btn" onclick="loadFromGitHub()" title="Reload from GitHub">↻ GitHub</button>
+    <button id="load-btn" onclick="loadFolder()" title="Load local folder (your PC only)">📁 Local</button>
   </div>
 </div>
 
@@ -125,6 +130,11 @@ tr:hover td{background:#1a2533}
 <script>
 let ALL_ROWS = [];
 
+// ── GitHub config ───────────────────────────────────────────────────────────
+const GH_RAW = 'https://raw.githubusercontent.com/ideggplant/fem-dashboard/main/scans/';
+const GH_MANIFEST = GH_RAW + 'manifest.json';
+
+// ── CSV / name helpers ──────────────────────────────────────────────────────
 function parseCSV(text){
   const lines = text.trim().split('\n');
   if(lines.length < 2) return [];
@@ -153,6 +163,7 @@ function isCheckFile(n){
   return n.startsWith('fem_check_') && n.endsWith('.csv');
 }
 
+// ── Tier helpers ────────────────────────────────────────────────────────────
 function tierOrd(t){
   if(!t) return 9;
   if(t.includes('T1')) return 1;
@@ -182,8 +193,8 @@ function pct(v){
   return (n>=0?'+':'') + n.toFixed(1) + '%';
 }
 
+// ── Stats ───────────────────────────────────────────────────────────────────
 function winRate(rows){
-  // Only count fully resolved: TARGET_HIT = win, STOPPED = loss
   const resolved = rows.filter(r=>r._outcome && ['TARGET_HIT','STOPPED'].includes(r._outcome));
   if(!resolved.length) return null;
   const wins = resolved.filter(r=>r._outcome==='TARGET_HIT').length;
@@ -191,7 +202,6 @@ function winRate(rows){
 }
 
 function avgR(rows){
-  // Only resolved trades for avg R (exclude live/unchecked)
   const resolved = rows.filter(r=>r._outcome && ['TARGET_HIT','STOPPED'].includes(r._outcome) && r._result_r !== '' && !isNaN(parseFloat(r._result_r)));
   if(!resolved.length) return null;
   const avg = resolved.reduce((s,r)=>s+parseFloat(r._result_r),0)/resolved.length;
@@ -199,7 +209,6 @@ function avgR(rows){
 }
 
 function entryAccuracy(rows){
-  // % of setups where last_px was within 2% of entry at check time
   const checked = rows.filter(r=>r._last_px && r.entry && parseFloat(r.entry)>0 && parseFloat(r._last_px)>0);
   if(!checked.length) return null;
   const close = checked.filter(r=>{
@@ -209,111 +218,169 @@ function entryAccuracy(rows){
   return Math.round(close.length/checked.length*100) + '%';
 }
 
-async function loadFolder(){
+// ── Core: process a list of {name, getText} entries ─────────────────────────
+async function processFiles(entries){
+  const scanEntries = [], checkEntries = [];
+  for(const e of entries){
+    if(!e.name.endsWith('.csv')) continue;
+    if(isCheckFile(e.name)) checkEntries.push(e);
+    else if(srcFromName(e.name)) scanEntries.push(e);
+  }
+
+  // Load check files -> outcome map
+  const outcomeMap = {};
+  for(const e of checkEntries){
+    const text = await e.getText();
+    parseCSV(text).forEach(r=>{
+      if(!r.ticker) return;
+      const sd = (r.scan_date || dateFromName(e.name)).substring(0, 10);
+      const key = r.ticker.toUpperCase() + '|' + sd;
+      outcomeMap[key] = {
+        outcome: r.outcome || '',
+        result_r: r.result_r || '',
+        last_px: r.last_px || '',
+      };
+    });
+  }
+
+  // Load scan files
+  scanEntries.sort((a,b)=>a.name.localeCompare(b.name));
+  ALL_ROWS = [];
+  for(const e of scanEntries){
+    const src = srcFromName(e.name);
+    const date = dateFromName(e.name);
+    const text = await e.getText();
+    parseCSV(text).forEach(r=>{
+      if(!r.ticker) return;
+      const key = r.ticker.toUpperCase() + '|' + date;
+      const oc = outcomeMap[key] || {};
+      let entryDelta = '';
+      if(oc.last_px && r.entry && parseFloat(r.entry)>0){
+        const d = (parseFloat(oc.last_px)-parseFloat(r.entry))/parseFloat(r.entry)*100;
+        entryDelta = (d>=0?'+':'') + d.toFixed(1) + '%';
+      }
+      ALL_ROWS.push({
+        _src: src, _date: date, _file: e.name,
+        _outcome: oc.outcome || '',
+        _result_r: oc.result_r || '',
+        _last_px: oc.last_px || '',
+        _entry_delta: entryDelta,
+        ticker: r.ticker||'',
+        side: r.side||'',
+        mode: r.mode||'',
+        tier: r.tier||'',
+        fem: r.fem||'',
+        entry: r.entry||'',
+        stop: r.stop||'',
+        t1: r.t1||'',
+        rr: r.rr||'',
+        float_label: r.float_label||r.float||'',
+        proximity: r.proximity||'',
+      });
+    });
+  }
+
+  // Deduplicate: keep row with outcome over one without
+  const dedupMap = {};
+  ALL_ROWS.forEach(r=>{
+    const k = r.ticker + '|' + r._date + '|' + r.entry;
+    const existing = dedupMap[k];
+    if(!existing || (!existing._outcome && r._outcome)) dedupMap[k] = r;
+  });
+  ALL_ROWS = Object.values(dedupMap);
+
+  // Sort: date desc -> tier asc -> fem desc
+  ALL_ROWS.sort((a,b)=>{
+    if(b._date !== a._date) return b._date.localeCompare(a._date);
+    const td = tierOrd(a.tier) - tierOrd(b.tier);
+    if(td) return td;
+    return (parseFloat(b.fem)||0) - (parseFloat(a.fem)||0);
+  });
+
+  // Populate date dropdown, default to latest date
+  const dates = [...new Set(ALL_ROWS.map(r=>r._date))].sort().reverse();
+  const ds = document.getElementById('filter-date');
+  ds.innerHTML = '<option value="">All Dates</option>';
+  dates.forEach(d=>{ const o=document.createElement('option');o.value=d;o.textContent=d;ds.appendChild(o); });
+  if(dates.length) ds.value = dates[0];
+
+  document.getElementById('controls').style.display = 'flex';
+  document.getElementById('scoreboard').style.display = 'flex';
+  document.getElementById('file-summary').textContent =
+    scanEntries.length + ' scans · ' + checkEntries.length + ' checks · ' + ALL_ROWS.length + ' setups';
+
+  updateScoreboard(ALL_ROWS);
+  applyFilters();
+}
+
+// ── GitHub loader ────────────────────────────────────────────────────────────
+async function loadFromGitHub(){
+  const badge = document.getElementById('mode-badge');
+  const st = document.getElementById('status');
+  badge.className = 'gh-badge';
+  badge.textContent = 'GITHUB';
+  st.textContent = 'Fetching manifest...';
+
   try{
-    const dir = await window.showDirectoryPicker();
-    const scanFiles = [], checkFiles = [];
+    const mRes = await fetch(GH_MANIFEST + '?_=' + Date.now());
+    if(!mRes.ok) throw new Error('manifest.json not found (' + mRes.status + '). Push scans to GitHub first.');
+    const manifest = await mRes.json();
 
-    for await(const e of dir.values()){
-      if(e.kind !== 'file' || !e.name.endsWith('.csv')) continue;
-      if(isCheckFile(e.name)) checkFiles.push(e);
-      else if(srcFromName(e.name)) scanFiles.push(e);
-    }
+    const files = manifest.files || [];
+    st.textContent = 'Loading ' + files.length + ' files from GitHub...';
 
-    // Load check files first -> build outcome map keyed by ticker+scan_date
-    const outcomeMap = {};
-    for(const e of checkFiles){
-      const text = await (await e.getFile()).text();
-      parseCSV(text).forEach(r=>{
-        if(!r.ticker) return;
-        // key: ticker|scan_date - strip to 10 chars so timestamps don't break the join
-        const sd = (r.scan_date || dateFromName(e.name)).substring(0, 10);
-        const key = r.ticker.toUpperCase() + '|' + sd;
-        // Keep the most recent check result (files are sorted by name = time)
-        outcomeMap[key] = {
-          outcome: r.outcome || '',
-          result_r: r.result_r || '',
-          last_px: r.last_px || '',
-        };
-      });
-    }
+    const entries = files.map(fname=>({
+      name: fname,
+      getText: async ()=>{
+        const r = await fetch(GH_RAW + fname + '?_=' + Date.now());
+        if(!r.ok) throw new Error('Failed to fetch ' + fname);
+        return r.text();
+      }
+    }));
 
-    // Load scan files
-    scanFiles.sort((a,b)=>a.name.localeCompare(b.name));
-    ALL_ROWS = [];
-    for(const e of scanFiles){
-      const src = srcFromName(e.name);
-      const date = dateFromName(e.name);
-      const text = await (await e.getFile()).text();
-      parseCSV(text).forEach(r=>{
-        if(!r.ticker) return;
-        const key = r.ticker.toUpperCase() + '|' + date;
-        const oc = outcomeMap[key] || {};
-        // entry accuracy: how far was actual last_px from suggested entry
-        let entryDelta = '';
-        if(oc.last_px && r.entry && parseFloat(r.entry)>0){
-          const d = (parseFloat(oc.last_px)-parseFloat(r.entry))/parseFloat(r.entry)*100;
-          entryDelta = (d>=0?'+':'') + d.toFixed(1) + '%';
-        }
-        ALL_ROWS.push({
-          _src: src, _date: date, _file: e.name,
-          _outcome: oc.outcome || '',
-          _result_r: oc.result_r || '',
-          _last_px: oc.last_px || '',
-          _entry_delta: entryDelta,
-          ticker: r.ticker||'',
-          side: r.side||'',
-          mode: r.mode||'',
-          tier: r.tier||'',
-          fem: r.fem||'',
-          entry: r.entry||'',
-          stop: r.stop||'',
-          t1: r.t1||'',
-          rr: r.rr||'',
-          float_label: r.float_label||r.float||'',
-          proximity: r.proximity||'',
-        });
-      });
-    }
+    await processFiles(entries);
 
-    // Deduplicate: if the scanner ran multiple times in a day, the same ticker+entry
-    // appears in multiple files - count it only once (keep the one with an outcome if any)
-    const dedupMap = {};
-    ALL_ROWS.forEach(r=>{
-      const k = r.ticker + '|' + r._date + '|' + r.entry;
-      const existing = dedupMap[k];
-      // Prefer row that has an outcome over one that doesn't
-      if(!existing || (!existing._outcome && r._outcome)) dedupMap[k] = r;
-    });
-    ALL_ROWS = Object.values(dedupMap);
-
-    // Sort: date desc -> tier asc -> fem desc
-    ALL_ROWS.sort((a,b)=>{
-      if(b._date !== a._date) return b._date.localeCompare(a._date);
-      const td = tierOrd(a.tier) - tierOrd(b.tier);
-      if(td) return td;
-      return (parseFloat(b.fem)||0) - (parseFloat(a.fem)||0);
-    });
-
-    // Dates dropdown - default to latest date
-    const dates = [...new Set(ALL_ROWS.map(r=>r._date))].sort().reverse();
-    const ds = document.getElementById('filter-date');
-    ds.innerHTML = '<option value="">All Dates</option>';
-    dates.forEach(d=>{ const o=document.createElement('option');o.value=d;o.textContent=d;ds.appendChild(o); });
-    if(dates.length) ds.value = dates[0];
-
-    document.getElementById('controls').style.display = 'flex';
-    document.getElementById('scoreboard').style.display = 'flex';
-    document.getElementById('file-summary').textContent = scanFiles.length + ' scans * ' + checkFiles.length + ' checks * ' + ALL_ROWS.length + ' setups';
-    document.getElementById('status').textContent = 'OK Loaded';
-
-    updateScoreboard(ALL_ROWS);
-    applyFilters();
+    const updated = manifest.updated ? ' · Updated ' + manifest.updated : '';
+    st.textContent = 'Live from GitHub' + updated;
   } catch(e){
-    if(e.name !== 'AbortError') document.getElementById('status').textContent = 'Error: ' + e.message;
+    badge.className = '';
+    badge.textContent = '';
+    st.textContent = '⚠ GitHub load failed: ' + e.message + ' — use 📁 Local to load from your computer';
   }
 }
 
+// ── Local folder loader ──────────────────────────────────────────────────────
+async function loadFolder(){
+  const badge = document.getElementById('mode-badge');
+  const st = document.getElementById('status');
+  try{
+    const dir = await window.showDirectoryPicker();
+    badge.className = 'local-badge';
+    badge.textContent = 'LOCAL';
+    st.textContent = 'Reading local folder...';
+
+    const allHandles = [];
+    for await(const e of dir.values()){
+      if(e.kind === 'file') allHandles.push(e);
+    }
+
+    const entries = allHandles.map(e=>({
+      name: e.name,
+      getText: async ()=>(await e.getFile()).text()
+    }));
+
+    await processFiles(entries);
+    st.textContent = 'Loaded from local folder · ' + dir.name;
+  } catch(e){
+    if(e.name !== 'AbortError'){
+      badge.className = '';
+      badge.textContent = '';
+      st.textContent = 'Error: ' + e.message;
+    }
+  }
+}
+
+// ── Scoreboard & filters ─────────────────────────────────────────────────────
 function updateScoreboard(rows){
   const t1 = rows.filter(r=>r.tier.includes('T1'));
   const t2 = rows.filter(r=>r.tier.includes('T2'));
@@ -367,7 +434,6 @@ function applyFilters(){
     if(!v||v==='--') return '';
     const n = parseFloat(v);
     if(isNaN(n)) return '';
-    // within 1% = green, 1-3% = yellow, >3% = red
     const abs = Math.abs(n);
     if(abs<=1) return 'style="color:#22c55e"';
     if(abs<=3) return 'style="color:#fbbf24"';
@@ -405,6 +471,9 @@ function applyFilters(){
   document.getElementById('summary').textContent = filtered.length + ' setups';
   updateScoreboard(filtered);
 }
+
+// ── Auto-load on page open ───────────────────────────────────────────────────
+window.addEventListener('load', loadFromGitHub);
 </script>
 </body>
 </html>
