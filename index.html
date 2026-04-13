@@ -37,6 +37,8 @@ tr:hover td{background:#1a2533}
 .oc-live{color:#fbbf24}
 .oc-nofill{color:#6b7280}
 .oc-none{color:#374151}
+.date-sep td{height:6px;background:#0d1117;border:none;padding:0}
+.date-hdr td{background:#161b22;color:#60a5fa;font-size:11px;font-weight:700;padding:5px 10px;border-top:2px solid #30363d;letter-spacing:.5px}
 #empty{padding:60px;text-align:center;color:#6b7280;display:none}
 .gh-badge{font-size:10px;color:#22c55e;background:#0d2311;border:1px solid #22c55e44;border-radius:3px;padding:2px 6px;margin-left:8px}
 .local-badge{font-size:10px;color:#fbbf24;background:#1a1200;border:1px solid #fbbf2444;border-radius:3px;padding:2px 6px;margin-left:8px}
@@ -440,7 +442,14 @@ function applyFilters(){
     return 'style="color:#ef4444"';
   };
 
-  document.getElementById('tbl-body').innerHTML = filtered.map(r=>{
+  let _html='',_lastDate=null;
+  filtered.forEach(r=>{
+    if(r._date!==_lastDate){
+      if(_lastDate!==null) _html+='<tr class="date-sep"><td colspan="16"></td></tr>';
+      _html+=`<tr class="date-hdr"><td colspan="16">📅 ${r._date}</td></tr>`;
+      _lastDate=r._date;
+    }
+    _html+=(r=>{
     const srcCls = r._src==='PENNY'?'src-penny':r._src==='BIGCAP'?'src-bigcap':'src-swing';
     const srcCol = r._src==='PENNY'?'#22c55e':r._src==='BIGCAP'?'#60a5fa':'#a78bfa';
     const sideCol = r.side==='Long'?'#22c55e':'#ef4444';
@@ -464,7 +473,7 @@ function applyFilters(){
       <td style="color:#94a3b8">${r._last_px?'$'+parseFloat(r._last_px).toFixed(3):'--'}</td>
       <td ${deltaCls(r._entry_delta)}>${r._entry_delta||'--'}</td>
     </tr>`;
-  }).join('');
+  })(r); });  document.getElementById('tbl-body').innerHTML=_html;
 
   const empty = document.getElementById('empty');
   empty.style.display = filtered.length===0 && ALL_ROWS.length>0 ? 'block' : 'none';
