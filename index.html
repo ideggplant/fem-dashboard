@@ -302,7 +302,7 @@ async function processFiles(entries){
   const ds = document.getElementById('filter-date');
   ds.innerHTML = '<option value="">All Dates</option>';
   dates.forEach(d=>{ const o=document.createElement('option');o.value=d;o.textContent=d;ds.appendChild(o); });
-  if(dates.length) ds.value = dates[0];
+  // defaulting to All Dates — removed: if(dates.length) ds.value = dates[0];
 
   document.getElementById('controls').style.display = 'flex';
   document.getElementById('scoreboard').style.display = 'flex';
