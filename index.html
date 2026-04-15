@@ -37,8 +37,6 @@ tr:hover td{background:#1a2533}
 .oc-live{color:#fbbf24}
 .oc-nofill{color:#6b7280}
 .oc-none{color:#374151}
-.date-sep td{height:6px;background:#0d1117;border:none;padding:0}
-.date-hdr td{background:#161b22;color:#60a5fa;font-size:11px;font-weight:700;padding:5px 10px;border-top:2px solid #30363d;letter-spacing:.5px}
 #empty{padding:60px;text-align:center;color:#6b7280;display:none}
 .gh-badge{font-size:10px;color:#22c55e;background:#0d2311;border:1px solid #22c55e44;border-radius:3px;padding:2px 6px;margin-left:8px}
 .local-badge{font-size:10px;color:#fbbf24;background:#1a1200;border:1px solid #fbbf2444;border-radius:3px;padding:2px 6px;margin-left:8px}
@@ -276,6 +274,7 @@ async function processFiles(entries){
         stop: r.stop||'',
         t1: r.t1||'',
         rr: r.rr||'',
+        float_m: r.float_m||'',
         float_label: r.float_label||r.float||'',
         proximity: r.proximity||'',
       });
@@ -304,7 +303,7 @@ async function processFiles(entries){
   const ds = document.getElementById('filter-date');
   ds.innerHTML = '<option value="">All Dates</option>';
   dates.forEach(d=>{ const o=document.createElement('option');o.value=d;o.textContent=d;ds.appendChild(o); });
-  // defaulting to All Dates — removed: if(dates.length) ds.value = dates[0];
+  if(dates.length) ds.value = dates[0];
 
   document.getElementById('controls').style.display = 'flex';
   document.getElementById('scoreboard').style.display = 'flex';
@@ -442,14 +441,7 @@ function applyFilters(){
     return 'style="color:#ef4444"';
   };
 
-  let _html='',_lastDate=null;
-  filtered.forEach(r=>{
-    if(r._date!==_lastDate){
-      if(_lastDate!==null) _html+='<tr class="date-sep"><td colspan="16"></td></tr>';
-      _html+=`<tr class="date-hdr"><td colspan="16">📅 ${r._date}</td></tr>`;
-      _lastDate=r._date;
-    }
-    _html+=(r=>{
+  document.getElementById('tbl-body').innerHTML = filtered.map(r=>{
     const srcCls = r._src==='PENNY'?'src-penny':r._src==='BIGCAP'?'src-bigcap':'src-swing';
     const srcCol = r._src==='PENNY'?'#22c55e':r._src==='BIGCAP'?'#60a5fa':'#a78bfa';
     const sideCol = r.side==='Long'?'#22c55e':'#ef4444';
@@ -467,13 +459,13 @@ function applyFilters(){
       <td style="color:#ef4444">${fmt(r.stop)}</td>
       <td style="color:#22c55e">${fmt(r.t1)}</td>
       <td style="font-weight:600">${r.rr?r.rr+'x':'--'}</td>
-      <td style="color:#94a3b8">${r.float_label||'--'}</td>
+      <td style="color:${({'NANO':'#f472b6','LOW':'#fbbf24','MED':'#94a3b8','HIGH':'#60a5fa','MEGA':'#a78bfa'})[r.float_label]||'#94a3b8'};font-weight:600">${r.float_m?parseFloat(r.float_m).toFixed(1)+'M ':''}${r.float_label||'--'}</td>
       <td class="${ocCls(r._outcome)}">${r._outcome||'--'}</td>
       <td ${rCls(r._result_r)}>${r._result_r?r._result_r+'R':'--'}</td>
       <td style="color:#94a3b8">${r._last_px?'$'+parseFloat(r._last_px).toFixed(3):'--'}</td>
       <td ${deltaCls(r._entry_delta)}>${r._entry_delta||'--'}</td>
     </tr>`;
-  })(r); });  document.getElementById('tbl-body').innerHTML=_html;
+  }).join('');
 
   const empty = document.getElementById('empty');
   empty.style.display = filtered.length===0 && ALL_ROWS.length>0 ? 'block' : 'none';
