@@ -64,6 +64,7 @@ tr:hover td{background:#1a2533}
   <div class="kpi all"><div class="lbl">Avg R (all)</div><div class="val" id="sc-r">--</div></div>
   <div class="kpi t1"><div class="lbl">Avg R (T1)</div><div class="val" id="sc-r1">--</div></div>
   <div class="kpi all"><div class="lbl">Entry Accuracy</div><div class="val" id="sc-ea">--</div></div>
+  <div class="kpi t2"><div class="lbl">Open W/L</div><div class="val" id="sc-open">--</div></div>
 </div>
 
 <div id="controls" style="display:none">
@@ -195,14 +196,14 @@ function pct(v){
 
 // ── Stats ───────────────────────────────────────────────────────────────────
 function winRate(rows){
-  const resolved = rows.filter(r=>r._outcome && ['TARGET_HIT','WINNING','STOPPED'].includes(r._outcome));
+  const resolved = rows.filter(r=>r._outcome && ['TARGET_HIT','STOPPED'].includes(r._outcome));
   if(!resolved.length) return null;
-  const wins = resolved.filter(r=>['TARGET_HIT','WINNING'].includes(r._outcome)).length;
+  const wins = resolved.filter(r=>r._outcome==='TARGET_HIT').length;
   return Math.round(wins/resolved.length*100) + '% (' + wins + '/' + resolved.length + ')';
 }
 
 function avgR(rows){
-  const resolved = rows.filter(r=>r._outcome && ['TARGET_HIT','WINNING','STOPPED'].includes(r._outcome) && r._result_r !== '' && !isNaN(parseFloat(r._result_r)));
+  const resolved = rows.filter(r=>r._outcome && ['TARGET_HIT','STOPPED'].includes(r._outcome) && r._result_r !== '' && !isNaN(parseFloat(r._result_r)));
   if(!resolved.length) return null;
   const avg = resolved.reduce((s,r)=>s+parseFloat(r._result_r),0)/resolved.length;
   return (avg>=0?'+':'') + avg.toFixed(2) + 'R';
@@ -393,6 +394,9 @@ function updateScoreboard(rows){
   document.getElementById('sc-r').textContent   = avgR(rows)   || '--';
   document.getElementById('sc-r1').textContent  = avgR(t1)     || '--';
   document.getElementById('sc-ea').textContent  = entryAccuracy(rows) || '--';
+  const openW = rows.filter(r=>r._outcome==='WINNING').length;
+  const openL = rows.filter(r=>r._outcome==='LOSING').length;
+  document.getElementById('sc-open').textContent = (openW+openL)>0 ? openW+'W/'+openL+'L' : '--';
 }
 
 function applyFilters(){
