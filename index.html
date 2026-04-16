@@ -195,14 +195,14 @@ function pct(v){
 
 // ── Stats ───────────────────────────────────────────────────────────────────
 function winRate(rows){
-  const resolved = rows.filter(r=>r._outcome && ['TARGET_HIT','STOPPED'].includes(r._outcome));
+  const resolved = rows.filter(r=>r._outcome && ['TARGET_HIT','WINNING','STOPPED'].includes(r._outcome));
   if(!resolved.length) return null;
-  const wins = resolved.filter(r=>r._outcome==='TARGET_HIT').length;
+  const wins = resolved.filter(r=>['TARGET_HIT','WINNING'].includes(r._outcome)).length;
   return Math.round(wins/resolved.length*100) + '% (' + wins + '/' + resolved.length + ')';
 }
 
 function avgR(rows){
-  const resolved = rows.filter(r=>r._outcome && ['TARGET_HIT','STOPPED'].includes(r._outcome) && r._result_r !== '' && !isNaN(parseFloat(r._result_r)));
+  const resolved = rows.filter(r=>r._outcome && ['TARGET_HIT','WINNING','STOPPED'].includes(r._outcome) && r._result_r !== '' && !isNaN(parseFloat(r._result_r)));
   if(!resolved.length) return null;
   const avg = resolved.reduce((s,r)=>s+parseFloat(r._result_r),0)/resolved.length;
   return (avg>=0?'+':'') + avg.toFixed(2) + 'R';
