@@ -21,16 +21,19 @@ select{background:#161b22;border:1px solid #30363d;color:#e2e8f0;padding:5px 8px
 .kpi{background:#161b22;border:1px solid #21262d;border-radius:6px;padding:8px 14px;min-width:100px}
 .kpi .lbl{font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
 .kpi .val{font-size:18px;font-weight:700}
-.kpi.t1 .val{color:#fbbf24}.kpi.t2 .val{color:#22c55e}.kpi.t3 .val{color:#60a5fa}.kpi.all .val{color:#e2e8f0}
+.kpi.t1 .val{color:#fbbf24}.kpi.t2 .val{color:#22c55e}.kpi.t3 .val{color:#60a5fa}.kpi.all .val{color:#e2e8f0}.kpi.dp .val{color:#e879f9}
 .tw{overflow-x:auto}
 table{width:100%;border-collapse:collapse;font-size:12px}
 th{background:#1e2533;color:#94a3b8;padding:7px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;position:sticky;top:0;z-index:2}
 td{padding:6px 10px;border-top:1px solid #1a2533;white-space:nowrap}
 tr:hover td{background:#1a2533}
 .t1{color:#fbbf24;font-weight:700}.t2{color:#22c55e;font-weight:600}.t3{color:#60a5fa}.t4{color:#94a3b8}
+.dp{color:#e879f9;font-weight:800;text-shadow:0 0 6px #e879f966;letter-spacing:.5px}
+.t1-strong{color:#f59e0b;font-weight:800;text-shadow:0 0 4px #f59e0b44}
 .src-penny{border-left:3px solid #22c55e}
 .src-bigcap{border-left:3px solid #60a5fa}
 .src-swing{border-left:3px solid #a78bfa}
+.src-bounce{border-left:3px solid #e879f9}
 .oc-win{color:#22c55e;font-weight:700}
 .oc-loss{color:#ef4444;font-weight:700}
 .oc-stop{color:#ef4444}
@@ -40,6 +43,43 @@ tr:hover td{background:#1a2533}
 #empty{padding:60px;text-align:center;color:#6b7280;display:none}
 .gh-badge{font-size:10px;color:#22c55e;background:#0d2311;border:1px solid #22c55e44;border-radius:3px;padding:2px 6px;margin-left:8px}
 .local-badge{font-size:10px;color:#fbbf24;background:#1a1200;border:1px solid #fbbf2444;border-radius:3px;padding:2px 6px;margin-left:8px}
+
+/* ── A-book panel ───────────────────────────────────────────────────────── */
+#abook{padding:12px 18px;background:linear-gradient(180deg,#0f1a2e 0%,#0d1117 100%);border-bottom:2px solid #1e3a8a;display:none}
+#abook-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:10px}
+#abook-title{font-size:13px;font-weight:700;color:#fbbf24;letter-spacing:1px}
+#abook-title .sub{font-size:10px;color:#6b7280;font-weight:500;letter-spacing:0;margin-left:8px}
+#abook-controls{display:flex;align-items:center;gap:10px;font-size:11px;color:#94a3b8}
+#abook-risk{background:#161b22;border:1px solid #30363d;color:#fbbf24;padding:4px 8px;border-radius:4px;font-size:12px;font-weight:700;width:70px;text-align:right}
+#abook-note{font-size:10px;color:#6b7280;font-style:italic}
+#abook-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:10px}
+.ab-card{background:#161b22;border:1px solid #30363d;border-left:3px solid #fbbf24;border-radius:6px;padding:10px 12px;font-size:11px}
+.ab-card.rank1{border-left-color:#e879f9;box-shadow:0 0 8px #e879f922}
+.ab-card.rank2{border-left-color:#fbbf24}
+.ab-card.rank3{border-left-color:#22c55e}
+.ab-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px;gap:8px;flex-wrap:wrap}
+.ab-rank{font-size:10px;color:#6b7280;font-weight:700;letter-spacing:.5px}
+.ab-ticker{font-size:15px;font-weight:800;color:#e2e8f0;letter-spacing:.5px}
+.ab-tier{font-size:9px;color:#94a3b8;background:#0d1117;padding:2px 6px;border-radius:3px;border:1px solid #30363d}
+.ab-score{font-size:10px;color:#fbbf24;font-weight:700;font-family:monospace}
+.ab-meta{display:flex;gap:10px;color:#6b7280;font-size:10px;margin-bottom:8px;flex-wrap:wrap}
+.ab-meta b{color:#94a3b8;font-weight:600}
+.ab-ladder{display:grid;grid-template-columns:36px 60px 1fr 50px 40px;gap:6px;align-items:center;padding:3px 0;font-family:monospace;font-size:10px}
+.ab-ladder .lv{font-weight:700;color:#fbbf24}
+.ab-ladder .lv.l1{color:#60a5fa}
+.ab-ladder .lv.l2{color:#fbbf24}
+.ab-ladder .lv.l3{color:#e879f9}
+.ab-ladder .tp{color:#6b7280;font-size:9px}
+.ab-ladder .px{color:#e2e8f0;font-weight:700;text-align:right}
+.ab-ladder .sh{color:#94a3b8;text-align:right}
+.ab-ladder .rr{color:#22c55e;text-align:right;font-weight:600}
+.ab-bracket{margin-top:6px;padding-top:6px;border-top:1px dashed #21262d;display:flex;justify-content:space-between;gap:10px;font-family:monospace;font-size:10px}
+.ab-bracket .bx{display:flex;gap:6px}
+.ab-bracket .lbl{color:#6b7280;font-size:9px;text-transform:uppercase}
+.ab-bracket .stop{color:#ef4444;font-weight:700}
+.ab-bracket .t1{color:#22c55e;font-weight:700}
+.ab-bracket .cut{color:#fbbf24;font-weight:700}
+#abook-empty{color:#6b7280;font-size:11px;font-style:italic;padding:12px;text-align:center}
 </style>
 </head>
 <body>
@@ -58,19 +98,37 @@ tr:hover td{background:#1a2533}
 
 <div id="scoreboard">
   <div class="kpi all"><div class="lbl">All Win Rate</div><div class="val" id="sc-all">--</div></div>
+  <div class="kpi dp"><div class="lbl">💎 Double Platinum</div><div class="val" id="sc-dp">--</div></div>
   <div class="kpi t1"><div class="lbl">T1 Win Rate</div><div class="val" id="sc-t1">--</div></div>
   <div class="kpi t2"><div class="lbl">T2 Win Rate</div><div class="val" id="sc-t2">--</div></div>
   <div class="kpi t3"><div class="lbl">T3 Win Rate</div><div class="val" id="sc-t3">--</div></div>
   <div class="kpi all"><div class="lbl">Avg R (all)</div><div class="val" id="sc-r">--</div></div>
   <div class="kpi t1"><div class="lbl">Avg R (T1)</div><div class="val" id="sc-r1">--</div></div>
   <div class="kpi all"><div class="lbl">Entry Accuracy</div><div class="val" id="sc-ea">--</div></div>
-  <div class="kpi t2"><div class="lbl">Open W/L</div><div class="val" id="sc-open">--</div></div>
+</div>
+
+<div id="abook">
+  <div id="abook-head">
+    <div id="abook-title">⭐ A-BOOK <span class="sub">top-5 ranked picks · data-validated composite · <span id="abook-date">--</span></span></div>
+    <div id="abook-controls">
+      <label>Risk $<input type="number" id="abook-risk" value="100" min="10" max="10000" step="10" onchange="renderAbook()"></label>
+      <select id="abook-top" onchange="renderAbook()" style="background:#161b22;border:1px solid #30363d;color:#e2e8f0;padding:4px 8px;border-radius:4px;font-size:12px">
+        <option value="5">Top 5</option>
+        <option value="7">Top 7</option>
+        <option value="10">Top 10</option>
+      </select>
+      <span id="abook-note">L1 patient · L2 primary · L3 chase · cutoff 10:30 ET</span>
+    </div>
+  </div>
+  <div id="abook-grid"></div>
+  <div id="abook-empty" style="display:none">No A-book picks for this date (all rows killed by filters or no penny scan loaded).</div>
 </div>
 
 <div id="controls" style="display:none">
   <input type="text" id="filter-ticker" placeholder="Filter ticker..." oninput="applyFilters()">
   <select id="filter-source" onchange="applyFilters()">
     <option value="">All Sources</option>
+    <option value="BOUNCE">Bounce (strict)</option>
     <option value="PENNY">Penny</option>
     <option value="BIGCAP">BigCap</option>
     <option value="SWING">Swing</option>
@@ -82,6 +140,8 @@ tr:hover td{background:#1a2533}
   </select>
   <select id="filter-tier" onchange="applyFilters()">
     <option value="">All Tiers</option>
+    <option value="DOUBLE_PLATINUM">💎 Double Platinum</option>
+    <option value="T1-STRONG">T1-STRONG</option>
     <option value="T1">T1</option>
     <option value="T2">T2</option>
     <option value="T3">T3</option>
@@ -154,6 +214,7 @@ function dateFromName(n){
 }
 
 function srcFromName(n){
+  if(n.startsWith('fem_bounce_scan_')) return 'BOUNCE';
   if(n.startsWith('fem_penny_scan_')) return 'PENNY';
   if(n.startsWith('fem_scan_v8_') || n.startsWith('fem_bigcap_scan_')) return 'BIGCAP';
   if(n.startsWith('fem_swing_')) return 'SWING';
@@ -165,21 +226,33 @@ function isCheckFile(n){
 }
 
 // ── Tier helpers ────────────────────────────────────────────────────────────
+// DOUBLE_PLATINUM is top tier (order 0); T1-STRONG is above T1; rest unchanged.
 function tierOrd(t){
   if(!t) return 9;
-  if(t.includes('T1')) return 1;
-  if(t.includes('T2')) return 2;
-  if(t.includes('T3')) return 3;
-  if(t.includes('T4')) return 4;
-  return 5;
+  if(t.includes('DOUBLE_PLATINUM')) return 0;
+  if(t.includes('T1-STRONG') || t.includes('T1_STRONG')) return 1;
+  if(t.includes('T1')) return 2;
+  if(t.includes('T2')) return 3;
+  if(t.includes('T3')) return 4;
+  if(t.includes('T4')) return 5;
+  return 6;
 }
 
 function tierCls(t){
   if(!t) return '';
+  if(t.includes('DOUBLE_PLATINUM')) return 'dp';
+  if(t.includes('T1-STRONG') || t.includes('T1_STRONG')) return 't1-strong';
   if(t.includes('T1')) return 't1';
   if(t.includes('T2')) return 't2';
   if(t.includes('T3')) return 't3';
   return 't4';
+}
+
+// Short display label for the tier column — e.g. "💎 DP" for DOUBLE_PLATINUM
+function tierLabel(t){
+  if(!t) return '--';
+  if(t.includes('DOUBLE_PLATINUM')) return '💎 DP';
+  return t;
 }
 
 function fmt(v, dec=3){
@@ -196,14 +269,14 @@ function pct(v){
 
 // ── Stats ───────────────────────────────────────────────────────────────────
 function winRate(rows){
-  const resolved = rows.filter(r=>r._outcome && ['TARGET_HIT','STOPPED'].includes(r._outcome));
+  const resolved = rows.filter(r=>r._outcome && ['TARGET_HIT','WINNING','STOPPED'].includes(r._outcome));
   if(!resolved.length) return null;
-  const wins = resolved.filter(r=>r._outcome==='TARGET_HIT').length;
+  const wins = resolved.filter(r=>['TARGET_HIT','WINNING'].includes(r._outcome)).length;
   return Math.round(wins/resolved.length*100) + '% (' + wins + '/' + resolved.length + ')';
 }
 
 function avgR(rows){
-  const resolved = rows.filter(r=>r._outcome && ['TARGET_HIT','STOPPED'].includes(r._outcome) && r._result_r !== '' && !isNaN(parseFloat(r._result_r)));
+  const resolved = rows.filter(r=>r._outcome && ['TARGET_HIT','WINNING','STOPPED'].includes(r._outcome) && r._result_r !== '' && !isNaN(parseFloat(r._result_r)));
   if(!resolved.length) return null;
   const avg = resolved.reduce((s,r)=>s+parseFloat(r._result_r),0)/resolved.length;
   return (avg>=0?'+':'') + avg.toFixed(2) + 'R';
@@ -217,6 +290,171 @@ function entryAccuracy(rows){
     return delta <= 2.0;
   });
   return Math.round(close.length/checked.length*100) + '%';
+}
+
+// ── A-book browser-side ranker ─────────────────────────────────────────────
+// Mirrors fem_abook_ranker.py — 9-day-validated composite score + entry cascade.
+const AB_KILL_MODES = new Set(['BREAKOUT']);
+const AB_KILL_FLOATS = new Set(['NANO','LOW']);
+const AB_KILL_TIERS_EXACT = new Set(['T3-LONG_WATCH','T2-BOUNCE_WATCH']);
+const AB_W_RR = 1.00, AB_W_DIST = 0.30, AB_W_FEM_INV = 0.30, AB_W_FLOAT_ROT_INV = 0.20;
+const AB_CHASE_BPS = 0.010, AB_CHASE_FLOOR_CENTS = 0.02, AB_CUTOFF = '10:30';
+
+function abFnum(v){ const n = parseFloat(v); return isNaN(n) ? 0 : n; }
+
+function abKillReason(r){
+  const side = (r.side||'').toUpperCase();
+  if(side.startsWith('S')) return 'short_skip';
+  const mode = (r.mode||'').toUpperCase();
+  if(AB_KILL_MODES.has(mode)) return 'mode_' + mode.toLowerCase();
+  const fl = (r.float_label||'').toUpperCase();
+  if(AB_KILL_FLOATS.has(fl)) return 'float_' + fl.toLowerCase();
+  const tier = r.tier || '';
+  if(AB_KILL_TIERS_EXACT.has(tier)) return 'tier_' + tier.toLowerCase();
+  const entry = abFnum(r.entry), stop = abFnum(r.stop), t1 = abFnum(r.t1);
+  if(entry<=0 || stop<=0 || t1<=0) return 'missing_px';
+  if(stop>=entry) return 'bad_stop';
+  if(t1<=entry) return 'bad_t1';
+  return null;
+}
+
+// Fractional percentile rank with tie handling: average rank for ties, normalized to [0,1].
+function abPercentileRank(vals){
+  const n = vals.length;
+  if(!n) return [];
+  const sorted = vals.map((v,i)=>[v,i]).sort((a,b)=>a[0]-b[0]);
+  const ranks = new Array(n);
+  let i = 0;
+  while(i < n){
+    let j = i;
+    while(j+1 < n && sorted[j+1][0] === sorted[i][0]) j++;
+    const avg = (i + j) / 2;
+    for(let k=i;k<=j;k++) ranks[sorted[k][1]] = avg;
+    i = j + 1;
+  }
+  // Normalize: rank/(n-1). Single value → 0.5.
+  if(n === 1) return [0.5];
+  return ranks.map(r=>r/(n-1));
+}
+
+function abScoreRows(rows){
+  if(!rows.length) return [];
+  const rr   = rows.map(r=>abFnum(r.rr));
+  const dist = rows.map(r=>abFnum(r.dist_pct));
+  const fem  = rows.map(r=>abFnum(r.fem));
+  const frot = rows.map(r=>abFnum(r.float_rotation));
+  const p_rr  = abPercentileRank(rr);
+  const p_d   = abPercentileRank(dist);
+  const p_f   = abPercentileRank(fem).map(v=>1-v);       // inverted
+  const p_fr  = abPercentileRank(frot).map(v=>1-v);      // inverted
+  return rows.map((r,i)=>{
+    const s = AB_W_RR*p_rr[i] + AB_W_DIST*p_d[i] + AB_W_FEM_INV*p_f[i] + AB_W_FLOAT_ROT_INV*p_fr[i];
+    return Object.assign({}, r, {_ab_score: s, _ab_p_rr: p_rr[i], _ab_p_dist: p_d[i], _ab_p_feminv: p_f[i], _ab_p_frotinv: p_fr[i]});
+  });
+}
+
+function abComputeCascade(r, riskDollars){
+  const entry = abFnum(r.entry);
+  const stop  = abFnum(r.stop);
+  const t1    = abFnum(r.t1);
+  const cbot  = abFnum(r.cluster_bot) || entry;
+  const ctop  = abFnum(r.cluster_top) || entry;
+  // L1 = max(stop*1.001, cluster_bot) but < entry
+  const l1_raw = Math.max(stop*1.001, cbot);
+  const L1_px = Math.min(l1_raw, entry - 0.01);
+  // L2 = primary scanner entry
+  const L2_px = entry;
+  // L3 = entry + max(bps, floor cents)
+  const chase = Math.max(entry*AB_CHASE_BPS, AB_CHASE_FLOOR_CENTS);
+  const L3_px = entry + chase;
+  const risk_per = entry - stop;
+  if(risk_per <= 0) return null;
+  const baseShares = Math.max(1, Math.floor(riskDollars / risk_per));
+  // Ladder weights: 30% L1, 50% L2, 20% L3
+  const L1_sh = Math.max(1, Math.floor(baseShares * 0.30));
+  const L2_sh = Math.max(1, Math.floor(baseShares * 0.50));
+  const L3_sh = Math.max(1, Math.floor(baseShares * 0.20));
+  const rr_at = px => px>0 && (entry-stop)>0 ? (t1-px)/(px-stop) : 0;
+  return {
+    L1_px, L2_px, L3_px,
+    L1_sh, L2_sh, L3_sh,
+    L1_rr: rr_at(L1_px), L2_rr: rr_at(L2_px), L3_rr: rr_at(L3_px),
+    stop_px: stop, t1_px: t1, cutoff: AB_CUTOFF,
+  };
+}
+
+function buildAbookForDate(date, topN){
+  if(!ALL_ROWS.length || !date) return [];
+  // A-book operates on PENNY scan rows only (that's what ranker targets)
+  const pool = ALL_ROWS.filter(r=>r._date===date && r._src==='PENNY');
+  const alive = pool.filter(r=>!abKillReason(r));
+  if(!alive.length) return [];
+  const scored = abScoreRows(alive);
+  scored.sort((a,b)=>b._ab_score - a._ab_score);
+  return scored.slice(0, topN);
+}
+
+function renderAbook(){
+  const grid = document.getElementById('abook-grid');
+  const empty = document.getElementById('abook-empty');
+  const dateEl = document.getElementById('abook-date');
+  const date = document.getElementById('filter-date').value;
+  const topN = parseInt(document.getElementById('abook-top').value, 10) || 5;
+  const risk = Math.max(10, parseFloat(document.getElementById('abook-risk').value)||100);
+  if(!date){
+    dateEl.textContent = '(pick a date)';
+    grid.innerHTML = '';
+    empty.style.display = 'block';
+    empty.textContent = 'Select a specific date in the filter bar to see the A-book.';
+    document.getElementById('abook').style.display = 'block';
+    return;
+  }
+  dateEl.textContent = date;
+  const picks = buildAbookForDate(date, topN);
+  if(!picks.length){
+    grid.innerHTML = '';
+    empty.style.display = 'block';
+    empty.textContent = 'No A-book picks for ' + date + ' (no penny scan rows survived kill filters).';
+    document.getElementById('abook').style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  grid.innerHTML = picks.map((r,idx)=>{
+    const cas = abComputeCascade(r, risk);
+    if(!cas) return '';
+    const rankCls = idx===0?'rank1':idx===1?'rank2':idx===2?'rank3':'';
+    const flLbl = r.float_label || '?';
+    const flM = r.float_m ? parseFloat(r.float_m).toFixed(1)+'M' : '';
+    const rrStr = n => n.toFixed(1)+'x';
+    const pxStr = n => '$'+n.toFixed(4);
+    const outcome = r._outcome ? ` · <span style="color:${r._outcome==='TARGET_HIT'||r._outcome==='WINNING'?'#22c55e':r._outcome==='STOPPED'||r._outcome==='LOSING'?'#ef4444':'#6b7280'};font-weight:700">${r._outcome}${r._result_r?' '+r._result_r+'R':''}</span>` : '';
+    return `<div class="ab-card ${rankCls}">
+      <div class="ab-head">
+        <div>
+          <span class="ab-rank">#${idx+1}</span>
+          <span class="ab-ticker">${r.ticker}</span>
+          <span class="ab-tier">${tierLabel(r.tier)}</span>
+        </div>
+        <div class="ab-score">S ${r._ab_score.toFixed(3)}</div>
+      </div>
+      <div class="ab-meta">
+        <span><b>${r.mode||'?'}</b></span>
+        <span>${flM} ${flLbl}</span>
+        <span>FEM <b>${r.fem||'?'}</b></span>
+        <span>dist <b>${r.dist_pct?parseFloat(r.dist_pct).toFixed(2)+'%':'?'}</b></span>
+        <span>frot <b>${r.float_rotation?parseFloat(r.float_rotation).toFixed(2):'?'}</b></span>${outcome}
+      </div>
+      <div class="ab-ladder"><span class="lv l1">L1</span><span class="tp">PATIENT</span><span class="px">${pxStr(cas.L1_px)}</span><span class="sh">${cas.L1_sh}sh</span><span class="rr">${rrStr(cas.L1_rr)}</span></div>
+      <div class="ab-ladder"><span class="lv l2">L2</span><span class="tp">PRIMARY</span><span class="px">${pxStr(cas.L2_px)}</span><span class="sh">${cas.L2_sh}sh</span><span class="rr">${rrStr(cas.L2_rr)}</span></div>
+      <div class="ab-ladder"><span class="lv l3">L3</span><span class="tp">CHASE</span><span class="px">${pxStr(cas.L3_px)}</span><span class="sh">${cas.L3_sh}sh</span><span class="rr">${rrStr(cas.L3_rr)}</span></div>
+      <div class="ab-bracket">
+        <div class="bx"><span class="lbl">Stop</span><span class="stop">${pxStr(cas.stop_px)}</span></div>
+        <div class="bx"><span class="lbl">T1</span><span class="t1">${pxStr(cas.t1_px)}</span></div>
+        <div class="bx"><span class="lbl">Cutoff</span><span class="cut">${cas.cutoff} ET</span></div>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('abook').style.display = 'block';
 }
 
 // ── Core: process a list of {name, getText} entries ─────────────────────────
@@ -278,6 +516,12 @@ async function processFiles(entries){
         float_m: r.float_m||'',
         float_label: r.float_label||r.float||'',
         proximity: r.proximity||'',
+        // Fields the browser-side A-book ranker needs:
+        dist_pct: r.dist_pct||'',
+        float_rotation: r.float_rotation||'',
+        cluster_bot: r.cluster_bot||'',
+        cluster_top: r.cluster_top||'',
+        va_grade: r.va_grade||'',
       });
     });
   }
@@ -384,19 +628,18 @@ async function loadFolder(){
 
 // ── Scoreboard & filters ─────────────────────────────────────────────────────
 function updateScoreboard(rows){
-  const t1 = rows.filter(r=>r.tier.includes('T1'));
+  const dp = rows.filter(r=>r.tier.includes('DOUBLE_PLATINUM'));
+  const t1 = rows.filter(r=>r.tier.includes('T1') && !r.tier.includes('DOUBLE_PLATINUM'));
   const t2 = rows.filter(r=>r.tier.includes('T2'));
   const t3 = rows.filter(r=>r.tier.includes('T3'));
   document.getElementById('sc-all').textContent = winRate(rows) || '--';
+  document.getElementById('sc-dp').textContent  = winRate(dp)  || '--';
   document.getElementById('sc-t1').textContent  = winRate(t1)  || '--';
   document.getElementById('sc-t2').textContent  = winRate(t2)  || '--';
   document.getElementById('sc-t3').textContent  = winRate(t3)  || '--';
   document.getElementById('sc-r').textContent   = avgR(rows)   || '--';
   document.getElementById('sc-r1').textContent  = avgR(t1)     || '--';
   document.getElementById('sc-ea').textContent  = entryAccuracy(rows) || '--';
-  const openW = rows.filter(r=>r._outcome==='WINNING').length;
-  const openL = rows.filter(r=>r._outcome==='LOSING').length;
-  document.getElementById('sc-open').textContent = (openW+openL)>0 ? openW+'W/'+openL+'L' : '--';
 }
 
 function applyFilters(){
@@ -446,8 +689,8 @@ function applyFilters(){
   };
 
   document.getElementById('tbl-body').innerHTML = filtered.map(r=>{
-    const srcCls = r._src==='PENNY'?'src-penny':r._src==='BIGCAP'?'src-bigcap':'src-swing';
-    const srcCol = r._src==='PENNY'?'#22c55e':r._src==='BIGCAP'?'#60a5fa':'#a78bfa';
+    const srcCls = r._src==='PENNY'?'src-penny':r._src==='BIGCAP'?'src-bigcap':r._src==='BOUNCE'?'src-bounce':'src-swing';
+    const srcCol = r._src==='PENNY'?'#22c55e':r._src==='BIGCAP'?'#60a5fa':r._src==='BOUNCE'?'#e879f9':'#a78bfa';
     const sideCol = r.side==='Long'?'#22c55e':'#ef4444';
     const fn = parseFloat(r.fem)||0;
     const femCol = fn>=80?'#fbbf24':fn>=60?'#22c55e':'#60a5fa';
@@ -457,7 +700,7 @@ function applyFilters(){
       <td style="font-weight:700">${r.ticker||'--'}</td>
       <td style="color:${sideCol};font-weight:600">${r.side||'--'}</td>
       <td style="color:#94a3b8;font-size:11px">${r.mode||'--'}</td>
-      <td class="${tierCls(r.tier)}">${r.tier||'--'}</td>
+      <td class="${tierCls(r.tier)}">${tierLabel(r.tier)}</td>
       <td style="color:${femCol};font-weight:600">${r.fem||'--'}</td>
       <td>${fmt(r.entry)}</td>
       <td style="color:#ef4444">${fmt(r.stop)}</td>
@@ -475,6 +718,7 @@ function applyFilters(){
   empty.style.display = filtered.length===0 && ALL_ROWS.length>0 ? 'block' : 'none';
   document.getElementById('summary').textContent = filtered.length + ' setups';
   updateScoreboard(filtered);
+  renderAbook();
 }
 
 // ── Auto-load on page open ───────────────────────────────────────────────────
