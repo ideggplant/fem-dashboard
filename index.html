@@ -99,7 +99,7 @@ tr:hover td{background:#1a2533}
 
 <div id="header">
   <div>
-    <h1>FEM LIFECYCLE OBSERVATORY <span style="font-size:10px;color:#6b7280;font-weight:500;letter-spacing:0;margin-left:8px">pullback · momentum · recovery</span> <span id="mode-badge"></span></h1>
+    <h1>FEM LIFECYCLE OBSERVATORY <span style="font-size:10px;color:#6b7280;font-weight:500;letter-spacing:0;margin-left:8px">alignment · pullback · momentum · recovery</span> <span id="mode-badge"></span></h1>
     <div id="status">Fetching latest scans from GitHub...</div>
   </div>
   <div style="display:flex;align-items:center;gap:8px">
@@ -118,6 +118,15 @@ tr:hover td{background:#1a2533}
   <div class="kpi all"><div class="lbl">Avg R (all)</div><div class="val" id="sc-r">--</div></div>
   <div class="kpi t1"><div class="lbl">Avg R (T1)</div><div class="val" id="sc-r1">--</div></div>
   <div class="kpi all"><div class="lbl">Entry Accuracy</div><div class="val" id="sc-ea">--</div></div>
+</div>
+
+<div id="alignment" style="padding:12px 18px;background:linear-gradient(180deg,#2a1f3a 0%,#0d1117 100%);border-bottom:2px solid #e879f9;display:none">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+    <div style="font-size:13px;font-weight:700;color:#e879f9;letter-spacing:1px">🌟 ALIGNMENT <span style="font-size:10px;color:#6b7280;font-weight:500;letter-spacing:0;margin-left:8px">multi-lens confluence · apex setups · <span id="ali-date">--</span></span></div>
+    <span style="font-size:10px;color:#6b7280;font-style:italic">names appearing in 2+ panels — fractal alignment</span>
+  </div>
+  <div id="alignment-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:8px"></div>
+  <div id="alignment-empty" style="display:none;color:#6b7280;font-size:11px;font-style:italic;padding:12px;text-align:center">No alignment confluence today — no ticker is in 2+ lenses simultaneously. Common; the apex setup is rare.</div>
 </div>
 
 <div id="abook">
@@ -221,6 +230,14 @@ tr:hover td{background:#1a2533}
 
 <script>
 let ALL_ROWS = [];
+
+// ── Lifecycle state aggregator (cross-panel alignment) ──────────────────────
+const LIFECYCLE = {
+  pullback: {},   // {ticker: row}  from A-book
+  momentum: {},   // {ticker: row}  from momentum panel
+  recovery: {},   // {ticker: row}  from recovery panel
+  date: '',
+};
 
 // ── GitHub config ───────────────────────────────────────────────────────────
 const GH_RAW = 'https://raw.githubusercontent.com/ideggplant/fem-dashboard/main/scans/';
@@ -466,9 +483,14 @@ function renderAbook(){
     empty.style.display = 'block';
     empty.textContent = 'No A-book picks for ' + date + ' (no penny scan rows survived kill filters).';
     document.getElementById('abook').style.display = 'block';
+    LIFECYCLE.pullback = {}; renderAlignment();
     return;
   }
   empty.style.display = 'none';
+  // Populate lifecycle aggregator for cross-panel alignment
+  LIFECYCLE.pullback = {};
+  picks.forEach(r=>{ if(r.ticker) LIFECYCLE.pullback[r.ticker.toUpperCase()] = r; });
+  renderAlignment();
   grid.innerHTML = picks.map((r,idx)=>{
     const cas = abComputeCascade(r, risk);
     if(!cas) return '';
@@ -517,6 +539,132 @@ function renderAbook(){
 }
 
 // ── Core: process a list of {name, getText} entries ─────────────────────────
+// ── Alignment view (Phase 3 — cross-lens confluence) ────────────────────────
+// Surfaces tickers appearing in 2+ lifecycle lenses simultaneously.
+// Apex = all 3 panels show the same name. That's a fractal alignment.
+function renderAlignment(){
+  const panel = document.getElementById('alignment');
+  const grid  = document.getElementById('alignment-grid');
+  const empty = document.getElementById('alignment-empty');
+  const dateEl = document.getElementById('ali-date');
+
+  const universe = new Set([
+    ...Object.keys(LIFECYCLE.pullback||{}),
+    ...Object.keys(LIFECYCLE.momentum||{}),
+    ...Object.keys(LIFECYCLE.recovery||{})
+  ]);
+  if(!universe.size){ panel.style.display='none'; return; }
+  dateEl.textContent = LIFECYCLE.date || '--';
+  panel.style.display = 'block';
+
+  const aligned = [];
+  for(const tkr of universe){
+    const p = LIFECYCLE.pullback[tkr];
+    const m = LIFECYCLE.momentum[tkr];
+    const r = LIFECYCLE.recovery[tkr];
+    const lensCount = (p?1:0) + (m?1:0) + (r?1:0);
+    if(lensCount >= 2){
+      // Score: each lens contributes a weighted signal
+      // pullback presence: tier-weighted (T1-STRONG > T2 > T3)
+      // momentum presence: gap_pct contributes
+      // recovery presence: phase weight (HIGHWAY=3, APPROACHING=2, CLIMBING=1)
+      let score = 0;
+      if(p){
+        const t = (p.tier||'').toUpperCase();
+        if(t.includes('T1-STRONG')) score += 3;
+        else if(t.includes('T1')) score += 2.5;
+        else if(t.includes('T2')) score += 1.5;
+        else score += 1;
+      }
+      if(m){
+        const gap = parseFloat(m.pm_gap_pct)||0;
+        const rv  = parseFloat(m.rel_vol)||1;
+        score += Math.min(5, gap/3) + Math.min(2, Math.log(Math.max(rv,1))*0.7);
+      }
+      if(r){
+        const ph = (r.phase||'').toUpperCase();
+        if(ph==='HIGHWAY') score += 4;
+        else if(ph==='APPROACHING') score += 3;
+        else if(ph==='CLIMBING') score += 2;
+      }
+      // APEX bonus when all 3 lenses light up
+      if(lensCount === 3) score *= 1.5;
+      aligned.push({ticker: tkr, p, m, r, lensCount, score});
+    }
+  }
+
+  if(!aligned.length){ grid.innerHTML=''; empty.style.display='block'; return; }
+  empty.style.display='none';
+  aligned.sort((a,b)=>b.score-a.score);
+
+  grid.innerHTML = aligned.slice(0, 8).map((row, i)=>{
+    const isApex = row.lensCount === 3;
+    const borderCol = isApex ? '#e879f9' : '#a78bfa';
+    const tag = isApex ? 'APEX (3-lens)' : '2-lens';
+    const lensIcons = [];
+    if(row.p) lensIcons.push('<span style="color:#fbbf24;font-weight:700">⭐ Pullback</span>');
+    if(row.m) lensIcons.push('<span style="color:#f59e0b;font-weight:700">⚡ Momentum</span>');
+    if(row.r) lensIcons.push('<span style="color:#22c55e;font-weight:700">🛣 Recovery</span>');
+
+    // Build per-lens quick stats
+    const stats = [];
+    if(row.p){
+      const tier = row.p.tier || '?';
+      const fem  = row.p.fem  || '?';
+      const dist = row.p.dist_pct ? parseFloat(row.p.dist_pct).toFixed(1)+'%' : '?';
+      stats.push(`<div style="font-size:10px;color:#94a3b8"><span style="color:#fbbf24">Pullback:</span> ${tier} · FEM ${fem} · dist ${dist}</div>`);
+    }
+    if(row.m){
+      const gap = parseFloat(row.m.pm_gap_pct)||0;
+      const rv  = parseFloat(row.m.rel_vol)||0;
+      const pmv = parseInt(row.m.pm_vol)||0;
+      stats.push(`<div style="font-size:10px;color:#94a3b8"><span style="color:#f59e0b">Momentum:</span> PM gap +${gap.toFixed(1)}% · ${rv.toFixed(1)}x rv · ${(pmv/1000).toFixed(0)}k vol</div>`);
+    }
+    if(row.r){
+      const ph = (row.r.phase||'').toUpperCase();
+      const cp = (parseFloat(row.r.consumed_pct)||0)*100;
+      const dst = parseFloat(row.r.next_major_dist_pct);
+      stats.push(`<div style="font-size:10px;color:#94a3b8"><span style="color:#22c55e">Recovery:</span> ${ph} · ${cp.toFixed(0)}% consumed${isFinite(dst)?` · major +${dst.toFixed(1)}%`:''}</div>`);
+    }
+
+    // Suggested ticket — prefer recovery target if present (highway end), else momentum/pullback
+    let est, stop, target, shares, exp;
+    if(row.r && row.r.target){
+      est = parseFloat(row.r.est_open) || parseFloat(row.r.current_price);
+      stop = parseFloat(row.r.stop);
+      target = parseFloat(row.r.target);
+      shares = parseInt(row.r.shares);
+      exp = parseFloat(row.r.expected_pct);
+    } else if(row.m && row.m.est_open){
+      est = parseFloat(row.m.est_open);
+      stop = parseFloat(row.m.stop);
+      target = parseFloat(row.m.target);
+      shares = parseInt(row.m.shares);
+      exp = 3.0;
+    }
+
+    const tixBlock = est ? `<div style="border-top:1px solid #30363d;padding-top:5px;margin-top:6px;font-size:10px">
+      <div style="display:flex;justify-content:space-between;color:#94a3b8"><span>Suggested MOO</span><span style="color:#fbbf24;font-weight:700">${shares} sh @ ~$${est.toFixed(2)}</span></div>
+      <div style="display:flex;justify-content:space-between;color:#94a3b8"><span>Stop / Target</span><span><span style="color:#ef4444">$${stop.toFixed(2)}</span> → <span style="color:#22c55e">$${target.toFixed(2)}</span> ${exp?`<span style="color:#6b7280">(+${exp.toFixed(1)}%)</span>`:''}</span></div>
+    </div>` : '';
+
+    return `<div style="background:#1a0f2a;border:1px solid ${borderCol}66;border-left:4px solid ${borderCol};border-radius:6px;padding:10px 12px;font-size:11px${isApex ? ';box-shadow:0 0 10px '+borderCol+'33' : ''}">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <span style="font-size:10px;color:#6b7280;font-weight:700">#${i+1}</span>
+        <span style="font-size:15px;font-weight:800;color:#e2e8f0;letter-spacing:.5px">${row.ticker}</span>
+        <span style="font-size:9px;color:${borderCol};background:#0d1117;padding:2px 7px;border-radius:3px;border:1px solid ${borderCol}66;font-weight:700">${tag}</span>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;font-size:9px;margin-bottom:6px">
+        ${lensIcons.join(' · ')}
+      </div>
+      <div style="display:flex;flex-direction:column;gap:3px">
+        ${stats.join('')}
+      </div>
+      ${tixBlock}
+    </div>`;
+  }).join('');
+}
+
 // ── Momentum panel (Phase 1 of Lifecycle Observatory) ───────────────────────
 async function loadMomentumPanel(entries){
   const panel = document.getElementById('momentum');
@@ -535,12 +683,18 @@ async function loadMomentumPanel(entries){
   panel.style.display = 'block';
 
   if(!rows.length){
-    grid.innerHTML = ''; empty.style.display='block'; return;
+    grid.innerHTML = ''; empty.style.display='block';
+    LIFECYCLE.momentum = {}; renderAlignment(); return;
   }
   empty.style.display='none';
 
   // Sort by score desc
   rows.sort((a,b)=>(parseFloat(b.score)||0) - (parseFloat(a.score)||0));
+
+  // Populate lifecycle aggregator for cross-panel alignment
+  LIFECYCLE.momentum = {};
+  rows.forEach(r=>{ if(r.ticker) LIFECYCLE.momentum[r.ticker.toUpperCase()] = r; });
+  LIFECYCLE.date = date;
 
   grid.innerHTML = rows.slice(0,12).map((r,i)=>{
     const gap = parseFloat(r.pm_gap_pct)||0;
@@ -596,9 +750,14 @@ async function loadRecoveryPanel(entries){
   });
 
   if(!promoted.length){
-    grid.innerHTML = ''; empty.style.display='block'; return;
+    grid.innerHTML = ''; empty.style.display='block';
+    LIFECYCLE.recovery = {}; renderAlignment(); return;
   }
   empty.style.display='none';
+
+  // Populate lifecycle aggregator for cross-panel alignment
+  LIFECYCLE.recovery = {};
+  promoted.forEach(r=>{ if(r.ticker) LIFECYCLE.recovery[r.ticker.toUpperCase()] = r; });
 
   // Sort: HIGHWAY > APPROACHING > CLIMBING, then consumed_pct desc
   const phaseOrd = p=>({HIGHWAY:0,APPROACHING:1,CLIMBING:2}[p]??9);
