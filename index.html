@@ -99,7 +99,7 @@ tr:hover td{background:#1a2533}
 
 <div id="header">
   <div>
-    <h1>FEM LIFECYCLE OBSERVATORY <span style="font-size:10px;color:#6b7280;font-weight:500;letter-spacing:0;margin-left:8px">accountability · analysts · alignment · pullback · momentum · recovery</span> <span id="mode-badge"></span></h1>
+    <h1>FEM LIFECYCLE OBSERVATORY <span style="font-size:10px;color:#6b7280;font-weight:500;letter-spacing:0;margin-left:8px">accountability · analysts · alignment · pullback · momentum · shorts · recovery</span> <span id="mode-badge"></span></h1>
     <div id="status">Fetching latest scans from GitHub...</div>
   </div>
   <div style="display:flex;align-items:center;gap:8px">
@@ -181,6 +181,15 @@ tr:hover td{background:#1a2533}
   </div>
   <div id="momentum-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:8px"></div>
   <div id="momentum-empty" style="display:none;color:#6b7280;font-size:11px;font-style:italic;padding:12px;text-align:center">No Genesis-state candidates this morning — no qualifying pre-market gap+volume action on the watchlist.</div>
+</div>
+
+<div id="shorts" style="padding:12px 18px;background:linear-gradient(180deg,#2e0a0a 0%,#0d1117 100%);border-bottom:2px solid #ef4444;display:none">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+    <div style="font-size:13px;font-weight:700;color:#ef4444;letter-spacing:1px">📉 SHORTS <span style="font-size:10px;color:#6b7280;font-weight:500;letter-spacing:0;margin-left:8px">bearish Genesis · pre-market gap-down · <span id="sh-date">--</span></span></div>
+    <span style="font-size:10px;color:#6b7280;font-style:italic">PM gap-down >3% · vol >250K · relvol >2x · borrow required</span>
+  </div>
+  <div id="shorts-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:8px"></div>
+  <div id="shorts-empty" style="display:none;color:#6b7280;font-size:11px;font-style:italic;padding:12px;text-align:center">No bearish Genesis candidates this morning — no qualifying pre-market gap-down with volume.</div>
 </div>
 
 <div id="recovery" style="padding:12px 18px;background:linear-gradient(180deg,#0a2e1a 0%,#0d1117 100%);border-bottom:2px solid #22c55e;display:none">
@@ -916,6 +925,58 @@ async function loadMomentumPanel(entries){
   }).join('');
 }
 
+// ── Shorts panel (Phase 4 — bearish Genesis, mirror of momentum) ────────────
+async function loadShortsPanel(entries){
+  const panel = document.getElementById('shorts');
+  const grid  = document.getElementById('shorts-grid');
+  const empty = document.getElementById('shorts-empty');
+  const dateEl = document.getElementById('sh-date');
+  if(!entries.length){ panel.style.display='none'; return; }
+
+  entries.sort((a,b)=>a.name.localeCompare(b.name));
+  const latest = entries[entries.length-1];
+  const text = await latest.getText();
+  const rows = parseCSV(text);
+  const date = dateFromName(latest.name);
+  dateEl.textContent = date;
+  panel.style.display = 'block';
+
+  if(!rows.length){ grid.innerHTML=''; empty.style.display='block'; return; }
+  empty.style.display='none';
+
+  rows.sort((a,b)=>(parseFloat(b.score)||0) - (parseFloat(a.score)||0));
+
+  grid.innerHTML = rows.slice(0,12).map((r,i)=>{
+    const gap = parseFloat(r.pm_gap_down_pct)||0;
+    const rv  = parseFloat(r.rel_vol)||0;
+    const pmv = parseInt(r.pm_vol)||0;
+    const weak = (r.holding_weak||'').toString().toLowerCase()==='true';
+    const weakTag = weak
+      ? '<span style="color:#ef4444;font-weight:700">🔻 WEAK</span>'
+      : '<span style="color:#fbbf24;font-weight:700">⚠ BOUNCING</span>';
+    const gapCol = gap>=10?'#ef4444':gap>=5?'#f87171':'#fbbf24';
+    return `<div style="background:#1a0808;border:1px solid #ef444444;border-left:3px solid #ef4444;border-radius:6px;padding:8px 10px;font-size:11px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+        <span style="font-size:10px;color:#6b7280;font-weight:700">#${i+1}</span>
+        <span style="font-size:14px;font-weight:800;color:#e2e8f0;letter-spacing:.5px">${r.ticker}</span>
+        <span style="font-size:9px;color:#ef4444;background:#0d1117;padding:2px 6px;border-radius:3px;border:1px solid #ef444444">SHORT</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;color:#94a3b8;font-size:10px;margin-bottom:6px">
+        <div>PM gap-down: <b style="color:${gapCol}">−${gap.toFixed(1)}%</b></div>
+        <div>Rel vol: <b style="color:#e2e8f0">${rv.toFixed(1)}x</b></div>
+        <div>PM vol: <b style="color:#e2e8f0">${(pmv/1000).toFixed(0)}k</b></div>
+        <div>State: ${weakTag}</div>
+      </div>
+      <div style="border-top:1px solid #30363d;padding-top:5px;font-size:10px;color:#94a3b8">
+        <div style="display:flex;justify-content:space-between"><span>PM range</span><span style="color:#e2e8f0">$${parseFloat(r.pm_low).toFixed(2)} – $${parseFloat(r.pm_high).toFixed(2)}</span></div>
+        <div style="display:flex;justify-content:space-between"><span>MOO SELL</span><span style="color:#ef4444;font-weight:700">${r.shares} sh @ ~$${parseFloat(r.est_open).toFixed(2)}</span></div>
+        <div style="display:flex;justify-content:space-between"><span>Stop / T1</span><span><span style="color:#ef4444">$${parseFloat(r.stop).toFixed(2)}</span> / <span style="color:#22c55e">$${parseFloat(r.target).toFixed(2)}</span></span></div>
+      </div>
+      <div style="margin-top:5px;font-size:9px;color:#fbbf24;font-style:italic">⚠ verify borrow before MOO</div>
+    </div>`;
+  }).join('');
+}
+
 // ── Recovery Arc panel (Phase 2 — consumption scanner) ──────────────────────
 async function loadRecoveryPanel(entries){
   const panel = document.getElementById('recovery');
@@ -991,19 +1052,21 @@ async function loadRecoveryPanel(entries){
 }
 
 async function processFiles(entries){
-  const scanEntries=[], checkEntries=[], momentumEntries=[], consumptionEntries=[], postmortemEntries=[], analystEntries=[];
+  const scanEntries=[], checkEntries=[], momentumEntries=[], consumptionEntries=[], postmortemEntries=[], analystEntries=[], shortsEntries=[];
   for(const e of entries){
     if(!e.name.endsWith('.csv')) continue;
     if(e.name.startsWith('fem_momentum_')) momentumEntries.push(e);
     else if(e.name.startsWith('fem_consumption_')) consumptionEntries.push(e);
     else if(e.name.startsWith('fem_postmortem_')) postmortemEntries.push(e);
     else if(e.name.startsWith('fem_analyst_')) analystEntries.push(e);
+    else if(e.name.startsWith('fem_short_')) shortsEntries.push(e);
     else if(isCheckFile(e.name)) checkEntries.push(e);
     else if(srcFromName(e.name)) scanEntries.push(e);
   }
 
-  // Load latest momentum + consumption + post-mortem + analyst (most recent by filename)
+  // Load latest momentum + consumption + post-mortem + analyst + shorts (most recent by filename)
   await loadMomentumPanel(momentumEntries);
+  await loadShortsPanel(shortsEntries);
   await loadRecoveryPanel(consumptionEntries);
   await loadPostmortemPanel(postmortemEntries);
   await loadAnalystPanel(analystEntries);
