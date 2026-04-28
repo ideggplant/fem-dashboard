@@ -99,7 +99,7 @@ tr:hover td{background:#1a2533}
 
 <div id="header">
   <div>
-    <h1>FEM LIFECYCLE OBSERVATORY <span style="font-size:10px;color:#6b7280;font-weight:500;letter-spacing:0;margin-left:8px">pullback · momentum · (consumption coming)</span> <span id="mode-badge"></span></h1>
+    <h1>FEM LIFECYCLE OBSERVATORY <span style="font-size:10px;color:#6b7280;font-weight:500;letter-spacing:0;margin-left:8px">pullback · momentum · recovery</span> <span id="mode-badge"></span></h1>
     <div id="status">Fetching latest scans from GitHub...</div>
   </div>
   <div style="display:flex;align-items:center;gap:8px">
@@ -144,6 +144,15 @@ tr:hover td{background:#1a2533}
   </div>
   <div id="momentum-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:8px"></div>
   <div id="momentum-empty" style="display:none;color:#6b7280;font-size:11px;font-style:italic;padding:12px;text-align:center">No Genesis-state candidates this morning — no qualifying pre-market gap+volume action on the watchlist.</div>
+</div>
+
+<div id="recovery" style="padding:12px 18px;background:linear-gradient(180deg,#0a2e1a 0%,#0d1117 100%);border-bottom:2px solid #22c55e;display:none">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+    <div style="font-size:13px;font-weight:700;color:#22c55e;letter-spacing:1px">🛣 RECOVERY ARC <span style="font-size:10px;color:#6b7280;font-weight:500;letter-spacing:0;margin-left:8px">multi-day gap consumption · ROLR-pattern catcher · <span id="rec-date">--</span></span></div>
+    <span style="font-size:10px;color:#6b7280;font-style:italic">CLIMBING / APPROACHING / HIGHWAY phases</span>
+  </div>
+  <div id="recovery-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:8px"></div>
+  <div id="recovery-empty" style="display:none;color:#6b7280;font-size:11px;font-style:italic;padding:12px;text-align:center">No alumni in promotable phases — most are still BASING/AWAKENING. Recovery arc setups are rarer than catalyst pops.</div>
 </div>
 
 <div id="controls" style="display:none">
@@ -563,17 +572,88 @@ async function loadMomentumPanel(entries){
   }).join('');
 }
 
+// ── Recovery Arc panel (Phase 2 — consumption scanner) ──────────────────────
+async function loadRecoveryPanel(entries){
+  const panel = document.getElementById('recovery');
+  const grid  = document.getElementById('recovery-grid');
+  const empty = document.getElementById('recovery-empty');
+  const dateEl = document.getElementById('rec-date');
+  if(!entries.length){ panel.style.display='none'; return; }
+
+  entries.sort((a,b)=>a.name.localeCompare(b.name));
+  const latest = entries[entries.length-1];
+  const text = await latest.getText();
+  const rows = parseCSV(text);
+  const date = dateFromName(latest.name);
+  dateEl.textContent = date;
+  panel.style.display = 'block';
+
+  // Filter to promoted (CLIMBING / APPROACHING / HIGHWAY)
+  const promoted = rows.filter(r=>{
+    const p = (r.phase||'').toUpperCase();
+    return ['CLIMBING','APPROACHING','HIGHWAY'].includes(p) &&
+           (r.promoted||'').toLowerCase()==='true';
+  });
+
+  if(!promoted.length){
+    grid.innerHTML = ''; empty.style.display='block'; return;
+  }
+  empty.style.display='none';
+
+  // Sort: HIGHWAY > APPROACHING > CLIMBING, then consumed_pct desc
+  const phaseOrd = p=>({HIGHWAY:0,APPROACHING:1,CLIMBING:2}[p]??9);
+  promoted.sort((a,b)=>{
+    const pa = phaseOrd(a.phase.toUpperCase());
+    const pb = phaseOrd(b.phase.toUpperCase());
+    if(pa!==pb) return pa-pb;
+    return (parseFloat(b.consumed_pct)||0)-(parseFloat(a.consumed_pct)||0);
+  });
+
+  grid.innerHTML = promoted.slice(0,12).map((r,i)=>{
+    const phase = (r.phase||'').toUpperCase();
+    const phaseTag = phase==='HIGHWAY' ? '🛣 HIGHWAY' : phase==='APPROACHING' ? '🎯 APPROACHING' : '⬆ CLIMBING';
+    const phaseCol = phase==='HIGHWAY' ? '#22c55e' : phase==='APPROACHING' ? '#fbbf24' : '#60a5fa';
+    const cp = (parseFloat(r.consumed_pct)||0)*100;
+    const dist = parseFloat(r.next_major_dist_pct);
+    const subTF = r.sub_tf_status_str || '—';
+    const exp = parseFloat(r.expected_pct)||0;
+    const rrV = parseFloat(r.rr)||0;
+    return `<div style="background:#0a1f12;border:1px solid ${phaseCol}44;border-left:3px solid ${phaseCol};border-radius:6px;padding:8px 10px;font-size:11px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+        <span style="font-size:10px;color:#6b7280;font-weight:700">#${i+1}</span>
+        <span style="font-size:14px;font-weight:800;color:#e2e8f0;letter-spacing:.5px">${r.ticker}</span>
+        <span style="font-size:9px;color:${phaseCol};background:#0d1117;padding:2px 6px;border-radius:3px;border:1px solid ${phaseCol}44;font-weight:700">${phaseTag}</span>
+      </div>
+      <div style="margin-bottom:6px;color:#94a3b8;font-size:10px">
+        <div style="margin-bottom:2px">consumed <b style="color:#22c55e">${cp.toFixed(0)}%</b> (${r.consumed_count}/${r.total_in_arc} bearish gaps)</div>
+        <div style="font-family:monospace;color:#60a5fa;font-size:10px">${subTF}</div>
+      </div>
+      ${r.next_major_top ? `<div style="border-top:1px solid #30363d;padding-top:5px;font-size:10px;color:#94a3b8;margin-bottom:5px">
+        <div style="display:flex;justify-content:space-between"><span>Next major</span><span style="color:#fbbf24">$${parseFloat(r.next_major_top).toFixed(2)} <span style="color:#6b7280">(${r.next_major_ticks}tk ${r.next_major_tf})</span></span></div>
+        <div style="display:flex;justify-content:space-between"><span>Distance</span><span style="color:${dist<5?'#22c55e':dist<10?'#fbbf24':'#94a3b8'}">+${dist.toFixed(1)}% above</span></div>
+      </div>` : ''}
+      <div style="border-top:1px solid #30363d;padding-top:5px;font-size:10px;color:#94a3b8">
+        <div style="display:flex;justify-content:space-between"><span>Current / Target</span><span><span style="color:#e2e8f0">$${parseFloat(r.current_price).toFixed(2)}</span> → <span style="color:#22c55e">$${parseFloat(r.target).toFixed(2)}</span> <span style="color:#6b7280">(+${exp.toFixed(1)}%)</span></span></div>
+        <div style="display:flex;justify-content:space-between"><span>Stop / R:R</span><span><span style="color:#ef4444">$${parseFloat(r.stop).toFixed(2)}</span> · <span style="color:#22c55e;font-weight:700">${rrV.toFixed(1)}x</span></span></div>
+        <div style="display:flex;justify-content:space-between"><span>Sizing</span><span style="color:#fbbf24;font-weight:700">${r.shares} sh @ ~$${parseFloat(r.est_open).toFixed(2)}</span></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
 async function processFiles(entries){
-  const scanEntries = [], checkEntries = [], momentumEntries = [];
+  const scanEntries = [], checkEntries = [], momentumEntries = [], consumptionEntries = [];
   for(const e of entries){
     if(!e.name.endsWith('.csv')) continue;
     if(e.name.startsWith('fem_momentum_')) momentumEntries.push(e);
+    else if(e.name.startsWith('fem_consumption_')) consumptionEntries.push(e);
     else if(isCheckFile(e.name)) checkEntries.push(e);
     else if(srcFromName(e.name)) scanEntries.push(e);
   }
 
-  // Load latest momentum CSV (most recent by filename)
+  // Load latest momentum + consumption CSVs (most recent by filename)
   await loadMomentumPanel(momentumEntries);
+  await loadRecoveryPanel(consumptionEntries);
 
   // Load check files -> outcome map
   const outcomeMap = {};
