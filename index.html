@@ -99,7 +99,7 @@ tr:hover td{background:#1a2533}
 
 <div id="header">
   <div>
-    <h1>FEM SETUPS <span id="mode-badge"></span></h1>
+    <h1>FEM LIFECYCLE OBSERVATORY <span style="font-size:10px;color:#6b7280;font-weight:500;letter-spacing:0;margin-left:8px">pullback · momentum · (consumption coming)</span> <span id="mode-badge"></span></h1>
     <div id="status">Fetching latest scans from GitHub...</div>
   </div>
   <div style="display:flex;align-items:center;gap:8px">
@@ -122,7 +122,7 @@ tr:hover td{background:#1a2533}
 
 <div id="abook">
   <div id="abook-head">
-    <div id="abook-title">⭐ A-BOOK <span class="sub">top-5 ranked picks · data-validated composite · <span id="abook-date">--</span></span></div>
+    <div id="abook-title">⭐ A-BOOK <span class="sub">pullback lens · top-5 ranked picks · data-validated composite · <span id="abook-date">--</span></span></div>
     <div id="abook-controls">
       <label>Risk $<input type="number" id="abook-risk" value="100" min="10" max="10000" step="10" onchange="renderAbook()"></label>
       <select id="abook-top" onchange="renderAbook()" style="background:#161b22;border:1px solid #30363d;color:#e2e8f0;padding:4px 8px;border-radius:4px;font-size:12px">
@@ -135,6 +135,15 @@ tr:hover td{background:#1a2533}
   </div>
   <div id="abook-grid"></div>
   <div id="abook-empty" style="display:none">No A-book picks for this date (all rows killed by filters or no penny scan loaded).</div>
+</div>
+
+<div id="momentum" style="padding:12px 18px;background:linear-gradient(180deg,#2d1b0f 0%,#0d1117 100%);border-bottom:2px solid #f59e0b;display:none">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+    <div style="font-size:13px;font-weight:700;color:#f59e0b;letter-spacing:1px">⚡ MOMENTUM <span style="font-size:10px;color:#6b7280;font-weight:500;letter-spacing:0;margin-left:8px">Genesis-state catalyst gappers · pre-market signal · <span id="mom-date">--</span></span></div>
+    <span style="font-size:10px;color:#6b7280;font-style:italic">PM gap >3% · vol >250K · relvol >2x</span>
+  </div>
+  <div id="momentum-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:8px"></div>
+  <div id="momentum-empty" style="display:none;color:#6b7280;font-size:11px;font-style:italic;padding:12px;text-align:center">No Genesis-state candidates this morning — no qualifying pre-market gap+volume action on the watchlist.</div>
 </div>
 
 <div id="controls" style="display:none">
@@ -499,13 +508,72 @@ function renderAbook(){
 }
 
 // ── Core: process a list of {name, getText} entries ─────────────────────────
+// ── Momentum panel (Phase 1 of Lifecycle Observatory) ───────────────────────
+async function loadMomentumPanel(entries){
+  const panel = document.getElementById('momentum');
+  const grid  = document.getElementById('momentum-grid');
+  const empty = document.getElementById('momentum-empty');
+  const dateEl = document.getElementById('mom-date');
+  if(!entries.length){ panel.style.display='none'; return; }
+
+  // Pick the latest by filename (sorted ascending = last is newest)
+  entries.sort((a,b)=>a.name.localeCompare(b.name));
+  const latest = entries[entries.length-1];
+  const text = await latest.getText();
+  const rows = parseCSV(text);
+  const date = dateFromName(latest.name);
+  dateEl.textContent = date;
+  panel.style.display = 'block';
+
+  if(!rows.length){
+    grid.innerHTML = ''; empty.style.display='block'; return;
+  }
+  empty.style.display='none';
+
+  // Sort by score desc
+  rows.sort((a,b)=>(parseFloat(b.score)||0) - (parseFloat(a.score)||0));
+
+  grid.innerHTML = rows.slice(0,12).map((r,i)=>{
+    const gap = parseFloat(r.pm_gap_pct)||0;
+    const rv  = parseFloat(r.rel_vol)||0;
+    const pmv = parseInt(r.pm_vol)||0;
+    const hold = (r.holding_strong||'').toString().toLowerCase()==='true';
+    const holdTag = hold
+      ? '<span style="color:#22c55e;font-weight:700">🔒 HOLDING</span>'
+      : '<span style="color:#fbbf24;font-weight:700">⚠ FADING</span>';
+    const gapCol = gap>=10?'#22c55e':gap>=5?'#a3e635':'#fbbf24';
+    return `<div style="background:#1a1208;border:1px solid #f59e0b44;border-left:3px solid #f59e0b;border-radius:6px;padding:8px 10px;font-size:11px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+        <span style="font-size:10px;color:#6b7280;font-weight:700">#${i+1}</span>
+        <span style="font-size:14px;font-weight:800;color:#e2e8f0;letter-spacing:.5px">${r.ticker}</span>
+        <span style="font-size:9px;color:#f59e0b;background:#0d1117;padding:2px 6px;border-radius:3px;border:1px solid #f59e0b44">GENESIS</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;color:#94a3b8;font-size:10px;margin-bottom:6px">
+        <div>PM gap: <b style="color:${gapCol}">+${gap.toFixed(1)}%</b></div>
+        <div>Rel vol: <b style="color:#e2e8f0">${rv.toFixed(1)}x</b></div>
+        <div>PM vol: <b style="color:#e2e8f0">${(pmv/1000).toFixed(0)}k</b></div>
+        <div>State: ${holdTag}</div>
+      </div>
+      <div style="border-top:1px solid #30363d;padding-top:5px;font-size:10px;color:#94a3b8">
+        <div style="display:flex;justify-content:space-between"><span>PM range</span><span style="color:#e2e8f0">$${parseFloat(r.pm_low).toFixed(2)} – $${parseFloat(r.pm_high).toFixed(2)}</span></div>
+        <div style="display:flex;justify-content:space-between"><span>MOO BUY</span><span style="color:#fbbf24;font-weight:700">${r.shares} sh @ ~$${parseFloat(r.est_open).toFixed(2)}</span></div>
+        <div style="display:flex;justify-content:space-between"><span>Stop / T1</span><span><span style="color:#ef4444">$${parseFloat(r.stop).toFixed(2)}</span> / <span style="color:#22c55e">$${parseFloat(r.target).toFixed(2)}</span></span></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
 async function processFiles(entries){
-  const scanEntries = [], checkEntries = [];
+  const scanEntries = [], checkEntries = [], momentumEntries = [];
   for(const e of entries){
     if(!e.name.endsWith('.csv')) continue;
-    if(isCheckFile(e.name)) checkEntries.push(e);
+    if(e.name.startsWith('fem_momentum_')) momentumEntries.push(e);
+    else if(isCheckFile(e.name)) checkEntries.push(e);
     else if(srcFromName(e.name)) scanEntries.push(e);
   }
+
+  // Load latest momentum CSV (most recent by filename)
+  await loadMomentumPanel(momentumEntries);
 
   // Load check files -> outcome map
   const outcomeMap = {};
