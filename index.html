@@ -99,7 +99,7 @@ tr:hover td{background:#1a2533}
 
 <div id="header">
   <div>
-    <h1>FEM LIFECYCLE OBSERVATORY <span style="font-size:10px;color:#6b7280;font-weight:500;letter-spacing:0;margin-left:8px">accountability · alignment · pullback · momentum · recovery</span> <span id="mode-badge"></span></h1>
+    <h1>FEM LIFECYCLE OBSERVATORY <span style="font-size:10px;color:#6b7280;font-weight:500;letter-spacing:0;margin-left:8px">accountability · analysts · alignment · pullback · momentum · recovery</span> <span id="mode-badge"></span></h1>
     <div id="status">Fetching latest scans from GitHub...</div>
   </div>
   <div style="display:flex;align-items:center;gap:8px">
@@ -134,6 +134,18 @@ tr:hover td{background:#1a2533}
     <div id="pm-missed" style="display:flex;flex-wrap:wrap;gap:4px;font-size:10px;font-family:monospace"></div>
   </div>
   <div id="pm-empty" style="display:none;color:#6b7280;font-size:11px;font-style:italic;padding:6px 0">No post-mortem yet. Run 3_EOD_CHECK.bat after market close.</div>
+</div>
+
+<div id="analyst" style="padding:12px 18px;background:linear-gradient(180deg,#0a1f2e 0%,#0d1117 100%);border-bottom:2px solid #38bdf8;display:none">
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:8px">
+    <div>
+      <span style="font-size:13px;font-weight:700;color:#38bdf8;letter-spacing:1px">📈 ANALYST ACTIONS</span>
+      <span style="font-size:10px;color:#6b7280;font-weight:500;letter-spacing:0;margin-left:8px">upgrades · downgrades · PT changes · last 14 days · <span id="ana-date">--</span></span>
+    </div>
+    <div id="ana-summary" style="font-size:10px;color:#6b7280"></div>
+  </div>
+  <div id="analyst-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:8px"></div>
+  <div id="analyst-empty" style="display:none;color:#6b7280;font-size:11px;font-style:italic;padding:8px;text-align:center">No analyst events on the watchlist in the last 14 days.</div>
 </div>
 
 <div id="alignment" style="padding:12px 18px;background:linear-gradient(180deg,#2a1f3a 0%,#0d1117 100%);border-bottom:2px solid #e879f9;display:none">
@@ -555,6 +567,96 @@ function renderAbook(){
 }
 
 // ── Core: process a list of {name, getText} entries ─────────────────────────
+// ── Analyst Actions panel (Phase 3c — upgrades/downgrades clusters) ────────
+async function loadAnalystPanel(entries){
+  const panel = document.getElementById('analyst');
+  const grid  = document.getElementById('analyst-grid');
+  const empty = document.getElementById('analyst-empty');
+  const dateEl= document.getElementById('ana-date');
+  const sumEl = document.getElementById('ana-summary');
+  if(!entries.length){ panel.style.display='none'; return; }
+
+  entries.sort((a,b)=>a.name.localeCompare(b.name));
+  const latest = entries[entries.length-1];
+  const text = await latest.getText();
+  const rows = parseCSV(text);
+  const date = dateFromName(latest.name);
+  dateEl.textContent = date;
+  panel.style.display = 'block';
+
+  if(!rows.length){ grid.innerHTML=''; empty.style.display='block'; sumEl.textContent=''; return; }
+  empty.style.display='none';
+
+  // Cluster by ticker
+  const byTkr = {};
+  rows.forEach(r=>{
+    if(!r.ticker) return;
+    if(!byTkr[r.ticker]) byTkr[r.ticker]={ticker:r.ticker,events:[],bull:0,bear:0,neutral:0};
+    byTkr[r.ticker].events.push(r);
+    const w = parseFloat(r.weight)||0;
+    if(r.sentiment==='BULL') byTkr[r.ticker].bull += w;
+    else if(r.sentiment==='BEAR') byTkr[r.ticker].bear += w;
+    else byTkr[r.ticker].neutral += w;
+  });
+  const clusters = Object.values(byTkr).map(c=>{
+    c.net = c.bull - c.bear;
+    return c;
+  });
+  // Sort: hot zones first (≥2 events), then absolute net activity
+  clusters.sort((a,b)=>{
+    const ha = a.events.length>=2 ? 1 : 0;
+    const hb = b.events.length>=2 ? 1 : 0;
+    if(ha!==hb) return hb-ha;
+    return Math.abs(b.net)-Math.abs(a.net);
+  });
+
+  const totalEvents = rows.length;
+  const hotCount = clusters.filter(c=>c.events.length>=2).length;
+  sumEl.textContent = `${totalEvents} events · ${clusters.length} tickers · ${hotCount} hot zones`;
+
+  grid.innerHTML = clusters.slice(0,15).map(c=>{
+    const isHot = c.events.length>=2;
+    const borderCol = c.net>=4?'#22c55e' : c.net>=2?'#a3e635' : c.net<=-4?'#ef4444' : c.net<=-2?'#f87171' : '#38bdf8';
+    const netStr = c.net>0 ? `+${c.net}` : c.net.toString();
+    const netCol = c.net>0 ? '#22c55e' : c.net<0 ? '#ef4444' : '#94a3b8';
+
+    // Sort events by date desc, take top 4
+    c.events.sort((a,b)=>(b.grade_date||'').localeCompare(a.grade_date||''));
+    const evRows = c.events.slice(0,4).map(e=>{
+      const sent = e.sentiment;
+      const marker = sent==='BULL'?'<span style="color:#22c55e">↑</span>' : sent==='BEAR'?'<span style="color:#ef4444">↓</span>' : '<span style="color:#94a3b8">·</span>';
+      const cp = parseFloat(e.current_pt)||0;
+      const pp = parseFloat(e.prior_pt)||0;
+      let pt = '';
+      if(cp && pp && Math.abs(cp-pp)>0.01){
+        const ptCol = cp>pp ? '#22c55e' : '#ef4444';
+        pt = ` <span style="color:#6b7280;font-size:9px">PT</span> <span style="color:${ptCol};font-size:9px">$${pp.toFixed(0)}→$${cp.toFixed(0)}</span>`;
+      } else if(cp){
+        pt = ` <span style="color:#6b7280;font-size:9px">PT $${cp.toFixed(0)}</span>`;
+      }
+      const firmShort = (e.firm||'?').substring(0,18);
+      const dateShort = (e.grade_date||'').substring(0,10);
+      const action = (e.action||'').toLowerCase();
+      const aTag = action==='up'?'<span style="color:#22c55e;font-size:9px;font-weight:700">UPGRADE</span>'
+                 : action==='down'?'<span style="color:#ef4444;font-size:9px;font-weight:700">DOWNGRADE</span>'
+                 : action==='init'||action==='initiate'?'<span style="color:#fbbf24;font-size:9px;font-weight:700">INIT</span>'
+                 : '<span style="color:#6b7280;font-size:9px">maint</span>';
+      return `<div style="font-size:9px;color:#94a3b8;margin-bottom:2px">${marker} <span style="color:#6b7280">${dateShort}</span> ${firmShort} ${aTag}${pt}</div>`;
+    }).join('');
+
+    return `<div style="background:#0a1622;border:1px solid ${borderCol}66;border-left:3px solid ${borderCol};border-radius:6px;padding:8px 10px;font-size:11px${isHot?';box-shadow:0 0 8px '+borderCol+'22':''}">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+        <span style="font-size:14px;font-weight:800;color:#e2e8f0;letter-spacing:.5px">${c.ticker}</span>
+        <span style="display:flex;gap:6px;align-items:center">
+          <span style="font-size:9px;color:#6b7280">${c.events.length} event${c.events.length>1?'s':''}</span>
+          <span style="font-size:11px;font-weight:700;color:${netCol}">net ${netStr}</span>
+        </span>
+      </div>
+      ${evRows}
+    </div>`;
+  }).join('');
+}
+
 // ── Post-mortem panel (Phase 3b — daily accountability) ─────────────────────
 async function loadPostmortemPanel(entries){
   const panel = document.getElementById('postmortem');
@@ -889,20 +991,22 @@ async function loadRecoveryPanel(entries){
 }
 
 async function processFiles(entries){
-  const scanEntries = [], checkEntries = [], momentumEntries = [], consumptionEntries = [], postmortemEntries = [];
+  const scanEntries=[], checkEntries=[], momentumEntries=[], consumptionEntries=[], postmortemEntries=[], analystEntries=[];
   for(const e of entries){
     if(!e.name.endsWith('.csv')) continue;
     if(e.name.startsWith('fem_momentum_')) momentumEntries.push(e);
     else if(e.name.startsWith('fem_consumption_')) consumptionEntries.push(e);
     else if(e.name.startsWith('fem_postmortem_')) postmortemEntries.push(e);
+    else if(e.name.startsWith('fem_analyst_')) analystEntries.push(e);
     else if(isCheckFile(e.name)) checkEntries.push(e);
     else if(srcFromName(e.name)) scanEntries.push(e);
   }
 
-  // Load latest momentum + consumption + post-mortem (most recent by filename)
+  // Load latest momentum + consumption + post-mortem + analyst (most recent by filename)
   await loadMomentumPanel(momentumEntries);
   await loadRecoveryPanel(consumptionEntries);
   await loadPostmortemPanel(postmortemEntries);
+  await loadAnalystPanel(analystEntries);
 
   // Load check files -> outcome map
   const outcomeMap = {};
