@@ -99,7 +99,7 @@ tr:hover td{background:#1a2533}
 
 <div id="header">
   <div>
-    <h1>FEM LIFECYCLE OBSERVATORY <span style="font-size:10px;color:#6b7280;font-weight:500;letter-spacing:0;margin-left:8px">alignment · pullback · momentum · recovery</span> <span id="mode-badge"></span></h1>
+    <h1>FEM LIFECYCLE OBSERVATORY <span style="font-size:10px;color:#6b7280;font-weight:500;letter-spacing:0;margin-left:8px">accountability · alignment · pullback · momentum · recovery</span> <span id="mode-badge"></span></h1>
     <div id="status">Fetching latest scans from GitHub...</div>
   </div>
   <div style="display:flex;align-items:center;gap:8px">
@@ -118,6 +118,22 @@ tr:hover td{background:#1a2533}
   <div class="kpi all"><div class="lbl">Avg R (all)</div><div class="val" id="sc-r">--</div></div>
   <div class="kpi t1"><div class="lbl">Avg R (T1)</div><div class="val" id="sc-r1">--</div></div>
   <div class="kpi all"><div class="lbl">Entry Accuracy</div><div class="val" id="sc-ea">--</div></div>
+</div>
+
+<div id="postmortem" style="padding:10px 18px;background:#0d1117;border-bottom:2px solid #ef4444;display:none">
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:6px">
+    <div>
+      <span style="font-size:13px;font-weight:700;color:#ef4444;letter-spacing:1px">📊 ACCOUNTABILITY</span>
+      <span style="font-size:10px;color:#6b7280;font-weight:500;letter-spacing:0;margin-left:8px">last EOD post-mortem · <span id="pm-date">--</span></span>
+    </div>
+    <div id="pm-headline" style="font-size:12px;font-weight:600"></div>
+  </div>
+  <div id="pm-stats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;margin-bottom:8px"></div>
+  <div id="pm-missed-wrap" style="display:none">
+    <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Missed movers (≥10%):</div>
+    <div id="pm-missed" style="display:flex;flex-wrap:wrap;gap:4px;font-size:10px;font-family:monospace"></div>
+  </div>
+  <div id="pm-empty" style="display:none;color:#6b7280;font-size:11px;font-style:italic;padding:6px 0">No post-mortem yet. Run 3_EOD_CHECK.bat after market close.</div>
 </div>
 
 <div id="alignment" style="padding:12px 18px;background:linear-gradient(180deg,#2a1f3a 0%,#0d1117 100%);border-bottom:2px solid #e879f9;display:none">
@@ -539,6 +555,78 @@ function renderAbook(){
 }
 
 // ── Core: process a list of {name, getText} entries ─────────────────────────
+// ── Post-mortem panel (Phase 3b — daily accountability) ─────────────────────
+async function loadPostmortemPanel(entries){
+  const panel = document.getElementById('postmortem');
+  const dateEl = document.getElementById('pm-date');
+  const headEl = document.getElementById('pm-headline');
+  const stEl = document.getElementById('pm-stats');
+  const missedWrap = document.getElementById('pm-missed-wrap');
+  const missedEl = document.getElementById('pm-missed');
+  const emptyEl = document.getElementById('pm-empty');
+
+  if(!entries.length){
+    panel.style.display = 'block';
+    dateEl.textContent = '--';
+    headEl.innerHTML = '';
+    stEl.innerHTML = '';
+    missedWrap.style.display = 'none';
+    emptyEl.style.display = 'block';
+    return;
+  }
+  emptyEl.style.display = 'none';
+
+  // Newest by filename (sorted ascending)
+  entries.sort((a,b)=>a.name.localeCompare(b.name));
+  const latest = entries[entries.length-1];
+  const text = await latest.getText();
+  const rows = parseCSV(text);
+  const date = dateFromName(latest.name);
+  dateEl.textContent = date;
+  panel.style.display = 'block';
+
+  // Aggregate
+  const movers = rows.filter(r=>r.is_mover==='true');
+  const caught = movers.filter(r=>r.picked==='true');
+  const missed = movers.filter(r=>r.picked!=='true');
+  const movers_up = movers.filter(r=>parseFloat(r.chg_pct_full)>0).length;
+  const movers_down = movers.length - movers_up;
+  const cr = movers.length ? (caught.length/movers.length*100) : 0;
+
+  // Headline + verdict color
+  let verdict, vcolor;
+  if(!movers.length){ verdict='NO MOVERS'; vcolor='#6b7280'; }
+  else if(cr>=60){ verdict='HEALTHY'; vcolor='#22c55e'; }
+  else if(cr>=40){ verdict='ADEQUATE'; vcolor='#fbbf24'; }
+  else if(cr>=20){ verdict='POOR — scanner missing too much'; vcolor='#f59e0b'; }
+  else { verdict='BROKEN — structural review needed'; vcolor='#ef4444'; }
+
+  headEl.innerHTML = `<span style="color:${vcolor};font-size:13px">VERDICT: ${verdict}</span> <span style="color:#6b7280">·</span> <span style="color:#e2e8f0">${caught.length}/${movers.length} caught (${cr.toFixed(0)}%)</span>`;
+
+  // Stats grid
+  const stat = (lbl, val, col) => `<div style="background:#161b22;border:1px solid #21262d;border-radius:6px;padding:8px 12px"><div style="font-size:9px;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">${lbl}</div><div style="font-size:16px;font-weight:700;color:${col||'#e2e8f0'}">${val}</div></div>`;
+  stEl.innerHTML =
+    stat('Movers ≥10%', `${movers.length} <span style="font-size:10px;color:#6b7280">(${movers_up}↑ ${movers_down}↓)</span>`) +
+    stat('Caught', caught.length, '#22c55e') +
+    stat('Missed', missed.length, '#ef4444') +
+    stat('Catch Rate', cr.toFixed(0)+'%', vcolor);
+
+  // Missed pills
+  if(missed.length){
+    missedWrap.style.display='block';
+    missed.sort((a,b)=>Math.abs(parseFloat(b.chg_pct_full))-Math.abs(parseFloat(a.chg_pct_full)));
+    missedEl.innerHTML = missed.slice(0,30).map(r=>{
+      const c = parseFloat(r.chg_pct_full);
+      const col = c>0 ? '#22c55e' : '#ef4444';
+      const sign = c>0 ? '+' : '';
+      const tag = r.is_alumnus==='true' ? ' [A]' : '';
+      return `<span style="background:#1a0a0a;border:1px solid ${col}44;color:${col};padding:2px 6px;border-radius:3px;font-weight:600">${r.ticker} ${sign}${c.toFixed(1)}%${tag}</span>`;
+    }).join('');
+  } else {
+    missedWrap.style.display='none';
+  }
+}
+
 // ── Alignment view (Phase 3 — cross-lens confluence) ────────────────────────
 // Surfaces tickers appearing in 2+ lifecycle lenses simultaneously.
 // Apex = all 3 panels show the same name. That's a fractal alignment.
@@ -801,18 +889,20 @@ async function loadRecoveryPanel(entries){
 }
 
 async function processFiles(entries){
-  const scanEntries = [], checkEntries = [], momentumEntries = [], consumptionEntries = [];
+  const scanEntries = [], checkEntries = [], momentumEntries = [], consumptionEntries = [], postmortemEntries = [];
   for(const e of entries){
     if(!e.name.endsWith('.csv')) continue;
     if(e.name.startsWith('fem_momentum_')) momentumEntries.push(e);
     else if(e.name.startsWith('fem_consumption_')) consumptionEntries.push(e);
+    else if(e.name.startsWith('fem_postmortem_')) postmortemEntries.push(e);
     else if(isCheckFile(e.name)) checkEntries.push(e);
     else if(srcFromName(e.name)) scanEntries.push(e);
   }
 
-  // Load latest momentum + consumption CSVs (most recent by filename)
+  // Load latest momentum + consumption + post-mortem (most recent by filename)
   await loadMomentumPanel(momentumEntries);
   await loadRecoveryPanel(consumptionEntries);
+  await loadPostmortemPanel(postmortemEntries);
 
   // Load check files -> outcome map
   const outcomeMap = {};
