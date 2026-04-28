@@ -1,5 +1,5 @@
 {
-  "updated": "2026-04-28 11:44",
+  "updated": "2026-04-28 12:10",
   "files": [
     "fem_analyst_2026-04-28.csv",
     "fem_bigcap_scan_2026-04-09_1600.csv",
@@ -85,6 +85,7 @@
     "fem_scan_v8_2026-03-28_1052.csv",
     "fem_scan_v8_2026-04-05_1759.csv",
     "fem_scan_v8_2026-04-07_0000.csv",
+    "fem_short_backtest_2026-04-28.csv",
     "fem_swing_20260210_2026-04-05_1402.csv",
     "fem_swing_20260210_2026-04-07_0654.csv",
     "fem_swing_20260305_2026-04-05_1149.csv",
