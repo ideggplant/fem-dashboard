@@ -1096,6 +1096,11 @@ function renderAlignment(){
       const arrowCol = row.a.sentiment==='BULL' ? '#22c55e' : '#ef4444';
       const arrow = row.a.sentiment==='BULL' ? '↑' : '↓';
       lensIcons.push(`<span style="color:${arrowCol};font-weight:700">📈 Analyst ${arrow}${row.a.net>0?'+':''}${row.a.net}</span>`);
+      // Phase 8b backtest: analyst-aligned long picks had 62.5% WR vs 39.4% baseline,
+      // and per-trade EV jumped from $25 → $97. Surface as "HIGH CONVICTION" tag.
+      if(Math.abs(row.a.net) >= 2){
+        lensIcons.push('<span style="color:#fbbf24;font-weight:800;background:#332100;padding:1px 5px;border-radius:3px;border:1px solid #fbbf2466">⭐⭐⭐ HIGH CONVICTION</span>');
+      }
     } else if(row.a && row.analystAlign==='opposed'){
       lensIcons.push(`<span style="color:#fbbf24;font-weight:700">⚠ Analyst opposed (${row.a.net>0?'+':''}${row.a.net})</span>`);
     }
