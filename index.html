@@ -99,7 +99,7 @@ tr:hover td{background:#1a2533}
 
 <div id="header">
   <div>
-    <h1>FEM LIFECYCLE OBSERVATORY <span style="font-size:10px;color:#6b7280;font-weight:500;letter-spacing:0;margin-left:8px">accountability · recommendations · analysts · alignment · pullback · momentum · shorts · recovery</span> <span id="mode-badge"></span></h1>
+    <h1>FEM LIFECYCLE OBSERVATORY <span style="font-size:10px;color:#6b7280;font-weight:500;letter-spacing:0;margin-left:8px">accountability · P&L · recommendations · analysts · alignment · pullback · momentum · shorts · recovery</span> <span id="mode-badge"></span></h1>
     <div id="status">Fetching latest scans from GitHub...</div>
   </div>
   <div style="display:flex;align-items:center;gap:8px">
@@ -142,6 +142,22 @@ tr:hover td{background:#1a2533}
     <div id="pm-missed" style="display:flex;flex-wrap:wrap;gap:4px;font-size:10px;font-family:monospace"></div>
   </div>
   <div id="pm-empty" style="display:none;color:#6b7280;font-size:11px;font-style:italic;padding:6px 0">No post-mortem yet. Run 3_EOD_CHECK.bat after market close.</div>
+</div>
+
+<div id="pnl" style="padding:10px 18px;background:linear-gradient(180deg,#0a1f0e 0%,#0d1117 100%);border-bottom:2px solid #22c55e;display:none">
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:6px">
+    <div>
+      <span style="font-size:13px;font-weight:700;color:#22c55e;letter-spacing:1px">💰 P&L TRACK RECORD</span>
+      <span style="font-size:10px;color:#6b7280;font-weight:500;letter-spacing:0;margin-left:8px">realized $ at $100/slot · MOO plan · <span id="pnl-date">--</span></span>
+    </div>
+    <div id="pnl-cumulative" style="font-size:14px;font-weight:700"></div>
+  </div>
+  <div id="pnl-stats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;margin-bottom:8px"></div>
+  <div id="pnl-trend-wrap" style="display:none">
+    <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Daily P&L (last 14 days):</div>
+    <div id="pnl-trend" style="display:flex;gap:3px;align-items:flex-end;height:80px"></div>
+  </div>
+  <div id="pnl-empty" style="display:none;color:#6b7280;font-size:11px;font-style:italic;padding:6px 0">No P&L data yet — run 3_EOD_CHECK.bat after market close.</div>
 </div>
 
 <div id="recommend" style="padding:10px 18px;background:linear-gradient(180deg,#1a1408 0%,#0d1117 100%);border-bottom:2px solid #fb923c;display:none">
@@ -301,6 +317,8 @@ const LIFECYCLE = {
   pullback: {},   // {ticker: row}  from A-book
   momentum: {},   // {ticker: row}  from momentum panel
   recovery: {},   // {ticker: row}  from recovery panel
+  shorts:   {},   // {ticker: row}  from shorts panel
+  analyst:  {},   // {ticker: {net, sentiment, count}}  from analyst panel
   date: '',
 };
 
@@ -604,6 +622,78 @@ function renderAbook(){
 }
 
 // ── Core: process a list of {name, getText} entries ─────────────────────────
+// ── P&L Track Record panel (Phase 7 — realized $) ──────────────────────────
+async function loadPnlPanel(entries){
+  const panel = document.getElementById('pnl');
+  const dateEl = document.getElementById('pnl-date');
+  const cumEl = document.getElementById('pnl-cumulative');
+  const stEl = document.getElementById('pnl-stats');
+  const trendWrap = document.getElementById('pnl-trend-wrap');
+  const trendEl = document.getElementById('pnl-trend');
+  const emptyEl = document.getElementById('pnl-empty');
+
+  if(!entries.length){ panel.style.display='none'; return; }
+
+  entries.sort((a,b)=>a.name.localeCompare(b.name));
+  const latest = entries[entries.length-1];
+  const text = await latest.getText();
+  const rows = parseCSV(text);
+  panel.style.display = 'block';
+
+  if(!rows.length){ stEl.innerHTML=''; trendWrap.style.display='none'; emptyEl.style.display='block'; return; }
+  emptyEl.style.display='none';
+  // sort by date asc
+  rows.sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+  const last = rows[rows.length-1];
+  dateEl.textContent = last.date || '--';
+
+  const cum = parseFloat(last.pnl_cumulative)||0;
+  const cumCol = cum>=0 ? '#22c55e' : '#ef4444';
+  cumEl.innerHTML = `<span style="color:${cumCol}">All-time: ${cum>=0?'+':''}$${cum.toLocaleString()}</span>`;
+
+  // Stats: 7d / 30d / win rate / best day
+  const last7 = rows.slice(-7);
+  const last30 = rows.slice(-30);
+  const pl7 = last7.reduce((s,d)=>s+(parseFloat(d.pnl_day)||0), 0);
+  const pl30 = last30.reduce((s,d)=>s+(parseFloat(d.pnl_day)||0), 0);
+  const wins30 = last30.reduce((s,d)=>s+(parseInt(d.wins)||0), 0);
+  const picks30 = last30.reduce((s,d)=>s+(parseInt(d.picks)||0), 0);
+  const wr30 = picks30 ? wins30/picks30*100 : 0;
+  const todayPnl = parseFloat(last.pnl_day)||0;
+
+  const stat = (lbl, val, col) => `<div style="background:#161b22;border:1px solid #21262d;border-radius:6px;padding:8px 12px"><div style="font-size:9px;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">${lbl}</div><div style="font-size:16px;font-weight:700;color:${col||'#e2e8f0'}">${val}</div></div>`;
+  const fmtMoney = v => (v>=0?'+$':'-$') + Math.abs(v).toLocaleString();
+  stEl.innerHTML =
+    stat('Today', fmtMoney(todayPnl), todayPnl>=0?'#22c55e':'#ef4444') +
+    stat('Last 7d', fmtMoney(pl7), pl7>=0?'#22c55e':'#ef4444') +
+    stat('Last 30d', fmtMoney(pl30), pl30>=0?'#22c55e':'#ef4444') +
+    stat('30d WR', wr30.toFixed(0)+'%', wr30>=40?'#22c55e':wr30>=30?'#fbbf24':'#ef4444');
+
+  // Trend bars (last 14 days)
+  const last14 = rows.slice(-14);
+  if(last14.length){
+    trendWrap.style.display = 'block';
+    const maxAbs = Math.max(...last14.map(d=>Math.abs(parseFloat(d.pnl_day)||0)), 1);
+    trendEl.innerHTML = last14.map(d=>{
+      const pl = parseFloat(d.pnl_day)||0;
+      const h = Math.max(2, Math.abs(pl)/maxAbs*30);
+      const col = pl>=0 ? '#22c55e' : '#ef4444';
+      const dateLabel = (d.date||'').slice(5);
+      return `<div title="${d.date}: ${pl>=0?'+':''}$${pl.toFixed(0)} (${d.wins}/${d.picks} wins)" style="display:flex;flex-direction:column;align-items:center;flex:1;min-width:30px;justify-content:center;height:100%">
+        <div style="font-size:8px;color:${col};font-weight:700;margin-bottom:1px;height:10px">${pl>=0?'+':''}${(pl/100).toFixed(1)}</div>
+        ${pl>=0
+          ? `<div style="height:30px;width:100%;display:flex;align-items:flex-end;justify-content:center"><div style="background:${col};width:100%;max-width:30px;height:${h}px;border-radius:2px 2px 0 0"></div></div>
+             <div style="height:30px;width:100%"></div>`
+          : `<div style="height:30px;width:100%"></div>
+             <div style="height:30px;width:100%;display:flex;align-items:flex-start;justify-content:center"><div style="background:${col};width:100%;max-width:30px;height:${h}px;border-radius:0 0 2px 2px"></div></div>`}
+        <div style="font-size:8px;color:#6b7280;margin-top:2px">${dateLabel}</div>
+      </div>`;
+    }).join('');
+  } else {
+    trendWrap.style.display = 'none';
+  }
+}
+
 // ── Recommendations panel (Phase 5 — feedback loop) ─────────────────────────
 async function loadRecommendPanel(entries){
   const panel = document.getElementById('recommend');
@@ -692,6 +782,16 @@ async function loadAnalystPanel(entries){
     c.net = c.bull - c.bear;
     return c;
   });
+
+  // Populate lifecycle analyst aggregator (per-ticker net sentiment)
+  LIFECYCLE.analyst = {};
+  clusters.forEach(c=>{
+    const sentiment = c.net >= 2 ? 'BULL' : c.net <= -2 ? 'BEAR' : 'NEUTRAL';
+    LIFECYCLE.analyst[c.ticker.toUpperCase()] = {
+      net: c.net, sentiment, count: c.events.length, bull: c.bull, bear: c.bear,
+    };
+  });
+  renderAlignment();
   // Sort: hot zones first (≥2 events), then absolute net activity
   clusters.sort((a,b)=>{
     const ha = a.events.length>=2 ? 1 : 0;
@@ -897,7 +997,8 @@ function renderAlignment(){
   const universe = new Set([
     ...Object.keys(LIFECYCLE.pullback||{}),
     ...Object.keys(LIFECYCLE.momentum||{}),
-    ...Object.keys(LIFECYCLE.recovery||{})
+    ...Object.keys(LIFECYCLE.recovery||{}),
+    ...Object.keys(LIFECYCLE.shorts||{})
   ]);
   if(!universe.size){ panel.style.display='none'; return; }
   dateEl.textContent = LIFECYCLE.date || '--';
@@ -908,51 +1009,97 @@ function renderAlignment(){
     const p = LIFECYCLE.pullback[tkr];
     const m = LIFECYCLE.momentum[tkr];
     const r = LIFECYCLE.recovery[tkr];
-    const lensCount = (p?1:0) + (m?1:0) + (r?1:0);
-    if(lensCount >= 2){
-      // Score: each lens contributes a weighted signal
-      // pullback presence: tier-weighted (T1-STRONG > T2 > T3)
-      // momentum presence: gap_pct contributes
-      // recovery presence: phase weight (HIGHWAY=3, APPROACHING=2, CLIMBING=1)
-      let score = 0;
-      if(p){
-        const t = (p.tier||'').toUpperCase();
-        if(t.includes('T1-STRONG')) score += 3;
-        else if(t.includes('T1')) score += 2.5;
-        else if(t.includes('T2')) score += 1.5;
-        else score += 1;
-      }
-      if(m){
-        const gap = parseFloat(m.pm_gap_pct)||0;
-        const rv  = parseFloat(m.rel_vol)||1;
-        score += Math.min(5, gap/3) + Math.min(2, Math.log(Math.max(rv,1))*0.7);
-      }
-      if(r){
-        const ph = (r.phase||'').toUpperCase();
-        if(ph==='HIGHWAY') score += 4;
-        else if(ph==='APPROACHING') score += 3;
-        else if(ph==='CLIMBING') score += 2;
-      }
-      // APEX bonus when all 3 lenses light up
-      if(lensCount === 3) score *= 1.5;
-      aligned.push({ticker: tkr, p, m, r, lensCount, score});
+    const s = LIFECYCLE.shorts[tkr];
+    const a = LIFECYCLE.analyst[tkr];
+    const longLenses  = (p?1:0) + (m?1:0) + (r?1:0);
+    const shortLenses = (s?1:0);
+
+    // Direction-aware: a name is either being flagged long OR short
+    // (rarely both — a name with PM gap-down won't typically also be in pullback longs)
+    const direction = (longLenses > 0 && shortLenses === 0) ? 'LONG'
+                     : (shortLenses > 0 && longLenses === 0) ? 'SHORT'
+                     : (longLenses + shortLenses) > 0 ? 'CONFLICTED'
+                     : null;
+
+    // Analyst alignment: does analyst sentiment match trade direction?
+    let analystAlign = 'none';
+    if(a && a.sentiment !== 'NEUTRAL'){
+      if(direction === 'LONG' && a.sentiment === 'BULL') analystAlign = 'aligned';
+      else if(direction === 'SHORT' && a.sentiment === 'BEAR') analystAlign = 'aligned';
+      else if(a.sentiment !== 'NEUTRAL') analystAlign = 'opposed';
     }
+
+    // Promotion criteria: must show in at least 2 lenses OR 1 lens + aligned analyst
+    const lensCount = longLenses + shortLenses;
+    const qualifies = lensCount >= 2 || (lensCount >= 1 && analystAlign === 'aligned');
+    if(!qualifies) continue;
+
+    // Score
+    let score = 0;
+    if(p){
+      const t = (p.tier||'').toUpperCase();
+      if(t.includes('T1-STRONG')) score += 3;
+      else if(t.includes('T1')) score += 2.5;
+      else if(t.includes('T2')) score += 1.5;
+      else score += 1;
+    }
+    if(m){
+      const gap = parseFloat(m.pm_gap_pct)||0;
+      const rv  = parseFloat(m.rel_vol)||1;
+      score += Math.min(5, gap/3) + Math.min(2, Math.log(Math.max(rv,1))*0.7);
+    }
+    if(r){
+      const ph = (r.phase||'').toUpperCase();
+      if(ph==='HIGHWAY') score += 4;
+      else if(ph==='APPROACHING') score += 3;
+      else if(ph==='CLIMBING') score += 2;
+    }
+    if(s){
+      const gap = parseFloat(s.pm_gap_down_pct)||0;
+      const rv  = parseFloat(s.rel_vol)||1;
+      score += Math.min(5, gap/3) + Math.min(2, Math.log(Math.max(rv,1))*0.7);
+    }
+    // Analyst contribution
+    if(analystAlign === 'aligned'){
+      score += Math.min(4, Math.abs(a.net)/2);
+    } else if(analystAlign === 'opposed'){
+      score *= 0.7;  // penalty for analyst disagreement
+    }
+    // APEX bonuses
+    if(longLenses === 3) score *= 1.5;
+    if(longLenses === 3 && analystAlign === 'aligned') score *= 1.2;
+    if(shortLenses >= 1 && analystAlign === 'aligned') score *= 1.2;
+    aligned.push({ticker: tkr, p, m, r, s, a, lensCount, longLenses, shortLenses,
+                  direction, analystAlign, score});
   }
 
   if(!aligned.length){ grid.innerHTML=''; empty.style.display='block'; return; }
   empty.style.display='none';
   aligned.sort((a,b)=>b.score-a.score);
 
-  grid.innerHTML = aligned.slice(0, 8).map((row, i)=>{
-    const isApex = row.lensCount === 3;
-    const borderCol = isApex ? '#e879f9' : '#a78bfa';
-    const tag = isApex ? 'APEX (3-lens)' : '2-lens';
+  grid.innerHTML = aligned.slice(0, 10).map((row, i)=>{
+    const isApex = (row.longLenses === 3 || row.shortLenses + (row.analystAlign==='aligned'?1:0) >= 2);
+    const isShort = row.direction === 'SHORT';
+    const isConflicted = row.direction === 'CONFLICTED';
+    const borderCol = isConflicted ? '#fbbf24' : isShort ? '#ef4444' : isApex ? '#e879f9' : '#a78bfa';
+    const tag = isConflicted ? '⚠ CONFLICTED'
+              : isShort ? `SHORT ${row.shortLenses>0?(row.shortLenses+(row.analystAlign==='aligned'?1:0)):0}-lens`
+              : isApex ? `APEX (${row.longLenses}-lens)`
+              : `${row.longLenses+(row.analystAlign==='aligned'?1:0)}-lens`;
+
     const lensIcons = [];
     if(row.p) lensIcons.push('<span style="color:#fbbf24;font-weight:700">⭐ Pullback</span>');
     if(row.m) lensIcons.push('<span style="color:#f59e0b;font-weight:700">⚡ Momentum</span>');
     if(row.r) lensIcons.push('<span style="color:#22c55e;font-weight:700">🛣 Recovery</span>');
+    if(row.s) lensIcons.push('<span style="color:#ef4444;font-weight:700">📉 Short</span>');
+    if(row.a && row.analystAlign==='aligned'){
+      const arrowCol = row.a.sentiment==='BULL' ? '#22c55e' : '#ef4444';
+      const arrow = row.a.sentiment==='BULL' ? '↑' : '↓';
+      lensIcons.push(`<span style="color:${arrowCol};font-weight:700">📈 Analyst ${arrow}${row.a.net>0?'+':''}${row.a.net}</span>`);
+    } else if(row.a && row.analystAlign==='opposed'){
+      lensIcons.push(`<span style="color:#fbbf24;font-weight:700">⚠ Analyst opposed (${row.a.net>0?'+':''}${row.a.net})</span>`);
+    }
 
-    // Build per-lens quick stats
     const stats = [];
     if(row.p){
       const tier = row.p.tier || '?';
@@ -972,29 +1119,47 @@ function renderAlignment(){
       const dst = parseFloat(row.r.next_major_dist_pct);
       stats.push(`<div style="font-size:10px;color:#94a3b8"><span style="color:#22c55e">Recovery:</span> ${ph} · ${cp.toFixed(0)}% consumed${isFinite(dst)?` · major +${dst.toFixed(1)}%`:''}</div>`);
     }
-
-    // Suggested ticket — prefer recovery target if present (highway end), else momentum/pullback
-    let est, stop, target, shares, exp;
-    if(row.r && row.r.target){
-      est = parseFloat(row.r.est_open) || parseFloat(row.r.current_price);
-      stop = parseFloat(row.r.stop);
-      target = parseFloat(row.r.target);
-      shares = parseInt(row.r.shares);
-      exp = parseFloat(row.r.expected_pct);
-    } else if(row.m && row.m.est_open){
-      est = parseFloat(row.m.est_open);
-      stop = parseFloat(row.m.stop);
-      target = parseFloat(row.m.target);
-      shares = parseInt(row.m.shares);
-      exp = 3.0;
+    if(row.s){
+      const gap = parseFloat(row.s.pm_gap_down_pct)||0;
+      const rv  = parseFloat(row.s.rel_vol)||0;
+      stats.push(`<div style="font-size:10px;color:#94a3b8"><span style="color:#ef4444">Short:</span> PM gap-down −${gap.toFixed(1)}% · ${rv.toFixed(1)}x rv (entry @ 9:33)</div>`);
+    }
+    if(row.a && row.analystAlign !== 'none'){
+      const dirCol = row.analystAlign==='aligned' ? '#22c55e' : '#fbbf24';
+      stats.push(`<div style="font-size:10px;color:#94a3b8"><span style="color:${dirCol}">Analyst:</span> ${row.a.count} events · net ${row.a.net>0?'+':''}${row.a.net} (${row.a.sentiment}) — ${row.analystAlign==='aligned'?'aligned with trade direction':'opposed to trade direction'}</div>`);
     }
 
-    const tixBlock = est ? `<div style="border-top:1px solid #30363d;padding-top:5px;margin-top:6px;font-size:10px">
-      <div style="display:flex;justify-content:space-between;color:#94a3b8"><span>Suggested MOO</span><span style="color:#fbbf24;font-weight:700">${shares} sh @ ~$${est.toFixed(2)}</span></div>
-      <div style="display:flex;justify-content:space-between;color:#94a3b8"><span>Stop / Target</span><span><span style="color:#ef4444">$${stop.toFixed(2)}</span> → <span style="color:#22c55e">$${target.toFixed(2)}</span> ${exp?`<span style="color:#6b7280">(+${exp.toFixed(1)}%)</span>`:''}</span></div>
-    </div>` : '';
+    // Suggested ticket — direction-aware
+    let tixBlock = '';
+    if(isShort && row.s){
+      const est = parseFloat(row.s.est_open);
+      const stop = parseFloat(row.s.stop);
+      const target = parseFloat(row.s.target);
+      const shares = parseInt(row.s.shares);
+      tixBlock = `<div style="border-top:1px solid #30363d;padding-top:5px;margin-top:6px;font-size:10px">
+        <div style="display:flex;justify-content:space-between;color:#94a3b8"><span>SELL @ 9:33</span><span style="color:#ef4444;font-weight:700">${shares} sh @ ~$${est.toFixed(2)}</span></div>
+        <div style="display:flex;justify-content:space-between;color:#94a3b8"><span>Stop / Target</span><span><span style="color:#ef4444">$${stop.toFixed(2)}</span> → <span style="color:#22c55e">$${target.toFixed(2)}</span></span></div>
+      </div>`;
+    } else if(!isConflicted){
+      let est, stop, target, shares, exp;
+      if(row.r && row.r.target){
+        est = parseFloat(row.r.est_open) || parseFloat(row.r.current_price);
+        stop = parseFloat(row.r.stop); target = parseFloat(row.r.target);
+        shares = parseInt(row.r.shares); exp = parseFloat(row.r.expected_pct);
+      } else if(row.m && row.m.est_open){
+        est = parseFloat(row.m.est_open); stop = parseFloat(row.m.stop);
+        target = parseFloat(row.m.target); shares = parseInt(row.m.shares); exp = 3.0;
+      }
+      if(est){
+        tixBlock = `<div style="border-top:1px solid #30363d;padding-top:5px;margin-top:6px;font-size:10px">
+          <div style="display:flex;justify-content:space-between;color:#94a3b8"><span>Suggested MOO</span><span style="color:#fbbf24;font-weight:700">${shares} sh @ ~$${est.toFixed(2)}</span></div>
+          <div style="display:flex;justify-content:space-between;color:#94a3b8"><span>Stop / Target</span><span><span style="color:#ef4444">$${stop.toFixed(2)}</span> → <span style="color:#22c55e">$${target.toFixed(2)}</span> ${exp?`<span style="color:#6b7280">(+${exp.toFixed(1)}%)</span>`:''}</span></div>
+        </div>`;
+      }
+    }
 
-    return `<div style="background:#1a0f2a;border:1px solid ${borderCol}66;border-left:4px solid ${borderCol};border-radius:6px;padding:10px 12px;font-size:11px${isApex ? ';box-shadow:0 0 10px '+borderCol+'33' : ''}">
+    const cardBg = isShort ? '#1a0a0a' : isConflicted ? '#1a1408' : '#1a0f2a';
+    return `<div style="background:${cardBg};border:1px solid ${borderCol}66;border-left:4px solid ${borderCol};border-radius:6px;padding:10px 12px;font-size:11px${isApex ? ';box-shadow:0 0 10px '+borderCol+'33' : ''}">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
         <span style="font-size:10px;color:#6b7280;font-weight:700">#${i+1}</span>
         <span style="font-size:15px;font-weight:800;color:#e2e8f0;letter-spacing:.5px">${row.ticker}</span>
@@ -1088,10 +1253,15 @@ async function loadShortsPanel(entries){
   dateEl.textContent = date;
   panel.style.display = 'block';
 
-  if(!rows.length){ grid.innerHTML=''; empty.style.display='block'; return; }
+  if(!rows.length){ grid.innerHTML=''; empty.style.display='block'; LIFECYCLE.shorts={}; renderAlignment(); return; }
   empty.style.display='none';
 
   rows.sort((a,b)=>(parseFloat(b.score)||0) - (parseFloat(a.score)||0));
+
+  // Populate lifecycle aggregator
+  LIFECYCLE.shorts = {};
+  rows.forEach(r=>{ if(r.ticker) LIFECYCLE.shorts[r.ticker.toUpperCase()] = r; });
+  renderAlignment();
 
   grid.innerHTML = rows.slice(0,12).map((r,i)=>{
     const gap = parseFloat(r.pm_gap_down_pct)||0;
@@ -1199,15 +1369,17 @@ async function loadRecoveryPanel(entries){
 }
 
 async function processFiles(entries){
-  const scanEntries=[], checkEntries=[], momentumEntries=[], consumptionEntries=[], postmortemEntries=[], analystEntries=[], shortsEntries=[], recommendEntries=[];
+  const scanEntries=[], checkEntries=[], momentumEntries=[], consumptionEntries=[], postmortemEntries=[], analystEntries=[], shortsEntries=[], recommendEntries=[], pnlEntries=[];
   for(const e of entries){
     if(!e.name.endsWith('.csv')) continue;
     if(e.name.startsWith('fem_momentum_')) momentumEntries.push(e);
     else if(e.name.startsWith('fem_consumption_')) consumptionEntries.push(e);
     else if(e.name.startsWith('fem_postmortem_')) postmortemEntries.push(e);
     else if(e.name.startsWith('fem_analyst_')) analystEntries.push(e);
+    else if(e.name.startsWith('fem_short_backtest_')) {/* skip backtest from main pipeline */ }
     else if(e.name.startsWith('fem_short_')) shortsEntries.push(e);
     else if(e.name.startsWith('fem_watchlist_recommend_')) recommendEntries.push(e);
+    else if(e.name.startsWith('fem_pnl_')) pnlEntries.push(e);
     else if(isCheckFile(e.name)) checkEntries.push(e);
     else if(srcFromName(e.name)) scanEntries.push(e);
   }
@@ -1219,6 +1391,7 @@ async function processFiles(entries){
   await loadPostmortemPanel(postmortemEntries);
   await loadAnalystPanel(analystEntries);
   await loadRecommendPanel(recommendEntries);
+  await loadPnlPanel(pnlEntries);
 
   // Load check files -> outcome map
   const outcomeMap = {};
