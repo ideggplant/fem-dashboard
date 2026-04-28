@@ -702,31 +702,40 @@ function applyFilters(){
     return true;
   });
 
+  // Outcome: anything good = green, anything bad = red, neutral states = gray
   const ocCls = o=>{
-    if(o==='TARGET_HIT') return 'oc-win';
-    if(o==='STOPPED') return 'oc-stop';
-    if(o==='WINNING') return 'oc-live';
-    if(o==='LOSING') return 'oc-loss';
-    if(o==='NO_FILL'||o==='NO-FILL') return 'oc-nofill';
-    if(o==='PRE_UP'||o==='PRE_DOWN'||o==='FLAT') return 'oc-live';
-    if(o==='NO_DATA') return 'oc-nofill';
+    if(o==='TARGET_HIT'||o==='WINNING'||o==='PRE_UP') return 'oc-win';
+    if(o==='STOPPED'||o==='LOSING'||o==='PRE_DOWN') return 'oc-loss';
+    if(o==='NO_FILL'||o==='NO-FILL'||o==='FLAT'||o==='NO_DATA') return 'oc-nofill';
     return 'oc-none';
   };
 
+  // Result R: positive green, negative red, zero/blank gray
   const rCls = v=>{
     const n = parseFloat(v);
-    if(isNaN(n)) return '';
-    return n>0 ? 'style="color:#22c55e;font-weight:600"' : 'style="color:#ef4444"';
+    if(isNaN(n)) return 'style="color:#94a3b8"';
+    if(n>0) return 'style="color:#22c55e;font-weight:600"';
+    if(n<0) return 'style="color:#ef4444;font-weight:600"';
+    return 'style="color:#94a3b8"';
   };
 
+  // Last Px: green if above entry, red if below, gray if equal/missing
+  const lastPxCls = (last, entry)=>{
+    const lp = parseFloat(last), en = parseFloat(entry);
+    if(isNaN(lp)||isNaN(en)||en===0) return 'style="color:#94a3b8"';
+    if(lp>en) return 'style="color:#22c55e;font-weight:600"';
+    if(lp<en) return 'style="color:#ef4444;font-weight:600"';
+    return 'style="color:#94a3b8"';
+  };
+
+  // Entry diff%: positive = price moved up from entry = green; negative = red; ~zero = gray
   const deltaCls = v=>{
-    if(!v||v==='--') return '';
+    if(!v||v==='--') return 'style="color:#94a3b8"';
     const n = parseFloat(v);
-    if(isNaN(n)) return '';
-    const abs = Math.abs(n);
-    if(abs<=1) return 'style="color:#22c55e"';
-    if(abs<=3) return 'style="color:#fbbf24"';
-    return 'style="color:#ef4444"';
+    if(isNaN(n)) return 'style="color:#94a3b8"';
+    if(Math.abs(n)<0.1) return 'style="color:#94a3b8"';
+    if(n>0) return 'style="color:#22c55e;font-weight:600"';
+    return 'style="color:#ef4444;font-weight:600"';
   };
 
   document.getElementById('tbl-body').innerHTML = filtered.map(r=>{
@@ -750,7 +759,7 @@ function applyFilters(){
       <td style="color:${({'NANO':'#f472b6','LOW':'#fbbf24','MED':'#94a3b8','HIGH':'#60a5fa','MEGA':'#a78bfa'})[r.float_label]||'#94a3b8'};font-weight:600">${r.float_m?parseFloat(r.float_m).toFixed(1)+'M ':''}${r.float_label||'--'}</td>
       <td class="${ocCls(r._outcome)}">${r._outcome||'--'}</td>
       <td ${rCls(r._result_r)}>${r._result_r?r._result_r+'R':'--'}</td>
-      <td style="color:#94a3b8">${r._last_px?'$'+parseFloat(r._last_px).toFixed(3):'--'}</td>
+      <td ${lastPxCls(r._last_px, r.entry)}>${r._last_px?'$'+parseFloat(r._last_px).toFixed(3):'--'}</td>
       <td ${deltaCls(r._entry_delta)}>${r._entry_delta||'--'}</td>
     </tr>`;
   }).join('');
