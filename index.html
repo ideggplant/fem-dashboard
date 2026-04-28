@@ -99,7 +99,7 @@ tr:hover td{background:#1a2533}
 
 <div id="header">
   <div>
-    <h1>FEM LIFECYCLE OBSERVATORY <span style="font-size:10px;color:#6b7280;font-weight:500;letter-spacing:0;margin-left:8px">accountability · analysts · alignment · pullback · momentum · shorts · recovery</span> <span id="mode-badge"></span></h1>
+    <h1>FEM LIFECYCLE OBSERVATORY <span style="font-size:10px;color:#6b7280;font-weight:500;letter-spacing:0;margin-left:8px">accountability · recommendations · analysts · alignment · pullback · momentum · shorts · recovery</span> <span id="mode-badge"></span></h1>
     <div id="status">Fetching latest scans from GitHub...</div>
   </div>
   <div style="display:flex;align-items:center;gap:8px">
@@ -129,11 +129,38 @@ tr:hover td{background:#1a2533}
     <div id="pm-headline" style="font-size:12px;font-weight:600"></div>
   </div>
   <div id="pm-stats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;margin-bottom:8px"></div>
+  <div id="pm-trend-wrap" style="display:none;margin-bottom:8px">
+    <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Last 7 days catch rate:</div>
+    <div id="pm-trend" style="display:flex;gap:4px;align-items:flex-end;height:60px"></div>
+  </div>
+  <div id="pm-recurring-wrap" style="display:none;margin-bottom:8px">
+    <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Recurring misses (last 7d, ≥2 days missed):</div>
+    <div id="pm-recurring" style="display:flex;flex-wrap:wrap;gap:4px;font-size:10px;font-family:monospace"></div>
+  </div>
   <div id="pm-missed-wrap" style="display:none">
-    <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Missed movers (≥10%):</div>
+    <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Missed movers today (≥10%):</div>
     <div id="pm-missed" style="display:flex;flex-wrap:wrap;gap:4px;font-size:10px;font-family:monospace"></div>
   </div>
   <div id="pm-empty" style="display:none;color:#6b7280;font-size:11px;font-style:italic;padding:6px 0">No post-mortem yet. Run 3_EOD_CHECK.bat after market close.</div>
+</div>
+
+<div id="recommend" style="padding:10px 18px;background:linear-gradient(180deg,#1a1408 0%,#0d1117 100%);border-bottom:2px solid #fb923c;display:none">
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:6px">
+    <div>
+      <span style="font-size:13px;font-weight:700;color:#fb923c;letter-spacing:1px">🎯 RECOMMENDATIONS</span>
+      <span style="font-size:10px;color:#6b7280;font-weight:500;letter-spacing:0;margin-left:8px">consistent misses · post-mortem feedback loop · <span id="rec-date2">--</span></span>
+    </div>
+    <div id="rec-headline" style="font-size:11px;color:#94a3b8"></div>
+  </div>
+  <div id="rec-promote-wrap" style="display:none;margin-bottom:8px">
+    <div style="font-size:10px;color:#fbbf24;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;font-weight:700">PROMOTE — already on manual list, scanner keeps dropping (review filter):</div>
+    <div id="rec-promote" style="display:flex;flex-wrap:wrap;gap:4px;font-size:10px;font-family:monospace"></div>
+  </div>
+  <div id="rec-add-wrap" style="display:none">
+    <div style="font-size:10px;color:#22c55e;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;font-weight:700">ADD — not on manual list, qualifying movers (consider adding):</div>
+    <div id="rec-add" style="display:flex;flex-wrap:wrap;gap:4px;font-size:10px;font-family:monospace"></div>
+  </div>
+  <div id="rec-empty" style="display:none;color:#6b7280;font-size:11px;font-style:italic;padding:6px 0">No actionable recommendations yet — system catching repeat movers, OR post-mortem history too short.</div>
 </div>
 
 <div id="analyst" style="padding:12px 18px;background:linear-gradient(180deg,#0a1f2e 0%,#0d1117 100%);border-bottom:2px solid #38bdf8;display:none">
@@ -576,6 +603,59 @@ function renderAbook(){
 }
 
 // ── Core: process a list of {name, getText} entries ─────────────────────────
+// ── Recommendations panel (Phase 5 — feedback loop) ─────────────────────────
+async function loadRecommendPanel(entries){
+  const panel = document.getElementById('recommend');
+  const dateEl = document.getElementById('rec-date2');
+  const headEl = document.getElementById('rec-headline');
+  const promWrap = document.getElementById('rec-promote-wrap');
+  const promEl = document.getElementById('rec-promote');
+  const addWrap = document.getElementById('rec-add-wrap');
+  const addEl = document.getElementById('rec-add');
+  const emptyEl = document.getElementById('rec-empty');
+
+  if(!entries.length){ panel.style.display='none'; return; }
+
+  entries.sort((a,b)=>a.name.localeCompare(b.name));
+  const latest = entries[entries.length-1];
+  const text = await latest.getText();
+  const rows = parseCSV(text);
+  dateEl.textContent = dateFromName(latest.name);
+  panel.style.display = 'block';
+
+  const promote = rows.filter(r=>r.kind==='PROMOTE');
+  const add     = rows.filter(r=>r.kind==='ADD');
+
+  if(!promote.length && !add.length){
+    promWrap.style.display='none';
+    addWrap.style.display='none';
+    emptyEl.style.display='block';
+    headEl.innerHTML = '';
+    return;
+  }
+  emptyEl.style.display='none';
+  headEl.innerHTML = `<span style="color:#fbbf24">${promote.length} promote</span> · <span style="color:#22c55e">${add.length} add</span>`;
+
+  const renderPill = (r, col, bgCol)=>{
+    const dm = parseInt(r.days_moved)||0;
+    const tm = parseFloat(r.total_abs_move)||0;
+    const mr = parseFloat(r.miss_rate_pct)||0;
+    return `<span title="${r.recent_moves}" style="background:${bgCol};border:1px solid ${col}66;color:${col};padding:3px 8px;border-radius:3px;font-weight:600">${r.ticker} <span style="color:#94a3b8;font-weight:400">${dm}d ${tm.toFixed(0)}% miss${mr.toFixed(0)}%</span></span>`;
+  };
+
+  if(promote.length){
+    promWrap.style.display='block';
+    promote.sort((a,b)=>(parseFloat(b.total_abs_move)||0)-(parseFloat(a.total_abs_move)||0));
+    promEl.innerHTML = promote.slice(0,30).map(r=>renderPill(r,'#fbbf24','#1a1408')).join('');
+  } else { promWrap.style.display='none'; }
+
+  if(add.length){
+    addWrap.style.display='block';
+    add.sort((a,b)=>(parseFloat(b.total_abs_move)||0)-(parseFloat(a.total_abs_move)||0));
+    addEl.innerHTML = add.slice(0,30).map(r=>renderPill(r,'#22c55e','#0a1a0e')).join('');
+  } else { addWrap.style.display='none'; }
+}
+
 // ── Analyst Actions panel (Phase 3c — upgrades/downgrades clusters) ────────
 async function loadAnalystPanel(entries){
   const panel = document.getElementById('analyst');
@@ -666,7 +746,7 @@ async function loadAnalystPanel(entries){
   }).join('');
 }
 
-// ── Post-mortem panel (Phase 3b — daily accountability) ─────────────────────
+// ── Post-mortem panel (Phase 3b — daily accountability + trend) ─────────────
 async function loadPostmortemPanel(entries){
   const panel = document.getElementById('postmortem');
   const dateEl = document.getElementById('pm-date');
@@ -674,6 +754,10 @@ async function loadPostmortemPanel(entries){
   const stEl = document.getElementById('pm-stats');
   const missedWrap = document.getElementById('pm-missed-wrap');
   const missedEl = document.getElementById('pm-missed');
+  const trendWrap = document.getElementById('pm-trend-wrap');
+  const trendEl = document.getElementById('pm-trend');
+  const recurWrap = document.getElementById('pm-recurring-wrap');
+  const recurEl = document.getElementById('pm-recurring');
   const emptyEl = document.getElementById('pm-empty');
 
   if(!entries.length){
@@ -682,6 +766,8 @@ async function loadPostmortemPanel(entries){
     headEl.innerHTML = '';
     stEl.innerHTML = '';
     missedWrap.style.display = 'none';
+    trendWrap.style.display = 'none';
+    recurWrap.style.display = 'none';
     emptyEl.style.display = 'block';
     return;
   }
@@ -695,6 +781,66 @@ async function loadPostmortemPanel(entries){
   const date = dateFromName(latest.name);
   dateEl.textContent = date;
   panel.style.display = 'block';
+
+  // ── Compute multi-day trend: read last 7 postmortem CSVs ─────────────────
+  const recent = entries.slice(-7);
+  const trendData = [];
+  const missedHistory = {};   // ticker → array of {date, chg}
+  for(const e of recent){
+    const txt = await e.getText();
+    const r2 = parseCSV(txt);
+    const d = dateFromName(e.name);
+    const movers = r2.filter(r=>r.is_mover==='true');
+    const caught = movers.filter(r=>r.caught==='true' || (r.caught===undefined && r.picked==='true'));
+    const cr = movers.length ? caught.length/movers.length*100 : null;
+    trendData.push({date:d, movers:movers.length, caught:caught.length, cr});
+    // Recurring misses: track tickers that show up MISSED across multiple days
+    movers.forEach(r=>{
+      const isCaught = (r.caught==='true') || (r.caught===undefined && r.picked==='true');
+      if(!isCaught){
+        if(!missedHistory[r.ticker]) missedHistory[r.ticker] = [];
+        missedHistory[r.ticker].push({date:d, chg:parseFloat(r.chg_pct_full)||0});
+      }
+    });
+  }
+
+  // Render trend bars
+  if(trendData.length){
+    trendWrap.style.display = 'block';
+    trendEl.innerHTML = trendData.map(t=>{
+      const h = t.cr === null ? 0 : Math.max(2, t.cr * 0.55); // px height (max 55px for 100%)
+      const col = t.cr === null ? '#374151' :
+                  t.cr >= 60 ? '#22c55e' :
+                  t.cr >= 40 ? '#fbbf24' :
+                  t.cr >= 20 ? '#f59e0b' :
+                  '#ef4444';
+      const lbl = t.cr === null ? '—' : `${t.cr.toFixed(0)}%`;
+      const subLbl = `${t.caught}/${t.movers}`;
+      return `<div title="${t.date}: ${lbl} catch rate (${subLbl} movers caught)" style="display:flex;flex-direction:column;align-items:center;flex:1;min-width:40px">
+        <div style="font-size:9px;color:${col};font-weight:700;margin-bottom:2px">${lbl}</div>
+        <div style="background:${col};width:100%;max-width:50px;height:${h}px;border-radius:2px 2px 0 0"></div>
+        <div style="font-size:8px;color:#6b7280;margin-top:2px;text-align:center">${t.date.slice(5)}</div>
+      </div>`;
+    }).join('');
+  } else {
+    trendWrap.style.display = 'none';
+  }
+
+  // Render recurring misses (≥2 days missed in window)
+  const recurring = Object.entries(missedHistory)
+    .filter(([_,arr]) => arr.length >= 2)
+    .sort((a,b) => b[1].length - a[1].length);
+  if(recurring.length){
+    recurWrap.style.display = 'block';
+    recurEl.innerHTML = recurring.slice(0,30).map(([tkr, arr])=>{
+      const days = arr.length;
+      const totalMove = arr.reduce((s,x)=>s+Math.abs(x.chg), 0);
+      const dirs = arr.map(x=>x.chg>0?'↑':'↓').join('');
+      return `<span style="background:#1a0a0a;border:1px solid #ef444466;color:#ef4444;padding:2px 6px;border-radius:3px;font-weight:600">${tkr} ${days}× ${dirs} <span style="color:#fbbf24">+${totalMove.toFixed(0)}%</span></span>`;
+    }).join('');
+  } else {
+    recurWrap.style.display = 'none';
+  }
 
   // Aggregate
   const movers = rows.filter(r=>r.is_mover==='true');
@@ -1052,7 +1198,7 @@ async function loadRecoveryPanel(entries){
 }
 
 async function processFiles(entries){
-  const scanEntries=[], checkEntries=[], momentumEntries=[], consumptionEntries=[], postmortemEntries=[], analystEntries=[], shortsEntries=[];
+  const scanEntries=[], checkEntries=[], momentumEntries=[], consumptionEntries=[], postmortemEntries=[], analystEntries=[], shortsEntries=[], recommendEntries=[];
   for(const e of entries){
     if(!e.name.endsWith('.csv')) continue;
     if(e.name.startsWith('fem_momentum_')) momentumEntries.push(e);
@@ -1060,16 +1206,18 @@ async function processFiles(entries){
     else if(e.name.startsWith('fem_postmortem_')) postmortemEntries.push(e);
     else if(e.name.startsWith('fem_analyst_')) analystEntries.push(e);
     else if(e.name.startsWith('fem_short_')) shortsEntries.push(e);
+    else if(e.name.startsWith('fem_watchlist_recommend_')) recommendEntries.push(e);
     else if(isCheckFile(e.name)) checkEntries.push(e);
     else if(srcFromName(e.name)) scanEntries.push(e);
   }
 
-  // Load latest momentum + consumption + post-mortem + analyst + shorts (most recent by filename)
+  // Load latest panels (most recent by filename)
   await loadMomentumPanel(momentumEntries);
   await loadShortsPanel(shortsEntries);
   await loadRecoveryPanel(consumptionEntries);
   await loadPostmortemPanel(postmortemEntries);
   await loadAnalystPanel(analystEntries);
+  await loadRecommendPanel(recommendEntries);
 
   // Load check files -> outcome map
   const outcomeMap = {};
