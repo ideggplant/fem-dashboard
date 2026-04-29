@@ -99,7 +99,7 @@ tr:hover td{background:#1a2533}
 
 <div id="header">
   <div>
-    <h1>FEM LIFECYCLE OBSERVATORY <span style="font-size:10px;color:#6b7280;font-weight:500;letter-spacing:0;margin-left:8px">accountability · P&L · recommendations · analysts · alignment · pullback · momentum · shorts · recovery</span> <span id="mode-badge"></span></h1>
+    <h1>FEM LIFECYCLE OBSERVATORY <span style="font-size:10px;color:#6b7280;font-weight:500;letter-spacing:0;margin-left:8px">accountability · P&L · recommendations · after-open · analysts · alignment · pullback · momentum · shorts · recovery</span> <span id="mode-badge"></span></h1>
     <div id="status">Fetching latest scans from GitHub...</div>
   </div>
   <div style="display:flex;align-items:center;gap:8px">
@@ -189,6 +189,15 @@ tr:hover td{background:#1a2533}
   </div>
   <div id="analyst-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:8px"></div>
   <div id="analyst-empty" style="display:none;color:#6b7280;font-size:11px;font-style:italic;padding:8px;text-align:center">No analyst events on the watchlist in the last 14 days.</div>
+</div>
+
+<div id="intraday" style="padding:12px 18px;background:linear-gradient(180deg,#2e1f08 0%,#0d1117 100%);border-bottom:2px solid #fde047;display:none">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+    <div style="font-size:13px;font-weight:700;color:#fde047;letter-spacing:1px">🕙 AFTER-OPEN <span style="font-size:10px;color:#6b7280;font-weight:500;letter-spacing:0;margin-left:8px">ORB · holding · failed-gap · run after 10am ET · <span id="intra-date">--</span></span></div>
+    <span style="font-size:10px;color:#6b7280;font-style:italic">reactive list · edit intraday_tickers.txt</span>
+  </div>
+  <div id="intraday-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:8px"></div>
+  <div id="intraday-empty" style="display:none;color:#6b7280;font-size:11px;font-style:italic;padding:12px;text-align:center">No after-open scan yet today. Edit intraday_tickers.txt and run 2_AFTER_OPEN_SCAN.bat after 10am.</div>
 </div>
 
 <div id="alignment" style="padding:12px 18px;background:linear-gradient(180deg,#2a1f3a 0%,#0d1117 100%);border-bottom:2px solid #e879f9;display:none">
@@ -1299,6 +1308,66 @@ async function loadShortsPanel(entries){
   }).join('');
 }
 
+// ── After-Open panel (Phase 9 — intraday scanner) ───────────────────────────
+async function loadIntradayPanel(entries){
+  const panel = document.getElementById('intraday');
+  const grid  = document.getElementById('intraday-grid');
+  const empty = document.getElementById('intraday-empty');
+  const dateEl = document.getElementById('intra-date');
+  if(!entries.length){ panel.style.display='none'; return; }
+
+  entries.sort((a,b)=>a.name.localeCompare(b.name));
+  const latest = entries[entries.length-1];
+  const text = await latest.getText();
+  const rows = parseCSV(text);
+  const date = dateFromName(latest.name);
+  dateEl.textContent = date;
+  panel.style.display = 'block';
+
+  if(!rows.length){ grid.innerHTML=''; empty.style.display='block'; return; }
+  empty.style.display='none';
+  rows.sort((a,b)=>(parseFloat(b.score)||0) - (parseFloat(a.score)||0));
+
+  grid.innerHTML = rows.slice(0,12).map((r,i)=>{
+    const isShort = (r.side||'').toUpperCase()==='SHORT';
+    const arrow = isShort ? '🔽' : '🔼';
+    const sideCol = isShort ? '#ef4444' : '#22c55e';
+    const setupTags = (r.setups||'').split('|').map(s=>{
+      const col = s==='ORB-LONG' ? '#22c55e'
+                : s==='ORB-SHORT' ? '#ef4444'
+                : s==='HOLDING-LONG' ? '#a3e635'
+                : s==='FAILED-GAP-SHORT' ? '#f87171'
+                : '#94a3b8';
+      return `<span style="color:${col};font-size:9px;font-weight:700;background:#0d1117;padding:1px 5px;border-radius:3px;border:1px solid ${col}55">${s}</span>`;
+    }).join(' ');
+    const gap = parseFloat(r.gap_pct)||0;
+    const chg = parseFloat(r.chg_pct_full)||0;
+    const rv = parseFloat(r.rel_vol)||0;
+    const rthVol = parseInt(r.rth_vol)||0;
+    return `<div style="background:#1a1408;border:1px solid #fde04766;border-left:3px solid #fde047;border-radius:6px;padding:8px 10px;font-size:11px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+        <span style="font-size:10px;color:#6b7280;font-weight:700">#${i+1}</span>
+        <span style="font-size:14px;font-weight:800;color:#e2e8f0;letter-spacing:.5px">${arrow} ${r.ticker}</span>
+        <span style="font-size:10px;color:${sideCol};font-weight:800">${r.side}</span>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:3px;margin-bottom:5px">${setupTags}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:3px;color:#94a3b8;font-size:10px;margin-bottom:5px">
+        <div>Open: <b style="color:#e2e8f0">$${parseFloat(r.rth_open).toFixed(2)}</b></div>
+        <div>Last: <b style="color:#e2e8f0">$${parseFloat(r.last_px).toFixed(2)}</b></div>
+        <div>Gap: <b style="color:${gap>=0?'#22c55e':'#ef4444'}">${gap>=0?'+':''}${gap.toFixed(1)}%</b></div>
+        <div>Day: <b style="color:${chg>=0?'#22c55e':'#ef4444'}">${chg>=0?'+':''}${chg.toFixed(1)}%</b></div>
+        <div>VWAP: <b style="color:#fde047">$${parseFloat(r.vwap).toFixed(2)}</b></div>
+        <div>Vol: <b style="color:#e2e8f0">${(rthVol/1000).toFixed(0)}k</b> (${rv.toFixed(1)}x)</div>
+      </div>
+      <div style="border-top:1px solid #30363d;padding-top:5px;font-size:10px;color:#94a3b8">
+        <div style="display:flex;justify-content:space-between"><span>ORB range</span><span style="color:#fde047">$${parseFloat(r.orb_low).toFixed(2)} – $${parseFloat(r.orb_high).toFixed(2)}</span></div>
+        <div style="display:flex;justify-content:space-between"><span>${isShort?'SHORT':'BUY'} suggested</span><span style="color:${sideCol};font-weight:700">${r.shares} sh @ ~$${parseFloat(r.est_entry).toFixed(2)}</span></div>
+        <div style="display:flex;justify-content:space-between"><span>Stop / Target</span><span><span style="color:#ef4444">$${parseFloat(r.stop).toFixed(2)}</span> → <span style="color:#22c55e">$${parseFloat(r.target).toFixed(2)}</span></span></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
 // ── Recovery Arc panel (Phase 2 — consumption scanner) ──────────────────────
 async function loadRecoveryPanel(entries){
   const panel = document.getElementById('recovery');
@@ -1374,7 +1443,7 @@ async function loadRecoveryPanel(entries){
 }
 
 async function processFiles(entries){
-  const scanEntries=[], checkEntries=[], momentumEntries=[], consumptionEntries=[], postmortemEntries=[], analystEntries=[], shortsEntries=[], recommendEntries=[], pnlEntries=[];
+  const scanEntries=[], checkEntries=[], momentumEntries=[], consumptionEntries=[], postmortemEntries=[], analystEntries=[], shortsEntries=[], recommendEntries=[], pnlEntries=[], intradayEntries=[];
   for(const e of entries){
     if(!e.name.endsWith('.csv')) continue;
     if(e.name.startsWith('fem_momentum_')) momentumEntries.push(e);
@@ -1385,6 +1454,7 @@ async function processFiles(entries){
     else if(e.name.startsWith('fem_short_')) shortsEntries.push(e);
     else if(e.name.startsWith('fem_watchlist_recommend_')) recommendEntries.push(e);
     else if(e.name.startsWith('fem_pnl_')) pnlEntries.push(e);
+    else if(e.name.startsWith('fem_intraday_scan_')) intradayEntries.push(e);
     else if(isCheckFile(e.name)) checkEntries.push(e);
     else if(srcFromName(e.name)) scanEntries.push(e);
   }
@@ -1397,6 +1467,7 @@ async function processFiles(entries){
   await loadAnalystPanel(analystEntries);
   await loadRecommendPanel(recommendEntries);
   await loadPnlPanel(pnlEntries);
+  await loadIntradayPanel(intradayEntries);
 
   // Load check files -> outcome map
   const outcomeMap = {};
