@@ -331,6 +331,13 @@ const LIFECYCLE = {
   date: '',
 };
 
+// Helper: is this CSV's date the same as today's primary scan date?
+// Prevents stale panels (e.g. yesterday's momentum) from polluting alignment.
+function isFreshForToday(entryDate, primaryDate){
+  if(!primaryDate) return true;  // no primary yet — accept anything
+  return entryDate === primaryDate;
+}
+
 // ── GitHub config ───────────────────────────────────────────────────────────
 const GH_RAW = 'https://raw.githubusercontent.com/ideggplant/fem-dashboard/main/scans/';
 const GH_MANIFEST = GH_RAW + 'manifest.json';
@@ -793,13 +800,20 @@ async function loadAnalystPanel(entries){
   });
 
   // Populate lifecycle analyst aggregator (per-ticker net sentiment)
+  // STALENESS CHECK: if analyst CSV is older than today's primary, mark as stale
+  // (analyst data does have a 14-day lookback, but the CSV itself is dated)
+  const isStale = (LIFECYCLE.date && date !== LIFECYCLE.date);
   LIFECYCLE.analyst = {};
-  clusters.forEach(c=>{
-    const sentiment = c.net >= 2 ? 'BULL' : c.net <= -2 ? 'BEAR' : 'NEUTRAL';
-    LIFECYCLE.analyst[c.ticker.toUpperCase()] = {
-      net: c.net, sentiment, count: c.events.length, bull: c.bull, bear: c.bear,
-    };
-  });
+  if(!isStale){
+    clusters.forEach(c=>{
+      const sentiment = c.net >= 2 ? 'BULL' : c.net <= -2 ? 'BEAR' : 'NEUTRAL';
+      LIFECYCLE.analyst[c.ticker.toUpperCase()] = {
+        net: c.net, sentiment, count: c.events.length, bull: c.bull, bear: c.bear,
+      };
+    });
+  } else {
+    sumEl.textContent = `⚠ stale (${date}, expected ${LIFECYCLE.date}) — not used in alignment scoring`;
+  }
   renderAlignment();
   // Sort: hot zones first (≥2 events), then absolute net activity
   clusters.sort((a,b)=>{
@@ -1207,6 +1221,12 @@ async function loadMomentumPanel(entries){
   dateEl.textContent = date;
   panel.style.display = 'block';
 
+  // STALENESS CHECK: if older than primary scan date, suppress
+  if(LIFECYCLE.date && date !== LIFECYCLE.date){
+    grid.innerHTML = ''; empty.style.display='block';
+    empty.textContent = `No MOMENTUM scan for ${LIFECYCLE.date} — latest is from ${date} (stale, suppressed).`;
+    LIFECYCLE.momentum = {}; renderAlignment(); return;
+  }
   if(!rows.length){
     grid.innerHTML = ''; empty.style.display='block';
     LIFECYCLE.momentum = {}; renderAlignment(); return;
@@ -1267,6 +1287,13 @@ async function loadShortsPanel(entries){
   dateEl.textContent = date;
   panel.style.display = 'block';
 
+  // STALENESS CHECK: if this CSV is older than today's A-book, suppress
+  if(LIFECYCLE.date && date !== LIFECYCLE.date){
+    grid.innerHTML = '';
+    empty.style.display = 'block';
+    empty.textContent = `No SHORT scan for ${LIFECYCLE.date} — latest is from ${date} (stale, suppressed).`;
+    LIFECYCLE.shorts = {}; renderAlignment(); return;
+  }
   if(!rows.length){ grid.innerHTML=''; empty.style.display='block'; LIFECYCLE.shorts={}; renderAlignment(); return; }
   empty.style.display='none';
 
@@ -1391,6 +1418,12 @@ async function loadRecoveryPanel(entries){
            (r.promoted||'').toLowerCase()==='true';
   });
 
+  // STALENESS CHECK
+  if(LIFECYCLE.date && date !== LIFECYCLE.date){
+    grid.innerHTML = ''; empty.style.display='block';
+    empty.textContent = `No RECOVERY scan for ${LIFECYCLE.date} — latest is from ${date} (stale, suppressed).`;
+    LIFECYCLE.recovery = {}; renderAlignment(); return;
+  }
   if(!promoted.length){
     grid.innerHTML = ''; empty.style.display='block';
     LIFECYCLE.recovery = {}; renderAlignment(); return;
