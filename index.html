@@ -1476,15 +1476,16 @@ async function loadRecoveryPanel(entries){
 }
 
 async function processFiles(entries){
-  // Pre-compute the PRIMARY DATE for the dashboard from the latest A-book CSV.
-  // This anchors every panel's staleness check so old momentum/analyst data
-  // can't bleed into today's view when those scanners didn't run.
+  // Pre-compute the PRIMARY DATE for the dashboard from the latest scan CSV.
+  // Falls back across multiple file types since abook isn't always uploaded.
   let primaryDate = '';
   for(const e of entries){
-    if(e.name.startsWith('fem_abook_') && e.name.endsWith('.csv')){
-      const d = dateFromName(e.name);
-      if(d > primaryDate) primaryDate = d;
-    }
+    if(!e.name.endsWith('.csv')) continue;
+    if(!(e.name.startsWith('fem_penny_scan_') ||
+         e.name.startsWith('fem_abook_') ||
+         e.name.startsWith('fem_consumption_'))) continue;
+    const d = dateFromName(e.name);
+    if(d && d > primaryDate) primaryDate = d;
   }
   LIFECYCLE.date = primaryDate;
   console.log('FEM dashboard primary scan date:', primaryDate);
