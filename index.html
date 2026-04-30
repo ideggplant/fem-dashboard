@@ -1237,9 +1237,9 @@ async function loadMomentumPanel(entries){
   rows.sort((a,b)=>(parseFloat(b.score)||0) - (parseFloat(a.score)||0));
 
   // Populate lifecycle aggregator for cross-panel alignment
+  // (LIFECYCLE.date is now set upfront from latest A-book in processFiles)
   LIFECYCLE.momentum = {};
   rows.forEach(r=>{ if(r.ticker) LIFECYCLE.momentum[r.ticker.toUpperCase()] = r; });
-  LIFECYCLE.date = date;
 
   grid.innerHTML = rows.slice(0,12).map((r,i)=>{
     const gap = parseFloat(r.pm_gap_pct)||0;
@@ -1476,6 +1476,19 @@ async function loadRecoveryPanel(entries){
 }
 
 async function processFiles(entries){
+  // Pre-compute the PRIMARY DATE for the dashboard from the latest A-book CSV.
+  // This anchors every panel's staleness check so old momentum/analyst data
+  // can't bleed into today's view when those scanners didn't run.
+  let primaryDate = '';
+  for(const e of entries){
+    if(e.name.startsWith('fem_abook_') && e.name.endsWith('.csv')){
+      const d = dateFromName(e.name);
+      if(d > primaryDate) primaryDate = d;
+    }
+  }
+  LIFECYCLE.date = primaryDate;
+  console.log('FEM dashboard primary scan date:', primaryDate);
+
   const scanEntries=[], checkEntries=[], momentumEntries=[], consumptionEntries=[], postmortemEntries=[], analystEntries=[], shortsEntries=[], recommendEntries=[], pnlEntries=[], intradayEntries=[];
   for(const e of entries){
     if(!e.name.endsWith('.csv')) continue;
