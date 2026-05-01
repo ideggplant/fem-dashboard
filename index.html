@@ -200,6 +200,24 @@ tr:hover td{background:#1a2533}
   <div id="intraday-empty" style="display:none;color:#6b7280;font-size:11px;font-style:italic;padding:12px;text-align:center">No after-open scan yet today. Edit intraday_tickers.txt and run 2_AFTER_OPEN_SCAN.bat after 10am.</div>
 </div>
 
+<div id="attribution" style="padding:12px 18px;background:linear-gradient(180deg,#0a2329 0%,#0d1117 100%);border-bottom:2px solid #14b8a6;display:none">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+    <div style="font-size:13px;font-weight:700;color:#14b8a6;letter-spacing:1px">📊 ATTRIBUTION <span style="font-size:10px;color:#6b7280;font-weight:500;letter-spacing:0;margin-left:8px">per-component edge · which layer is doing the work · <span id="attr-date">--</span></span></div>
+    <div id="attr-summary" style="font-size:10px;color:#6b7280"></div>
+  </div>
+  <div id="attribution-tables" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:10px"></div>
+  <div id="attribution-empty" style="display:none;color:#6b7280;font-size:11px;font-style:italic;padding:12px;text-align:center">No attribution data yet — needs at least one closed ticket. Run fem_ticket_outcome_updater.py after EOD to fill outcomes.</div>
+</div>
+
+<div id="rejrevisit" style="padding:12px 18px;background:linear-gradient(180deg,#0f1830 0%,#0d1117 100%);border-bottom:2px solid #818cf8;display:none">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+    <div style="font-size:13px;font-weight:700;color:#818cf8;letter-spacing:1px">🌀 REJECTION-REVISIT RADAR <span style="font-size:10px;color:#6b7280;font-weight:500;letter-spacing:0;margin-left:8px">narrative tracker · rejection → bounce → eating → entry · <span id="rrr-date">--</span></span></div>
+    <div id="rrr-summary" style="font-size:10px;color:#6b7280"></div>
+  </div>
+  <div id="rejrevisit-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:8px"></div>
+  <div id="rejrevisit-empty" style="display:none;color:#6b7280;font-size:11px;font-style:italic;padding:12px;text-align:center">No rejection-revisit stories yet today. Run REJECTION_REVISIT_RADAR.bat or wait for the autonomous run.</div>
+</div>
+
 <div id="alignment" style="padding:12px 18px;background:linear-gradient(180deg,#2a1f3a 0%,#0d1117 100%);border-bottom:2px solid #e879f9;display:none">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
     <div style="font-size:13px;font-weight:700;color:#e879f9;letter-spacing:1px">🌟 ALIGNMENT <span style="font-size:10px;color:#6b7280;font-weight:500;letter-spacing:0;margin-left:8px">multi-lens confluence · apex setups · <span id="ali-date">--</span></span></div>
@@ -1395,6 +1413,184 @@ async function loadIntradayPanel(entries){
   }).join('');
 }
 
+// ── Attribution panel (per-component edge tracking) ─────────────────────────
+async function loadAttributionPanel(entries){
+  const panel = document.getElementById('attribution');
+  const wrap  = document.getElementById('attribution-tables');
+  const empty = document.getElementById('attribution-empty');
+  const dateEl = document.getElementById('attr-date');
+  const sumEl  = document.getElementById('attr-summary');
+  if(!entries.length){ panel.style.display='none'; return; }
+
+  entries.sort((a,b)=>a.name.localeCompare(b.name));
+  const latest = entries[entries.length-1];
+  const text = await latest.getText();
+  const rows = parseCSV(text);
+  const date = dateFromName(latest.name);
+  dateEl.textContent = date;
+  panel.style.display = 'block';
+
+  if(!rows.length){ wrap.innerHTML=''; empty.style.display='block'; return; }
+  empty.style.display='none';
+
+  // Group by dimension
+  const dims = {};
+  rows.forEach(r=>{
+    if(!dims[r.dimension]) dims[r.dimension] = [];
+    dims[r.dimension].push(r);
+  });
+
+  const totalN = rows.reduce((s,r)=>s+(parseInt(r.n)||0), 0);
+  sumEl.textContent = `${rows.length} slices across ${Object.keys(dims).length} dimensions`;
+
+  const dimOrder = ['scanner','gap_tier','regime','stop_method','conviction_band','side','setup'];
+  const dimLabel = {
+    scanner: 'SCANNER',
+    gap_tier: 'GAP TIER (Warrior)',
+    regime: 'SPY REGIME',
+    stop_method: 'STOP METHOD',
+    conviction_band: 'CONVICTION (rejection-revisit)',
+    side: 'SIDE',
+    setup: 'SETUP',
+  };
+
+  wrap.innerHTML = dimOrder.filter(d=>dims[d]).map(d=>{
+    const slices = dims[d].slice().sort((a,b)=>(parseFloat(b.total_pnl)||0) - (parseFloat(a.total_pnl)||0));
+    const rowsHtml = slices.map(s=>{
+      const wr = parseFloat(s.wr_pct)||0;
+      const avgPnl = parseFloat(s.avg_pnl)||0;
+      const totalPnl = parseFloat(s.total_pnl)||0;
+      const n = parseInt(s.n)||0;
+      const wrCol = wr >= 50 ? '#22c55e' : wr >= 35 ? '#fde047' : '#ef4444';
+      const pnlCol = totalPnl >= 0 ? '#22c55e' : '#ef4444';
+      const avgCol = avgPnl >= 0 ? '#22c55e' : '#ef4444';
+      return `<tr>
+        <td style="padding:3px 6px;color:#e2e8f0;font-weight:600">${s.value}</td>
+        <td style="padding:3px 6px;text-align:right;color:#94a3b8">${n}</td>
+        <td style="padding:3px 6px;text-align:right;color:${wrCol};font-weight:700">${wr.toFixed(1)}%</td>
+        <td style="padding:3px 6px;text-align:right;color:${avgCol};font-weight:700">${avgPnl>=0?'+':''}$${avgPnl.toFixed(2)}</td>
+        <td style="padding:3px 6px;text-align:right;color:${pnlCol};font-weight:700">${totalPnl>=0?'+':''}$${totalPnl.toFixed(0)}</td>
+      </tr>`;
+    }).join('');
+    return `<div style="background:#0f1f24;border:1px solid #14b8a655;border-left:3px solid #14b8a6;border-radius:6px;padding:8px 10px">
+      <div style="font-size:11px;font-weight:700;color:#14b8a6;letter-spacing:.5px;margin-bottom:6px">${dimLabel[d]||d.toUpperCase()}</div>
+      <table style="width:100%;font-size:10px;border-collapse:collapse">
+        <thead>
+          <tr style="border-bottom:1px solid #30363d;color:#6b7280;font-size:9px;letter-spacing:.5px">
+            <th style="padding:3px 6px;text-align:left">VALUE</th>
+            <th style="padding:3px 6px;text-align:right">N</th>
+            <th style="padding:3px 6px;text-align:right">WR</th>
+            <th style="padding:3px 6px;text-align:right">AVG</th>
+            <th style="padding:3px 6px;text-align:right">TOTAL</th>
+          </tr>
+        </thead>
+        <tbody>${rowsHtml}</tbody>
+      </table>
+    </div>`;
+  }).join('');
+}
+
+// ── Rejection-Revisit Radar panel (narrative tracker) ───────────────────────
+async function loadRejRevisitPanel(entries){
+  const panel = document.getElementById('rejrevisit');
+  const grid  = document.getElementById('rejrevisit-grid');
+  const empty = document.getElementById('rejrevisit-empty');
+  const dateEl = document.getElementById('rrr-date');
+  const sumEl  = document.getElementById('rrr-summary');
+  if(!entries.length){ panel.style.display='none'; return; }
+
+  entries.sort((a,b)=>a.name.localeCompare(b.name));
+  const latest = entries[entries.length-1];
+  const text = await latest.getText();
+  const rows = parseCSV(text);
+  const date = dateFromName(latest.name);
+  dateEl.textContent = date;
+  panel.style.display = 'block';
+
+  if(!rows.length){ grid.innerHTML=''; empty.style.display='block'; return; }
+  empty.style.display='none';
+
+  // Stage priority for ranking (TURNING and EATING first, then ENTRY_READY)
+  const stagePriority = (s)=>{
+    if(s==='TURNING') return 100;
+    if(s==='ENTRY_READY') return 90;
+    if(s==='ALL_EATEN') return 85;
+    if(s && s.startsWith('EATING_')) return 70 + (parseFloat(s.split('_')[1])||0);
+    if(s==='BOUNCED_CLEAN') return 60;
+    if(s==='BOUNCED_WAITING') return 55;
+    return 30;
+  };
+  rows.sort((a,b)=>{
+    const sp = stagePriority(b.stage) - stagePriority(a.stage);
+    if(sp !== 0) return sp;
+    return (parseFloat(b.conviction)||0) - (parseFloat(a.conviction)||0);
+  });
+
+  // Counts for summary
+  const stageCounts = {};
+  rows.forEach(r=>{ stageCounts[r.stage] = (stageCounts[r.stage]||0) + 1; });
+  const turningN = rows.filter(r=>(''+r.first_consumption_recent).toLowerCase()==='true').length;
+  const highConv = rows.filter(r=>(parseInt(r.conviction)||0) >= 7).length;
+  sumEl.textContent = `${rows.length} active stories  ·  ★${turningN} TURNING  ·  ${highConv} high-conviction (≥7)`;
+
+  // Stage color palette
+  const stageColor = (s)=>{
+    if(s==='TURNING')         return {bg:'#3a1f08', bd:'#fb923c'}; // orange alert
+    if(s==='ENTRY_READY')     return {bg:'#0a2e1a', bd:'#22c55e'}; // green ready
+    if(s==='ALL_EATEN')       return {bg:'#0d2e12', bd:'#86efac'}; // light green
+    if(s && s.startsWith('EATING_')) return {bg:'#2a1f08', bd:'#fde047'}; // amber in-progress
+    if(s==='BOUNCED_CLEAN')   return {bg:'#0a1f2e', bd:'#38bdf8'}; // blue bounced
+    if(s==='BOUNCED_WAITING') return {bg:'#0a1f2e', bd:'#60a5fa'};
+    return {bg:'#1a1a1a', bd:'#6b7280'};
+  };
+
+  grid.innerHTML = rows.slice(0, 30).map(r=>{
+    const st = r.stage||'?';
+    const col = stageColor(st);
+    const conviction = parseInt(r.conviction)||0;
+    const convCol = conviction >= 7 ? '#22c55e' : conviction >= 4 ? '#fde047' : '#6b7280';
+    const turning = (''+r.first_consumption_recent).toLowerCase()==='true';
+    const star = turning ? '★ ' : '';
+    const vol = parseFloat(r.today_vol_pct_of_avg)||0;
+    const volCol = vol >= 50 ? '#22c55e' : vol >= 25 ? '#fde047' : '#ef4444';
+    const fresh5m = parseInt(r.fresh_bull_5m_below)||0;
+    const f5mCol = fresh5m >= 2 ? '#22c55e' : fresh5m >= 1 ? '#fde047' : '#6b7280';
+    const greens = parseInt(r.recent_8bar_green_count)||0;
+    const greenCol = greens >= 6 ? '#22c55e' : greens >= 4 ? '#fde047' : '#ef4444';
+    const movePct = parseFloat(r.recent_8bar_move_pct)||0;
+    const moveCol = movePct >= 0 ? '#22c55e' : '#ef4444';
+    const rr = parseFloat(r.rr) || null;
+    const rrCol = rr && rr >= 2 ? '#22c55e' : rr && rr >= 1 ? '#fde047' : '#ef4444';
+    const aged = parseFloat(r.days_since_advance) || 0;
+    const agedTag = aged < 1 ? '<1d' : aged.toFixed(1)+'d';
+    const target = parseFloat(r.target)||0;
+    const stop = parseFloat(r.stop)||0;
+    const px = parseFloat(r.snapshot_price)||0;
+    const bear = `${r.n_bearish_consumed||0}/${r.n_bearish_total||0}`;
+
+    return `<div style="background:${col.bg};border:1px solid ${col.bd}55;border-left:3px solid ${col.bd};border-radius:6px;padding:8px 10px;font-size:11px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+        <span style="font-size:9px;color:${col.bd};font-weight:700;letter-spacing:.5px">${star}${st}</span>
+        <span style="font-size:14px;font-weight:800;color:#e2e8f0;letter-spacing:.5px">${r.ticker}</span>
+        <span style="font-size:10px;color:${convCol};font-weight:700;background:#0d1117;padding:2px 6px;border-radius:3px;border:1px solid ${convCol}55">CV ${conviction}/10</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:3px;color:#94a3b8;font-size:10px;margin-bottom:5px">
+        <div>Px: <b style="color:#e2e8f0">$${px.toFixed(2)}</b></div>
+        <div>Bear gaps: <b style="color:#fde047">${bear}</b></div>
+        <div>Vol: <b style="color:${volCol}">${vol.toFixed(0)}%</b> avg</div>
+        <div>5m bull below: <b style="color:${f5mCol}">${fresh5m}</b></div>
+        <div>Last 8 bars: <b style="color:${greenCol}">${greens}/8 G</b></div>
+        <div>Move: <b style="color:${moveCol}">${movePct>=0?'+':''}${movePct.toFixed(1)}%</b></div>
+      </div>
+      <div style="border-top:1px solid #30363d;padding-top:5px;font-size:10px;color:#94a3b8">
+        <div style="display:flex;justify-content:space-between"><span>Target</span><span style="color:#22c55e">$${target.toFixed(2)}</span></div>
+        <div style="display:flex;justify-content:space-between"><span>Stop</span><span style="color:#ef4444">$${stop.toFixed(2)}</span></div>
+        <div style="display:flex;justify-content:space-between"><span>R:R · Aged</span><span><span style="color:${rrCol}">${rr?rr.toFixed(1)+':1':'—'}</span> · <span style="color:#6b7280">${agedTag}</span></span></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
 // ── Recovery Arc panel (Phase 2 — consumption scanner) ──────────────────────
 async function loadRecoveryPanel(entries){
   const panel = document.getElementById('recovery');
@@ -1490,7 +1686,7 @@ async function processFiles(entries){
   LIFECYCLE.date = primaryDate;
   console.log('FEM dashboard primary scan date:', primaryDate);
 
-  const scanEntries=[], checkEntries=[], momentumEntries=[], consumptionEntries=[], postmortemEntries=[], analystEntries=[], shortsEntries=[], recommendEntries=[], pnlEntries=[], intradayEntries=[];
+  const scanEntries=[], checkEntries=[], momentumEntries=[], consumptionEntries=[], postmortemEntries=[], analystEntries=[], shortsEntries=[], recommendEntries=[], pnlEntries=[], intradayEntries=[], rejRevisitEntries=[], attrEntries=[];
   for(const e of entries){
     if(!e.name.endsWith('.csv')) continue;
     if(e.name.startsWith('fem_momentum_')) momentumEntries.push(e);
@@ -1502,6 +1698,8 @@ async function processFiles(entries){
     else if(e.name.startsWith('fem_watchlist_recommend_')) recommendEntries.push(e);
     else if(e.name.startsWith('fem_pnl_')) pnlEntries.push(e);
     else if(e.name.startsWith('fem_intraday_scan_')) intradayEntries.push(e);
+    else if(e.name.startsWith('fem_rejection_revisit_')) rejRevisitEntries.push(e);
+    else if(e.name.startsWith('fem_attribution_')) attrEntries.push(e);
     else if(isCheckFile(e.name)) checkEntries.push(e);
     else if(srcFromName(e.name)) scanEntries.push(e);
   }
@@ -1515,6 +1713,8 @@ async function processFiles(entries){
   await loadRecommendPanel(recommendEntries);
   await loadPnlPanel(pnlEntries);
   await loadIntradayPanel(intradayEntries);
+  await loadRejRevisitPanel(rejRevisitEntries);
+  await loadAttributionPanel(attrEntries);
 
   // Load check files -> outcome map
   const outcomeMap = {};
