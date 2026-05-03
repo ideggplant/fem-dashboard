@@ -78,6 +78,32 @@ tr:hover td{background:#1a2533}
 .ab-bracket .lbl{color:#6b7280;font-size:9px;text-transform:uppercase}
 .ab-bracket .stop{color:#ef4444;font-weight:700}
 .ab-bracket .t1{color:#22c55e;font-weight:700}
+
+/* ── FAM section — probability-scored setups ──────────────────────────── */
+.fam-card{background:#161b22;border:1px solid #30363d;border-left:3px solid #a78bfa;border-radius:6px;padding:10px 12px;font-size:11px}
+.fam-card.long{border-left-color:#22c55e}
+.fam-card.short{border-left-color:#ef4444}
+.fam-card.high{box-shadow:0 0 8px #a78bfa33}
+.fam-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+.fam-ticker{font-size:15px;font-weight:800;color:#e2e8f0;letter-spacing:.5px}
+.fam-side{font-size:10px;font-weight:700;padding:2px 6px;border-radius:3px;letter-spacing:.5px}
+.fam-side.LONG{color:#22c55e;background:#0d2311;border:1px solid #22c55e44}
+.fam-side.SHORT{color:#ef4444;background:#2e0a0a;border:1px solid #ef444444}
+.fam-setup{font-size:10px;color:#a78bfa;font-weight:600;letter-spacing:.5px;background:#1a0f2e;padding:2px 6px;border-radius:3px;border:1px solid #a78bfa44}
+.fam-score{font-size:13px;font-weight:800;color:#a78bfa;font-family:monospace}
+.fam-meta{display:flex;gap:10px;color:#6b7280;font-size:10px;margin-bottom:8px;flex-wrap:wrap}
+.fam-meta b{color:#94a3b8;font-weight:600}
+.fam-trade{font-family:monospace;font-size:10px;color:#94a3b8;display:grid;grid-template-columns:60px 1fr;gap:2px 8px;margin-bottom:6px;padding:5px 8px;background:#0d1117;border-radius:4px}
+.fam-trade .label{color:#6b7280;text-transform:uppercase;font-size:9px;letter-spacing:.5px;align-self:center}
+.fam-trade .v.entry{color:#fbbf24;font-weight:700}
+.fam-trade .v.stop{color:#ef4444;font-weight:700}
+.fam-trade .v.target{color:#22c55e;font-weight:700}
+.fam-trade .v.rr{color:#a78bfa;font-weight:700}
+.fam-prims{font-size:9px;font-family:monospace;color:#6b7280;line-height:1.5;padding-top:6px;border-top:1px dashed #21262d;display:flex;flex-wrap:wrap;gap:4px 8px}
+.fam-prim{white-space:nowrap}
+.fam-prim.pos{color:#22c55e}
+.fam-prim.neg{color:#ef4444}
+.fam-reason{font-size:10px;color:#94a3b8;margin-top:6px;padding-top:6px;border-top:1px dashed #21262d;font-style:italic;line-height:1.4}
 .ab-bracket .cut{color:#fbbf24;font-weight:700}
 /* MOO (market-on-open) plan — validated 14-day backtest: +72% ROI */
 .ab-moo{margin-top:8px;padding:6px 8px;border-radius:4px;background:#0a1628;border:1px solid #1e3a5f}
@@ -242,6 +268,28 @@ tr:hover td{background:#1a2533}
   </div>
   <div id="abook-grid"></div>
   <div id="abook-empty" style="display:none">No A-book picks for this date (all rows killed by filters or no penny scan loaded).</div>
+</div>
+
+<!-- ================================================================== -->
+<!-- FAM PROBABILITY-SCORED SETUPS (Fractal Auction Model — runs in     -->
+<!-- parallel with legacy scanners. Reads fam_setups_*.csv and renders   -->
+<!-- one card per fire with full primitive contributions visible.)        -->
+<!-- ================================================================== -->
+<div id="fam" style="padding:12px 18px;background:linear-gradient(180deg,#1a0f2e 0%,#0d1117 100%);border-bottom:2px solid #a78bfa;display:none">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:10px">
+    <div style="font-size:13px;font-weight:700;color:#a78bfa;letter-spacing:1px">⚛ FAM PROBABILITY-SCORED SETUPS <span style="font-size:10px;color:#6b7280;font-weight:500;letter-spacing:0;margin-left:8px">Fractal Auction Model · primitive-composed scoring · regime-aware threshold ≥ 60 · <span id="fam-date">--</span></span></div>
+    <div style="display:flex;align-items:center;gap:10px;font-size:11px;color:#94a3b8">
+      <label>Min score <input type="number" id="fam-thresh" value="60" min="40" max="100" step="5" onchange="renderFam()" style="background:#161b22;border:1px solid #30363d;color:#a78bfa;padding:4px 8px;border-radius:4px;font-size:12px;font-weight:700;width:60px;text-align:right"></label>
+      <select id="fam-side" onchange="renderFam()" style="background:#161b22;border:1px solid #30363d;color:#e2e8f0;padding:4px 8px;border-radius:4px;font-size:12px">
+        <option value="ALL">Both sides</option>
+        <option value="LONG">LONG only</option>
+        <option value="SHORT">SHORT only</option>
+      </select>
+      <span style="font-size:10px;color:#6b7280;font-style:italic">backtest 30d/927 fires: +$13.5k @ thresh 60</span>
+    </div>
+  </div>
+  <div id="fam-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:10px"></div>
+  <div id="fam-empty" style="display:none;color:#6b7280;font-size:11px;font-style:italic;padding:12px;text-align:center">No FAM setups for this date — run fam_morning_scan.py and push to GitHub.</div>
 </div>
 
 <div id="momentum" style="padding:12px 18px;background:linear-gradient(180deg,#2d1b0f 0%,#0d1117 100%);border-bottom:2px solid #f59e0b;display:none">
@@ -576,6 +624,122 @@ function buildAbookForDate(date, topN){
   const scored = abScoreRows(alive);
   scored.sort((a,b)=>b._ab_score - a._ab_score);
   return scored.slice(0, topN);
+}
+
+// ── FAM PROBABILITY-SCORED SETUPS ───────────────────────────────────────
+// Reads the latest fam_setups_*.csv (uploaded by fam_morning_scan.py).
+// Renders one card per fire with full primitive contributions visible.
+let famRows = [];
+let famSourceFile = null;
+
+function loadFamFromFiles(allFiles){
+  // Find most-recent fam_setups_*.csv across all loaded files.
+  const famFiles = allFiles.filter(f => f.name.startsWith('fam_setups_'))
+                           .sort((a,b) => b.name.localeCompare(a.name));
+  if(famFiles.length === 0){
+    famRows = [];
+    famSourceFile = null;
+    return;
+  }
+  famSourceFile = famFiles[0].name;
+  // CSV is already parsed into rows by the loader.
+  famRows = famFiles[0].rows || [];
+}
+
+function renderFam(){
+  const grid = document.getElementById('fam-grid');
+  const empty = document.getElementById('fam-empty');
+  const dateEl = document.getElementById('fam-date');
+  const minScore = parseFloat(document.getElementById('fam-thresh').value) || 60;
+  const sideFilter = document.getElementById('fam-side').value;
+
+  document.getElementById('fam').style.display = 'block';
+  grid.innerHTML = '';
+
+  if(!famRows || famRows.length === 0){
+    empty.style.display = 'block';
+    empty.textContent = 'No FAM setups loaded — run fam_morning_scan.py and push to GitHub.';
+    dateEl.textContent = '--';
+    return;
+  }
+
+  // Date label from source filename
+  const m = famSourceFile && famSourceFile.match(/fam_setups_(\d{4}-\d{2}-\d{2})_(\d{4})/);
+  if(m){ dateEl.textContent = m[1] + ' ' + m[2].slice(0,2)+':'+m[2].slice(2); }
+  else  { dateEl.textContent = famSourceFile || '--'; }
+
+  // Filter and sort
+  let rows = famRows.slice();
+  rows = rows.filter(r => parseFloat(r.score) >= minScore);
+  if(sideFilter !== 'ALL'){
+    rows = rows.filter(r => r.side === sideFilter);
+  }
+  rows.sort((a,b) => parseFloat(b.score) - parseFloat(a.score));
+
+  if(rows.length === 0){
+    empty.style.display = 'block';
+    empty.textContent = `No FAM setups passed filter (score ≥ ${minScore}, side = ${sideFilter}).`;
+    return;
+  }
+  empty.style.display = 'none';
+
+  for(const r of rows){
+    const score = parseFloat(r.score) || 0;
+    const isHigh = score >= 75;
+    const sideCls = (r.side === 'LONG') ? 'long' : 'short';
+    const card = document.createElement('div');
+    card.className = `fam-card ${sideCls}${isHigh ? ' high' : ''}`;
+
+    // Parse primitive contributions
+    let primsHtml = '';
+    try{
+      const prims = JSON.parse(r.primitives_json || '{}');
+      const sorted = Object.entries(prims).sort((a,b) => b[1] - a[1]);
+      primsHtml = sorted.map(([k,v]) => {
+        const cls = v >= 0 ? 'pos' : 'neg';
+        const sign = v >= 0 ? '+' : '';
+        return `<span class="fam-prim ${cls}">${sign}${v.toFixed(1)} ${k}</span>`;
+      }).join('');
+    }catch(e){ primsHtml = '<span class="fam-prim">(no primitives)</span>'; }
+
+    const entry = parseFloat(r.entry).toFixed(2);
+    const stop = parseFloat(r.stop).toFixed(2);
+    const target = parseFloat(r.target).toFixed(2);
+    const rr = parseFloat(r.rr).toFixed(2);
+    const shares = r.shares;
+    const cp = parseFloat(r.current_price).toFixed(2);
+    const regime = r.spy_regime || '?';
+    const relVol = r.rel_vol || '?';
+    const sec = r.secondary_target ? `→ $${parseFloat(r.secondary_target).toFixed(2)}` : '';
+
+    card.innerHTML = `
+      <div class="fam-head">
+        <span class="fam-ticker">${r.ticker}</span>
+        <span class="fam-side ${r.side}">${r.side}</span>
+        <span class="fam-setup">${r.setup}</span>
+        <span class="fam-score">${score.toFixed(1)}</span>
+      </div>
+      <div class="fam-meta">
+        <span><b>now</b> $${cp}</span>
+        <span><b>regime</b> ${regime}</span>
+        <span><b>relvol</b> ${relVol}x</span>
+      </div>
+      <div class="fam-trade">
+        <span class="label">Entry</span><span class="v entry">$${entry} ${shares}sh</span>
+        <span class="label">Stop</span><span class="v stop">$${stop}</span>
+        <span class="label">Target</span><span class="v target">$${target} ${sec}</span>
+        <span class="label">R:R</span><span class="v rr">${rr}:1</span>
+      </div>
+      <div class="fam-prims">${primsHtml}</div>
+      ${r.notes ? `<div class="fam-reason">${escapeHtml(r.notes)}</div>` : ''}
+    `;
+    grid.appendChild(card);
+  }
+}
+
+function escapeHtml(s){
+  if(!s) return '';
+  return String(s).replace(/[&<>\"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',\"'\":'&#39;'}[c]));
 }
 
 function renderAbook(){
@@ -1414,6 +1578,23 @@ async function loadIntradayPanel(entries){
 }
 
 // ── Attribution panel (per-component edge tracking) ─────────────────────────
+async function loadFamPanel(entries){
+  const panel = document.getElementById('fam');
+  if(!entries || entries.length === 0){
+    famRows = [];
+    famSourceFile = null;
+    panel.style.display = 'none';
+    return;
+  }
+  // Pick the most recent fam_setups_*.csv
+  entries.sort((a,b) => a.name.localeCompare(b.name));
+  const latest = entries[entries.length - 1];
+  const text = await latest.getText();
+  famRows = parseCSV(text);
+  famSourceFile = latest.name;
+  renderFam();
+}
+
 async function loadAttributionPanel(entries){
   const panel = document.getElementById('attribution');
   const wrap  = document.getElementById('attribution-tables');
@@ -1686,10 +1867,11 @@ async function processFiles(entries){
   LIFECYCLE.date = primaryDate;
   console.log('FEM dashboard primary scan date:', primaryDate);
 
-  const scanEntries=[], checkEntries=[], momentumEntries=[], consumptionEntries=[], postmortemEntries=[], analystEntries=[], shortsEntries=[], recommendEntries=[], pnlEntries=[], intradayEntries=[], rejRevisitEntries=[], attrEntries=[];
+  const scanEntries=[], checkEntries=[], momentumEntries=[], consumptionEntries=[], postmortemEntries=[], analystEntries=[], shortsEntries=[], recommendEntries=[], pnlEntries=[], intradayEntries=[], rejRevisitEntries=[], attrEntries=[], famEntries=[];
   for(const e of entries){
     if(!e.name.endsWith('.csv')) continue;
-    if(e.name.startsWith('fem_momentum_')) momentumEntries.push(e);
+    if(e.name.startsWith('fam_setups_')) famEntries.push(e);
+    else if(e.name.startsWith('fem_momentum_')) momentumEntries.push(e);
     else if(e.name.startsWith('fem_consumption_')) consumptionEntries.push(e);
     else if(e.name.startsWith('fem_postmortem_')) postmortemEntries.push(e);
     else if(e.name.startsWith('fem_analyst_')) analystEntries.push(e);
@@ -1715,6 +1897,7 @@ async function processFiles(entries){
   await loadIntradayPanel(intradayEntries);
   await loadRejRevisitPanel(rejRevisitEntries);
   await loadAttributionPanel(attrEntries);
+  await loadFamPanel(famEntries);
 
   // Load check files -> outcome map
   const outcomeMap = {};
