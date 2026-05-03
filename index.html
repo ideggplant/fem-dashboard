@@ -739,7 +739,8 @@ function renderFam(){
 
 function escapeHtml(s){
   if(!s) return '';
-  return String(s).replace(/[&<>\"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',\"'\":'&#39;'}[c]));
+  const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+  return String(s).replace(/[&<>"']/g, c => map[c]);
 }
 
 function renderAbook(){
