@@ -1690,6 +1690,35 @@ async function loadRejRevisitPanel(entries){
   panel.style.display = 'block';
 
   if(!rows.length){ grid.innerHTML=''; empty.style.display='block'; return; }
+
+  // ── FRESHNESS + LIQUIDITY FILTERS (added 2026-05-03) ────────────────────
+  // Drop signals older than 5 days — narrative state goes stale.
+  // Drop names where dollar-volume proxy is too low — untradeable thin tape.
+  const MAX_AGED_DAYS = 5;
+  const MIN_DOLLAR_VOL_PROXY = 1_000_000;   // $1M/day floor
+  const beforeFilter = rows.length;
+  rows = rows.filter(r => {
+    const aged = parseFloat(r.days_since_advance) || 0;
+    if(aged > MAX_AGED_DAYS) return false;
+    // Dollar-volume proxy: snapshot_price × today's share volume.
+    // CSV has today_vol_pct_of_avg + (sometimes) av20 — derive what we can.
+    const px = parseFloat(r.snapshot_price) || 0;
+    const av20 = parseFloat(r.av20_volume || r.av20_daily || 0);
+    const volPct = parseFloat(r.today_vol_pct_of_avg) || 0;
+    const todayVol = av20 * (volPct / 100.0);
+    const dollarVol = px * Math.max(todayVol, av20);   // use whichever is higher
+    if(av20 > 0 && dollarVol < MIN_DOLLAR_VOL_PROXY) return false;
+    return true;
+  });
+  const filtered = beforeFilter - rows.length;
+  if(filtered > 0){
+    console.log(`Rejection-revisit radar: filtered ${filtered} stale/thin rows (kept ${rows.length}).`);
+  }
+
+  if(!rows.length){ grid.innerHTML=''; empty.style.display='block';
+    empty.textContent = `No rejection-revisit stories pass freshness (≤${MAX_AGED_DAYS}d) + liquidity ($${(MIN_DOLLAR_VOL_PROXY/1e6).toFixed(1)}M/day) filters.`;
+    return;
+  }
   empty.style.display='none';
 
   // Stage priority for ranking (TURNING and EATING first, then ENTRY_READY)
