@@ -1,5 +1,5 @@
 {
-  "updated": "2026-05-04 06:04",
+  "updated": "2026-05-04 06:17",
   "files": [
     "fem_abook_2026-04-01_0509.csv",
     "fem_abook_2026-04-02_0516.csv",
@@ -83,6 +83,7 @@
     "fem_consumption_2026-04-29_0555.csv",
     "fem_consumption_2026-04-30_0548.csv",
     "fem_consumption_2026-05-01_0544.csv",
+    "fem_consumption_2026-05-04_0606.csv",
     "fem_consumption_backtest_2026-04-28.csv",
     "fem_conviction_2026-04-21_0537.csv",
     "fem_intraday_scan_2026-04-29_1153.csv",
