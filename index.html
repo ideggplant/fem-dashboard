@@ -80,7 +80,7 @@ tr:hover td{background:#1a2533}
 .ab-bracket .t1{color:#22c55e;font-weight:700}
 
 /* ── Visual breathing room between major dashboard sections ───────────── */
-#abook, #fam, #momentum, #shorts, #recovery, #rejrevisit, #attribution,
+#abook, #fam, #statelookup, #momentum, #shorts, #recovery, #rejrevisit, #attribution,
 #postmortem, #pnl, #recommend, #intraday {
   margin-top: 16px;
   border-top-left-radius: 6px;
@@ -298,6 +298,30 @@ tr:hover td{background:#1a2533}
   </div>
   <div id="fam-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:10px"></div>
   <div id="fam-empty" style="display:none;color:#6b7280;font-size:11px;font-style:italic;padding:12px;text-align:center">No FAM setups for this date — run fam_morning_scan.py and push to GitHub.</div>
+</div>
+
+<!-- ================================================================== -->
+<!-- STATE LOOKUP (FAM "best trader" on every watchlist ticker — type   -->
+<!-- a symbol and get the full state-describer output: gaps, channels,   -->
+<!-- regime, expression OR marginal candidate, primitive contributions.) -->
+<!-- Reads fam_states.json (full payload) + fam_states_index.json (list).-->
+<!-- ================================================================== -->
+<div id="statelookup" style="padding:12px 18px;background:linear-gradient(180deg,#0f2030 0%,#0d1117 100%);border-bottom:2px solid #60a5fa;display:none">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:10px">
+    <div style="font-size:13px;font-weight:700;color:#60a5fa;letter-spacing:1px">🔭 STATE LOOKUP <span style="font-size:10px;color:#6b7280;font-weight:500;letter-spacing:0;margin-left:8px">Type any watchlist ticker · full FAM state · gaps, channels, regime, expression OR marginal candidate · <span id="sl-date">--</span> · <span id="sl-count">--</span></span></div>
+    <div style="display:flex;align-items:center;gap:10px;font-size:11px;color:#94a3b8">
+      <input type="text" id="sl-input" placeholder="ticker…" oninput="renderStateLookup()" style="background:#161b22;border:1px solid #30363d;color:#60a5fa;padding:6px 10px;border-radius:4px;font-size:13px;font-weight:700;text-transform:uppercase;width:120px;letter-spacing:1px">
+      <select id="sl-tier" onchange="renderStateLookup()" style="background:#161b22;border:1px solid #30363d;color:#e2e8f0;padding:4px 8px;border-radius:4px;font-size:12px">
+        <option value="ALL">All tiers</option>
+        <option value="CONVICTION">CONVICTION only</option>
+        <option value="MARGINAL">MARGINAL only</option>
+        <option value="NONE">No candidate</option>
+      </select>
+    </div>
+  </div>
+  <div id="sl-typeahead" style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px;font-size:11px;color:#6b7280;font-style:italic"></div>
+  <div id="sl-result"></div>
+  <div id="sl-empty" style="display:none;color:#6b7280;font-size:11px;font-style:italic;padding:12px;text-align:center">No state lookup data — run fam_state_export.py and push to GitHub.</div>
 </div>
 
 <div id="momentum" style="padding:12px 18px;background:linear-gradient(180deg,#2d1b0f 0%,#0d1117 100%);border-bottom:2px solid #f59e0b;display:none">
@@ -1604,6 +1628,216 @@ async function loadFamPanel(entries){
   renderFam();
 }
 
+// ── STATE LOOKUP — full FAM analysis on every watchlist ticker ──────────
+// Fetches fam_states.json (full) + fam_states_index.json (typeahead).
+// Lets the trader type any ticker and see the same analysis fam_state.py
+// CLI prints — gaps, channels, regime, expression OR marginal candidate.
+let slData = null;
+let slIndex = null;
+
+async function loadStateLookupPanel(){
+  const panel = document.getElementById('statelookup');
+  const dateEl = document.getElementById('sl-date');
+  const countEl = document.getElementById('sl-count');
+  const empty = document.getElementById('sl-empty');
+  try{
+    const [statesRes, indexRes] = await Promise.all([
+      fetch(GH_RAW + 'fam_states.json?_=' + Date.now()),
+      fetch(GH_RAW + 'fam_states_index.json?_=' + Date.now()),
+    ]);
+    if(!statesRes.ok || !indexRes.ok){
+      panel.style.display = 'block';
+      empty.style.display = 'block';
+      return;
+    }
+    slData = await statesRes.json();
+    slIndex = await indexRes.json();
+    panel.style.display = 'block';
+    dateEl.textContent = slData.asof_date || '--';
+    countEl.textContent = `${slData.count || 0} tickers`;
+    empty.style.display = 'none';
+    renderStateLookup();
+  }catch(e){
+    panel.style.display = 'block';
+    empty.style.display = 'block';
+    console.warn('State lookup load failed:', e);
+  }
+}
+
+function _slEscape(s){
+  if(s == null) return '';
+  return String(s).replace(/[&<>"']/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  })[c]);
+}
+
+function _slGapRow(g){
+  const tier = g.conviction_tier || '--';
+  const tierCol = tier === 'CONVICTION' ? '#fbbf24' :
+                  tier === 'VACUUM' ? '#a78bfa' :
+                  tier === 'COMPRESSION' ? '#60a5fa' :
+                  tier === 'MINOR' ? '#6b7280' : '#94a3b8';
+  const dist = g.distance_pct != null ? (g.distance_pct * 100).toFixed(2) + '%' : '--';
+  return `<tr>
+    <td style="color:${tierCol};font-weight:700;font-size:10px">${_slEscape(tier)}</td>
+    <td style="color:#94a3b8;font-size:11px">${_slEscape(g.timeframe)}</td>
+    <td style="font-weight:600">$${(g.bottom||0).toFixed(2)}–$${(g.top||0).toFixed(2)}</td>
+    <td style="color:#fbbf24;font-weight:600">${g.tick_width||0}tk</td>
+    <td style="color:#94a3b8">${dist}</td>
+    <td style="color:${g.bullish?'#22c55e':'#ef4444'};font-weight:700;font-size:10px">${g.bullish?'BULL':'BEAR'}</td>
+    <td style="color:#a78bfa;font-size:10px">${(g.magnet_score||0).toFixed(0)}</td>
+  </tr>`;
+}
+
+function _slIdeaCard(idea, isMarginal){
+  const score = idea.score || 0;
+  const sideCol = idea.side === 'LONG' ? '#22c55e' : '#ef4444';
+  const tierBadge = isMarginal ?
+    `<span style="background:#fbbf24;color:#0d1117;padding:2px 6px;border-radius:3px;font-size:10px;font-weight:800;margin-left:6px">⚠ MARGINAL</span>` :
+    (score >= 90 ?
+      `<span style="background:#a78bfa;color:#0d1117;padding:2px 6px;border-radius:3px;font-size:10px;font-weight:800;margin-left:6px">CONVICTION</span>` : '');
+  const entryTypeBadge = idea.entry_type === 'MARKET' ?
+    `<span style="background:#60a5fa;color:#0d1117;padding:2px 6px;border-radius:3px;font-size:10px;font-weight:800;margin-left:4px">MARKET</span>` :
+    `<span style="background:#161b22;color:#94a3b8;padding:2px 6px;border-radius:3px;font-size:10px;font-weight:600;margin-left:4px;border:1px solid #30363d">LIMIT</span>`;
+  const prims = Object.entries(idea.primitive_contributions || {}).sort((a,b)=>b[1]-a[1]);
+  const primsHtml = prims.map(([k,v]) => {
+    const cls = v >= 0 ? 'pos' : 'neg';
+    const col = v >= 0 ? '#22c55e' : '#ef4444';
+    const sign = v >= 0 ? '+' : '';
+    return `<span style="display:inline-block;background:#161b22;border:1px solid #30363d;color:${col};padding:2px 6px;border-radius:3px;font-size:11px;margin:2px;font-family:monospace">${sign}${v.toFixed(1)} ${_slEscape(k)}</span>`;
+  }).join('');
+  const reasonsHtml = (idea.reasons || []).map(r => `<li style="color:#94a3b8;font-size:11px;line-height:1.5">${_slEscape(r)}</li>`).join('');
+  const rrCol = idea.rr >= 2 ? '#22c55e' : idea.rr >= 1 ? '#fbbf24' : '#ef4444';
+  return `
+    <div style="background:#161b22;border:1px solid ${isMarginal?'#fbbf24':'#30363d'};border-radius:6px;padding:14px;margin-bottom:10px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:6px">
+        <div>
+          <span style="font-size:14px;font-weight:800;color:${sideCol};letter-spacing:1px">${_slEscape(idea.setup)} ${_slEscape(idea.side)}</span>
+          ${tierBadge}${entryTypeBadge}
+        </div>
+        <div style="font-size:18px;font-weight:800;color:${score>=90?'#a78bfa':score>=75?'#fbbf24':'#94a3b8'}">score ${score.toFixed(1)}</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:10px;font-size:12px">
+        <div><span style="color:#6b7280">Entry</span> <span style="font-weight:700;color:#e2e8f0">$${(idea.entry||0).toFixed(2)}</span></div>
+        <div><span style="color:#6b7280">Stop</span> <span style="font-weight:700;color:#ef4444">$${(idea.stop||0).toFixed(2)}</span></div>
+        <div><span style="color:#6b7280">Target</span> <span style="font-weight:700;color:#22c55e">$${(idea.target||0).toFixed(2)}</span></div>
+        <div><span style="color:#6b7280">R:R</span> <span style="font-weight:700;color:${rrCol}">${(idea.rr||0).toFixed(2)}</span></div>
+        <div><span style="color:#6b7280">Shares</span> <span style="font-weight:700;color:#e2e8f0">${idea.shares||0}</span></div>
+      </div>
+      ${idea.notes ? `<div style="background:#0d1117;border-left:3px solid ${isMarginal?'#fbbf24':'#60a5fa'};padding:8px 10px;font-size:11px;color:#94a3b8;margin-bottom:8px;line-height:1.5">${_slEscape(idea.notes)}</div>` : ''}
+      ${reasonsHtml ? `<div style="margin-bottom:8px"><div style="font-size:10px;color:#6b7280;font-weight:700;letter-spacing:1px;margin-bottom:4px">WHY</div><ul style="margin:0;padding-left:18px">${reasonsHtml}</ul></div>` : ''}
+      <div><div style="font-size:10px;color:#6b7280;font-weight:700;letter-spacing:1px;margin-bottom:4px">SCORE BREAKDOWN</div><div>${primsHtml}</div></div>
+      ${isMarginal ? `<div style="margin-top:10px;padding:8px;background:#2a1f08;border:1px solid #fbbf24;border-radius:4px;color:#fbbf24;font-size:11px;font-weight:600">⚠ Below threshold (${score.toFixed(1)} < 60). Use as a level to watch, not an auto-fire.</div>` : ''}
+    </div>`;
+}
+
+function renderStateLookup(){
+  const result = document.getElementById('sl-result');
+  const typeahead = document.getElementById('sl-typeahead');
+  const empty = document.getElementById('sl-empty');
+  const input = document.getElementById('sl-input').value.trim().toUpperCase();
+  const tierFilter = document.getElementById('sl-tier').value;
+
+  if(!slData || !slIndex){
+    empty.style.display = 'block';
+    result.innerHTML = '';
+    typeahead.innerHTML = '';
+    return;
+  }
+
+  // Show top 12 typeahead suggestions filtered by tier + input prefix
+  let suggestions = (slIndex.index || []);
+  if(tierFilter !== 'ALL'){
+    suggestions = suggestions.filter(r => r.tier === tierFilter);
+  }
+  if(input){
+    suggestions = suggestions.filter(r => r.ticker.startsWith(input));
+  }
+  typeahead.innerHTML = suggestions.slice(0, 18).map(r => {
+    const tCol = r.tier === 'CONVICTION' ? '#a78bfa' : r.tier === 'MARGINAL' ? '#fbbf24' : '#6b7280';
+    const sCol = r.best_side === 'LONG' ? '#22c55e' : r.best_side === 'SHORT' ? '#ef4444' : '#6b7280';
+    return `<span onclick="document.getElementById('sl-input').value='${_slEscape(r.ticker)}';renderStateLookup()" style="cursor:pointer;background:#161b22;border:1px solid #30363d;padding:3px 8px;border-radius:3px;font-size:11px;font-family:monospace">
+      <span style="color:#e2e8f0;font-weight:700">${_slEscape(r.ticker)}</span>
+      <span style="color:${tCol};font-weight:600">${_slEscape(r.tier)}</span>
+      <span style="color:${sCol}">${(r.best_score||0).toFixed(0)}</span>
+    </span>`;
+  }).join('');
+
+  if(!input){
+    result.innerHTML = `<div style="color:#6b7280;font-size:12px;font-style:italic;padding:12px;text-align:center">Type a ticker (or click one above) to see its full state.</div>`;
+    return;
+  }
+
+  const state = slData.states[input];
+  if(!state){
+    result.innerHTML = `<div style="color:#fbbf24;font-size:12px;padding:12px;text-align:center">No state data for <strong>${_slEscape(input)}</strong> in today's universe. (Run fam_state_export.py with this ticker on the watchlist.)</div>`;
+    return;
+  }
+
+  const regimeCol = state.spy_regime === 'FAVORABLE' ? '#22c55e' :
+                    state.spy_regime === 'CHOP' ? '#fbbf24' :
+                    state.spy_regime === 'HOSTILE' ? '#ef4444' : '#94a3b8';
+  const aboveRows = (state.gaps_above||[]).map(_slGapRow).join('');
+  const belowRows = (state.gaps_below||[]).map(_slGapRow).join('');
+  const channelsHtml = (state.channel_candidates||[]).map(c => {
+    const dirCol = c.direction === 'ASC' ? '#22c55e' : c.direction === 'DESC' ? '#ef4444' : '#94a3b8';
+    return `<div style="display:inline-block;background:#161b22;border:1px solid #30363d;border-radius:4px;padding:6px 10px;margin:3px;font-size:11px">
+      <span style="color:#94a3b8">${_slEscape(c.timeframe)}</span>
+      <span style="color:${dirCol};font-weight:700">${_slEscape(c.direction)}</span>
+      <span style="color:#fbbf24">${_slEscape(c.position||'--')}</span>
+      <span style="color:#94a3b8">$${(c.lower_rail_now||0).toFixed(2)}–$${(c.upper_rail_now||0).toFixed(2)}</span>
+      <span style="color:#a78bfa">score ${(c.score||0).toFixed(0)}</span>
+    </div>`;
+  }).join('') || `<div style="color:#6b7280;font-size:11px;font-style:italic">No active channels detected.</div>`;
+
+  const ideasHtml = (state.ideas && state.ideas.length) ?
+    state.ideas.map(i => _slIdeaCard(i, false)).join('') :
+    (state.marginal ? _slIdeaCard(state.marginal, true) :
+      `<div style="color:#6b7280;font-size:12px;font-style:italic;padding:12px;text-align:center">No expression candidate (structure too thin to evaluate).</div>`);
+
+  const warningsHtml = (state.warnings && state.warnings.length) ?
+    `<div style="background:#2e1f08;border:1px solid #fbbf24;border-radius:4px;padding:8px 12px;margin-top:10px;color:#fbbf24;font-size:11px">⚠ Warnings: ${state.warnings.map(_slEscape).join(' · ')}</div>` : '';
+
+  result.innerHTML = `
+    <div style="background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:16px;margin-bottom:12px">
+      <div style="display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:12px;border-bottom:1px solid #21262d;padding-bottom:10px">
+        <div>
+          <span style="font-size:24px;font-weight:800;color:#60a5fa;letter-spacing:1px">${_slEscape(input)}</span>
+          <span style="font-size:18px;font-weight:700;color:#e2e8f0;margin-left:12px">$${(state.current_price||0).toFixed(2)}</span>
+        </div>
+        <div style="font-size:11px;color:#94a3b8">
+          regime <span style="color:${regimeCol};font-weight:700">${_slEscape(state.spy_regime||'--')}</span>
+          ${state.spy_pct != null ? `(${state.spy_pct >= 0 ? '+' : ''}${(state.spy_pct||0).toFixed(2)}%)` : ''}
+          · rel.vol <span style="color:#fbbf24;font-weight:600">${state.relative_volume_today != null ? state.relative_volume_today.toFixed(2)+'×' : '--'}</span>
+          · ATR <span style="color:#a78bfa;font-weight:600">${state.atr_pct != null ? (state.atr_pct*100).toFixed(2)+'%' : '--'}</span>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+        <div>
+          <div style="font-size:11px;font-weight:700;color:#22c55e;letter-spacing:1px;margin-bottom:6px">↑ MAGNETS ABOVE</div>
+          ${aboveRows ? `<table style="width:100%;font-size:11px;border-collapse:collapse">${aboveRows}</table>` : `<div style="color:#6b7280;font-style:italic;font-size:11px">Clean air overhead within 15%.</div>`}
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:700;color:#ef4444;letter-spacing:1px;margin-bottom:6px">↓ MAGNETS BELOW</div>
+          ${belowRows ? `<table style="width:100%;font-size:11px;border-collapse:collapse">${belowRows}</table>` : `<div style="color:#6b7280;font-style:italic;font-size:11px">Clean air below within 15%.</div>`}
+        </div>
+      </div>
+
+      <div style="margin-bottom:14px">
+        <div style="font-size:11px;font-weight:700;color:#a78bfa;letter-spacing:1px;margin-bottom:6px">CHANNELS</div>
+        ${channelsHtml}
+      </div>
+
+      <div>
+        <div style="font-size:11px;font-weight:700;color:#fbbf24;letter-spacing:1px;margin-bottom:6px">${(state.ideas&&state.ideas.length) ? 'TRADE IDEAS' : (state.marginal ? 'MARGINAL CANDIDATE' : 'NO CANDIDATE')}</div>
+        ${ideasHtml}
+      </div>
+
+      ${warningsHtml}
+    </div>`;
+}
+
 async function loadAttributionPanel(entries){
   const panel = document.getElementById('attribution');
   const wrap  = document.getElementById('attribution-tables');
@@ -1944,6 +2178,7 @@ async function processFiles(entries){
   await loadRejRevisitPanel(rejRevisitEntries);
   await loadAttributionPanel(attrEntries);
   await loadFamPanel(famEntries);
+  await loadStateLookupPanel();
 
   // Load check files -> outcome map
   const outcomeMap = {};
