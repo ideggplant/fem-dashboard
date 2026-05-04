@@ -79,6 +79,14 @@ tr:hover td{background:#1a2533}
 .ab-bracket .stop{color:#ef4444;font-weight:700}
 .ab-bracket .t1{color:#22c55e;font-weight:700}
 
+/* ── Visual breathing room between major dashboard sections ───────────── */
+#abook, #fam, #momentum, #shorts, #recovery, #rejrevisit, #attribution,
+#postmortem, #pnl, #recommend, #intraday {
+  margin-top: 16px;
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+}
+
 /* ── FAM section — probability-scored setups ──────────────────────────── */
 .fam-card{background:#161b22;border:1px solid #30363d;border-left:3px solid #a78bfa;border-radius:6px;padding:10px 12px;font-size:11px}
 .fam-card.long{border-left-color:#22c55e}
@@ -1777,7 +1785,15 @@ async function loadRejRevisitPanel(entries){
     const target = parseFloat(r.target)||0;
     const stop = parseFloat(r.stop)||0;
     const px = parseFloat(r.snapshot_price)||0;
-    const bear = `${r.n_bearish_consumed||0}/${r.n_bearish_total||0}`;
+    const bearConsumed = parseInt(r.n_bearish_consumed)||0;
+    const bearTotal = parseInt(r.n_bearish_total)||0;
+    const overheadRemaining = parseInt(r.n_overhead_remaining)||0;
+    // Show "5/5 eaten" + "X above" when there are still overhead bear gaps,
+    // so a 100%-eaten post-rejection radar still warns about real overhead.
+    let bear = `${bearConsumed}/${bearTotal}`;
+    if(overheadRemaining > 0){
+      bear += ` · <span style="color:#fb923c">${overheadRemaining} above</span>`;
+    }
 
     return `<div style="background:${col.bg};border:1px solid ${col.bd}55;border-left:3px solid ${col.bd};border-radius:6px;padding:8px 10px;font-size:11px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
