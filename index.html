@@ -1684,7 +1684,7 @@ async function loadRejRevisitPanel(entries){
   entries.sort((a,b)=>a.name.localeCompare(b.name));
   const latest = entries[entries.length-1];
   const text = await latest.getText();
-  const rows = parseCSV(text);
+  let rows = parseCSV(text);
   const date = dateFromName(latest.name);
   dateEl.textContent = date;
   panel.style.display = 'block';
