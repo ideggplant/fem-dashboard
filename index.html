@@ -309,17 +309,24 @@ tr:hover td{background:#1a2533}
 <div id="statelookup" style="padding:12px 18px;background:linear-gradient(180deg,#0f2030 0%,#0d1117 100%);border-bottom:2px solid #60a5fa;display:none">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:10px">
     <div style="font-size:13px;font-weight:700;color:#60a5fa;letter-spacing:1px">🔭 STATE LOOKUP <span style="font-size:10px;color:#6b7280;font-weight:500;letter-spacing:0;margin-left:8px">Type any watchlist ticker · full FAM state · gaps, channels, regime, expression OR marginal candidate · <span id="sl-date">--</span> · <span id="sl-count">--</span></span></div>
-    <div style="display:flex;align-items:center;gap:10px;font-size:11px;color:#94a3b8">
-      <input type="text" id="sl-input" placeholder="ticker…" oninput="renderStateLookup()" style="background:#161b22;border:1px solid #30363d;color:#60a5fa;padding:6px 10px;border-radius:4px;font-size:13px;font-weight:700;text-transform:uppercase;width:120px;letter-spacing:1px">
+    <div style="display:flex;align-items:center;gap:10px;font-size:11px;color:#94a3b8;flex-wrap:wrap">
+      <input type="text" id="sl-input" placeholder="ticker…" onkeydown="slOnKey(event)" oninput="renderStateLookup()" style="background:#161b22;border:1px solid #30363d;color:#60a5fa;padding:6px 10px;border-radius:4px;font-size:13px;font-weight:700;text-transform:uppercase;width:120px;letter-spacing:1px">
       <select id="sl-tier" onchange="renderStateLookup()" style="background:#161b22;border:1px solid #30363d;color:#e2e8f0;padding:4px 8px;border-radius:4px;font-size:12px">
         <option value="ALL">All tiers</option>
         <option value="CONVICTION">CONVICTION only</option>
         <option value="MARGINAL">MARGINAL only</option>
         <option value="NONE">No candidate</option>
       </select>
+      <label style="display:flex;align-items:center;gap:5px;cursor:pointer">
+        <input type="checkbox" id="sl-live" onchange="slOnLiveToggle()">
+        <span style="font-weight:700;color:#22c55e">LIVE</span>
+        <span style="font-size:10px;color:#6b7280">(any symbol, fresh bars)</span>
+      </label>
+      <button onclick="slConfigureUrl()" style="background:#161b22;border:1px solid #30363d;color:#94a3b8;padding:4px 8px;border-radius:4px;font-size:11px;cursor:pointer">⚙ Live URL</button>
     </div>
   </div>
   <div id="sl-typeahead" style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px;font-size:11px;color:#6b7280;font-style:italic"></div>
+  <div id="sl-livestatus" style="display:none;font-size:11px;margin-bottom:8px"></div>
   <div id="sl-result"></div>
   <div id="sl-empty" style="display:none;color:#6b7280;font-size:11px;font-style:italic;padding:12px;text-align:center">No state lookup data — run fam_state_export.py and push to GitHub.</div>
 </div>
@@ -1635,32 +1642,168 @@ async function loadFamPanel(entries){
 let slData = null;
 let slIndex = null;
 
+// LIVE mode — when true, lookups hit the cloud function (Fly.io) instead
+// of the static JSON. Lets the trader query ANY ticker (not just the
+// watchlist) with FRESH bars (not the morning snapshot).
+let slLiveUrl = null;
+let slLiveLastTicker = null;
+let slLiveLastTs = 0;
+const SL_LIVE_DEBOUNCE_MS = 600;
+
+function slLoadConfig(){
+  try{
+    slLiveUrl = localStorage.getItem('sl_live_url') || null;
+    const liveOn = localStorage.getItem('sl_live_enabled') === '1';
+    const cb = document.getElementById('sl-live');
+    if(cb && slLiveUrl){
+      cb.checked = liveOn;
+      cb.disabled = false;
+    } else if(cb){
+      cb.disabled = true;
+      cb.title = 'Click "⚙ Live URL" to configure your cloud function endpoint';
+    }
+    slUpdateLiveStatus();
+  }catch(e){
+    console.warn('localStorage unavailable');
+  }
+}
+
+function slUpdateLiveStatus(){
+  const status = document.getElementById('sl-livestatus');
+  const cb = document.getElementById('sl-live');
+  if(!status || !cb) return;
+  if(!slLiveUrl){
+    status.style.display = 'block';
+    status.innerHTML = `<span style="color:#fbbf24">⚙ Live mode not configured.</span> <span style="color:#6b7280">Click "⚙ Live URL" to point at your cloud function (e.g. https://fam-state-lookup.fly.dev). See cloud/DEPLOY.md.</span>`;
+  } else if(cb.checked){
+    status.style.display = 'block';
+    status.innerHTML = `<span style="color:#22c55e">● LIVE</span> <span style="color:#94a3b8">${_slEscape(slLiveUrl)}</span> <span style="color:#6b7280">— fresh bars from Polygon, any symbol</span>`;
+  } else {
+    status.style.display = 'block';
+    status.innerHTML = `<span style="color:#6b7280">○ Static mode</span> <span style="color:#94a3b8">— from morning snapshot</span> <span style="color:#6b7280">(toggle LIVE for fresh bars)</span>`;
+  }
+}
+
+function slConfigureUrl(){
+  const current = slLiveUrl || '';
+  const v = prompt(
+    'Cloud function URL for live state lookup\n\n' +
+    'Example: https://fam-state-lookup.fly.dev\n\n' +
+    'Leave empty to clear and revert to static mode.\n\n' +
+    'See cloud/DEPLOY.md for how to set this up on fly.io (free).',
+    current
+  );
+  if(v === null) return;  // canceled
+  const trimmed = v.trim().replace(/\/$/, '');
+  if(!trimmed){
+    localStorage.removeItem('sl_live_url');
+    localStorage.removeItem('sl_live_enabled');
+    slLiveUrl = null;
+    document.getElementById('sl-live').checked = false;
+    document.getElementById('sl-live').disabled = true;
+    slUpdateLiveStatus();
+    return;
+  }
+  if(!/^https?:\/\//.test(trimmed)){
+    alert('URL must start with http:// or https://');
+    return;
+  }
+  slLiveUrl = trimmed;
+  localStorage.setItem('sl_live_url', trimmed);
+  document.getElementById('sl-live').disabled = false;
+  document.getElementById('sl-live').checked = true;
+  localStorage.setItem('sl_live_enabled', '1');
+  slUpdateLiveStatus();
+  // Test the endpoint
+  fetch(trimmed + '/health').then(r => r.json()).then(j => {
+    if(j && j.status === 'ok' && j.polygon_key_configured){
+      const result = document.getElementById('sl-result');
+      result.innerHTML = `<div style="background:#0d2218;border:1px solid #22c55e;border-radius:6px;padding:14px;color:#22c55e;font-size:12px">✅ Live endpoint reachable. Polygon key configured. Type a ticker above to query.</div>`;
+    } else {
+      const result = document.getElementById('sl-result');
+      result.innerHTML = `<div style="background:#2a1a08;border:1px solid #fbbf24;border-radius:6px;padding:14px;color:#fbbf24;font-size:12px">⚠ Endpoint reachable but Polygon key not configured server-side. See cloud/DEPLOY.md step "fly secrets set POLYGON_API_KEY".</div>`;
+    }
+  }).catch(e => {
+    const result = document.getElementById('sl-result');
+    result.innerHTML = `<div style="background:#2a0a0a;border:1px solid #ef4444;border-radius:6px;padding:14px;color:#ef4444;font-size:12px">❌ Could not reach ${_slEscape(trimmed)}/health<br><span style="color:#94a3b8;font-size:11px">${_slEscape(e.message)}</span></div>`;
+  });
+}
+
+function slOnLiveToggle(){
+  const cb = document.getElementById('sl-live');
+  localStorage.setItem('sl_live_enabled', cb.checked ? '1' : '0');
+  slUpdateLiveStatus();
+  renderStateLookup();
+}
+
+function slOnKey(ev){
+  if(ev.key === 'Enter'){
+    const cb = document.getElementById('sl-live');
+    if(cb && cb.checked && slLiveUrl){
+      slFetchLive();
+    }
+  }
+}
+
+async function slFetchLive(){
+  if(!slLiveUrl) return;
+  const ticker = document.getElementById('sl-input').value.trim().toUpperCase();
+  if(!ticker) return;
+  // Debounce — avoid hammering the endpoint when user is still typing
+  const now = Date.now();
+  if(slLiveLastTicker === ticker && (now - slLiveLastTs) < SL_LIVE_DEBOUNCE_MS) return;
+  slLiveLastTicker = ticker;
+  slLiveLastTs = now;
+
+  const result = document.getElementById('sl-result');
+  result.innerHTML = `<div style="color:#94a3b8;font-size:12px;padding:14px;text-align:center">⏳ Live build for <strong>${_slEscape(ticker)}</strong>… (Polygon pulls fresh bars; ~1-3 sec)</div>`;
+
+  try{
+    const r = await fetch(slLiveUrl + '/state?ticker=' + encodeURIComponent(ticker));
+    if(!r.ok){
+      const errText = await r.text();
+      result.innerHTML = `<div style="background:#2a0a0a;border:1px solid #ef4444;border-radius:6px;padding:14px;color:#ef4444;font-size:12px">HTTP ${r.status}: ${_slEscape(errText)}</div>`;
+      return;
+    }
+    const state = await r.json();
+    _slRenderStateBlock(ticker, state, true);
+  }catch(e){
+    result.innerHTML = `<div style="background:#2a0a0a;border:1px solid #ef4444;border-radius:6px;padding:14px;color:#ef4444;font-size:12px">Live fetch failed: ${_slEscape(e.message)}</div>`;
+  }
+}
+
 async function loadStateLookupPanel(){
   const panel = document.getElementById('statelookup');
   const dateEl = document.getElementById('sl-date');
   const countEl = document.getElementById('sl-count');
   const empty = document.getElementById('sl-empty');
+  // Always show the panel (live mode works without static JSON)
+  panel.style.display = 'block';
+  slLoadConfig();
   try{
     const [statesRes, indexRes] = await Promise.all([
       fetch(GH_RAW + 'fam_states.json?_=' + Date.now()),
       fetch(GH_RAW + 'fam_states_index.json?_=' + Date.now()),
     ]);
     if(!statesRes.ok || !indexRes.ok){
-      panel.style.display = 'block';
-      empty.style.display = 'block';
+      // Static JSON missing — but live mode might still work
+      countEl.textContent = 'no static snapshot';
+      if(!slLiveUrl){
+        empty.style.display = 'block';
+      }
       return;
     }
     slData = await statesRes.json();
     slIndex = await indexRes.json();
-    panel.style.display = 'block';
     dateEl.textContent = slData.asof_date || '--';
     countEl.textContent = `${slData.count || 0} tickers`;
     empty.style.display = 'none';
     renderStateLookup();
   }catch(e){
-    panel.style.display = 'block';
-    empty.style.display = 'block';
-    console.warn('State lookup load failed:', e);
+    if(!slLiveUrl){
+      empty.style.display = 'block';
+    }
+    console.warn('State lookup static load failed:', e);
   }
 }
 
@@ -1763,6 +1906,17 @@ function renderStateLookup(){
     </span>`;
   }).join('');
 
+  // Live mode: hand off to slFetchLive instead of static lookup
+  const cb = document.getElementById('sl-live');
+  if(cb && cb.checked && slLiveUrl){
+    if(input){
+      slFetchLive();
+    } else {
+      result.innerHTML = `<div style="color:#6b7280;font-size:12px;font-style:italic;padding:12px;text-align:center">Type any ticker (e.g. AAPL, MSFT, NVDA, TSLA) and press Enter for a live state build.</div>`;
+    }
+    return;
+  }
+
   if(!input){
     result.innerHTML = `<div style="color:#6b7280;font-size:12px;font-style:italic;padding:12px;text-align:center">Type a ticker (or click one above) to see its full state.</div>`;
     return;
@@ -1770,10 +1924,15 @@ function renderStateLookup(){
 
   const state = slData.states[input];
   if(!state){
-    result.innerHTML = `<div style="color:#fbbf24;font-size:12px;padding:12px;text-align:center">No state data for <strong>${_slEscape(input)}</strong> in today's universe. (Run fam_state_export.py with this ticker on the watchlist.)</div>`;
+    result.innerHTML = `<div style="color:#fbbf24;font-size:12px;padding:12px;text-align:center">No state data for <strong>${_slEscape(input)}</strong> in today's universe.<br><span style="font-size:11px;color:#6b7280">Enable LIVE mode to query any ticker, or add it to fam_watchlist.txt for tomorrow's scan.</span></div>`;
     return;
   }
 
+  _slRenderStateBlock(input, state, false);
+}
+
+function _slRenderStateBlock(input, state, isLive){
+  const result = document.getElementById('sl-result');
   const regimeCol = state.spy_regime === 'FAVORABLE' ? '#22c55e' :
                     state.spy_regime === 'CHOP' ? '#fbbf24' :
                     state.spy_regime === 'HOSTILE' ? '#ef4444' : '#94a3b8';
@@ -1804,6 +1963,8 @@ function renderStateLookup(){
         <div>
           <span style="font-size:24px;font-weight:800;color:#60a5fa;letter-spacing:1px">${_slEscape(input)}</span>
           <span style="font-size:18px;font-weight:700;color:#e2e8f0;margin-left:12px">$${(state.current_price||0).toFixed(2)}</span>
+          ${isLive ? `<span style="background:#22c55e;color:#0d1117;padding:2px 7px;border-radius:3px;font-size:10px;font-weight:800;margin-left:10px">● LIVE</span>` : `<span style="background:#161b22;color:#94a3b8;padding:2px 7px;border-radius:3px;font-size:10px;font-weight:600;margin-left:10px;border:1px solid #30363d">SNAPSHOT</span>`}
+          ${state._meta && state._meta.cached ? `<span style="background:#161b22;color:#fbbf24;padding:2px 7px;border-radius:3px;font-size:10px;font-weight:600;margin-left:4px;border:1px solid #fbbf24">cached &lt;60s</span>` : ''}
         </div>
         <div style="font-size:11px;color:#94a3b8">
           regime <span style="color:${regimeCol};font-weight:700">${_slEscape(state.spy_regime||'--')}</span>
