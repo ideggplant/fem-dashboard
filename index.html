@@ -260,7 +260,7 @@ tr:hover td{background:#1a2533}
 
 <div id="rejrevisit" style="padding:12px 18px;background:linear-gradient(180deg,#0f1830 0%,#0d1117 100%);border-bottom:2px solid #818cf8;display:none">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-    <div style="font-size:13px;font-weight:700;color:#818cf8;letter-spacing:1px">🌀 REJECTION-REVISIT RADAR <span style="font-size:10px;color:#6b7280;font-weight:500;letter-spacing:0;margin-left:8px">narrative tracker · rejection → bounce → eating → entry · <span id="rrr-date">--</span></span></div>
+    <div style="font-size:13px;font-weight:700;color:#818cf8;letter-spacing:1px">🌀 REJECTION-REVISIT RADAR <span style="font-size:10px;color:#6b7280;font-weight:500;letter-spacing:0;margin-left:8px">fractal narrative · 1m · 3m · 5m · 10m · 15m · 1h · 4h · 1d · <span id="rrr-date">--</span></span></div>
     <div id="rrr-summary" style="font-size:10px;color:#6b7280"></div>
   </div>
   <div id="rejrevisit-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:8px"></div>
@@ -2274,18 +2274,31 @@ async function loadRejRevisitPanel(entries){
     if(s==='BOUNCED_WAITING') return 55;
     return 30;
   };
-  rows.sort((a,b)=>{
-    const sp = stagePriority(b.stage) - stagePriority(a.stage);
-    if(sp !== 0) return sp;
-    return (parseFloat(b.conviction)||0) - (parseFloat(a.conviction)||0);
-  });
+  // Fractal-aware ranking — mirrors fem_rejection_revisit.main()
+  const rankScore = (r)=>{
+    let sp = stagePriority(r.stage);
+    const aged = parseFloat(r.days_since_advance) || 0;
+    const recencyBonus = Math.max(0, 7 - aged);
+    const conv = parseInt(r.conviction)||0;
+    const tfWeight = parseInt(r.rej_tf_weight)||5;
+    const tfBonus = tfWeight * 0.5;
+    let score = sp + recencyBonus + conv*2 + tfBonus;
+    if((''+r.risk_climax).toLowerCase()==='true') score -= 100;
+    const ohEff = parseFloat(r.oh_effective_w)||0;
+    if(ohEff > 5000) score -= 30;
+    else if(ohEff > 1000) score -= 10;
+    return score;
+  };
+  rows.sort((a,b)=>rankScore(b) - rankScore(a));
 
   // Counts for summary
   const stageCounts = {};
   rows.forEach(r=>{ stageCounts[r.stage] = (stageCounts[r.stage]||0) + 1; });
   const turningN = rows.filter(r=>(''+r.first_consumption_recent).toLowerCase()==='true').length;
   const highConv = rows.filter(r=>(parseInt(r.conviction)||0) >= 7).length;
-  sumEl.textContent = `${rows.length} active stories  ·  ★${turningN} TURNING  ·  ${highConv} high-conviction (≥7)`;
+  const climaxN  = rows.filter(r=>(''+r.risk_climax).toLowerCase()==='true').length;
+  const dailyRej = rows.filter(r=>r.rej_tf==='1d' || r.rej_tf==='4h').length;
+  sumEl.textContent = `${rows.length} active  ·  ★${turningN} TURNING  ·  ${highConv} high-conv (≥7)  ·  ⚠${climaxN} CLMX  ·  ${dailyRej} HTF-rej`;
 
   // Stage color palette
   const stageColor = (s)=>{
@@ -2307,8 +2320,6 @@ async function loadRejRevisitPanel(entries){
     const star = turning ? '★ ' : '';
     const vol = parseFloat(r.today_vol_pct_of_avg)||0;
     const volCol = vol >= 50 ? '#22c55e' : vol >= 25 ? '#fde047' : '#ef4444';
-    const fresh5m = parseInt(r.fresh_bull_5m_below)||0;
-    const f5mCol = fresh5m >= 2 ? '#22c55e' : fresh5m >= 1 ? '#fde047' : '#6b7280';
     const greens = parseInt(r.recent_8bar_green_count)||0;
     const greenCol = greens >= 6 ? '#22c55e' : greens >= 4 ? '#fde047' : '#ef4444';
     const movePct = parseFloat(r.recent_8bar_move_pct)||0;
@@ -2323,24 +2334,49 @@ async function loadRejRevisitPanel(entries){
     const bearConsumed = parseInt(r.n_bearish_consumed)||0;
     const bearTotal = parseInt(r.n_bearish_total)||0;
     const overheadRemaining = parseInt(r.n_overhead_remaining)||0;
-    // Show "5/5 eaten" + "X above" when there are still overhead bear gaps,
-    // so a 100%-eaten post-rejection radar still warns about real overhead.
     let bear = `${bearConsumed}/${bearTotal}`;
     if(overheadRemaining > 0){
       bear += ` · <span style="color:#fb923c">${overheadRemaining} above</span>`;
     }
+    // ── FRACTAL CONTEXT (added 2026-05-06) ────────────────────────────
+    const rejTf = r.rej_tf || '?';
+    const rejTicks = parseInt(r.rej_ticks)||0;
+    const rejWicked = (''+r.rej_wicked).toLowerCase()==='true';
+    const bncTf = r.bounce_tf || '?';
+    const bncTicks = parseInt(r.bounce_ticks)||0;
+    const bncWicked = (''+r.bounce_wicked).toLowerCase()==='true';
+    // Higher-TF rejection = stronger story → green
+    const tfWeight = parseInt(r.rej_tf_weight)||5;
+    const rejTfCol = tfWeight >= 12 ? '#fbbf24' : tfWeight >= 8 ? '#fde047' : tfWeight >= 5 ? '#94a3b8' : '#6b7280';
+    // Overhead effective weight — heat scale
+    const ohEff = parseFloat(r.oh_effective_w)||0;
+    const ohCol = ohEff >= 5000 ? '#ef4444'
+                : ohEff >= 2000 ? '#fb923c'
+                : ohEff >= 500  ? '#fde047'
+                : '#22c55e';
+    const ohLabel = ohEff >= 5000 ? 'WALL'
+                  : ohEff >= 2000 ? 'HEAVY'
+                  : ohEff >= 500  ? 'SOME'
+                  : 'CLEAN';
+    const ohPctBar = Math.min(100, ohEff/100); // 100 = full bar at 10000 weight
+    const climax = (''+r.risk_climax).toLowerCase()==='true';
+    const topOh = r.top_overhead && r.top_overhead!=='-' ? r.top_overhead : '';
+    const ohN = parseInt(r.oh_n_fresh)||0, ohNW = parseInt(r.oh_n_wicked)||0;
 
     return `<div style="background:${col.bg};border:1px solid ${col.bd}55;border-left:3px solid ${col.bd};border-radius:6px;padding:8px 10px;font-size:11px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;gap:4px">
         <span style="font-size:9px;color:${col.bd};font-weight:700;letter-spacing:.5px">${star}${st}</span>
         <span style="font-size:14px;font-weight:800;color:#e2e8f0;letter-spacing:.5px">${r.ticker}</span>
-        <span style="font-size:10px;color:${convCol};font-weight:700;background:#0d1117;padding:2px 6px;border-radius:3px;border:1px solid ${convCol}55">CV ${conviction}/10</span>
+        <span style="display:flex;gap:3px;align-items:center">
+          ${climax?'<span title="Volume climax flag — distribution risk" style="font-size:9px;color:#ef4444;font-weight:700;background:#2a0a0a;padding:1px 4px;border-radius:3px;border:1px solid #ef444466">CLMX</span>':''}
+          <span style="font-size:10px;color:${convCol};font-weight:700;background:#0d1117;padding:2px 6px;border-radius:3px;border:1px solid ${convCol}55">CV ${conviction}/10</span>
+        </span>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:3px;color:#94a3b8;font-size:10px;margin-bottom:5px">
         <div>Px: <b style="color:#e2e8f0">$${px.toFixed(2)}</b></div>
         <div>Bear gaps: <b style="color:#fde047">${bear}</b></div>
         <div>Vol: <b style="color:${volCol}">${vol.toFixed(0)}%</b> avg</div>
-        <div>5m bull below: <b style="color:${f5mCol}">${fresh5m}</b></div>
+        <div title="Rejection TF and tick size — wicked (~) means already tested">Rej: <b style="color:${rejTfCol}">${rejTf}.${rejTicks}t${rejWicked?'~':''}</b></div>
         <div>Last 8 bars: <b style="color:${greenCol}">${greens}/8 G</b></div>
         <div>Move: <b style="color:${moveCol}">${movePct>=0?'+':''}${movePct.toFixed(1)}%</b></div>
       </div>
@@ -2348,6 +2384,16 @@ async function loadRejRevisitPanel(entries){
         <div style="display:flex;justify-content:space-between"><span>Target</span><span style="color:#22c55e">$${target.toFixed(2)}</span></div>
         <div style="display:flex;justify-content:space-between"><span>Stop</span><span style="color:#ef4444">$${stop.toFixed(2)}</span></div>
         <div style="display:flex;justify-content:space-between"><span>R:R · Aged</span><span><span style="color:${rrCol}">${rr?rr.toFixed(1)+':1':'—'}</span> · <span style="color:#6b7280">${agedTag}</span></span></div>
+      </div>
+      <div style="border-top:1px dashed #21262d;margin-top:5px;padding-top:5px;font-size:9px;color:#6b7280" title="Effective overhead supply (fresh ticks + 0.5×wicked ticks, weighted by TF)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
+          <span>OH wall · <b style="color:${ohCol}">${ohLabel}</b> · <span style="color:#94a3b8">${ohN}f${ohNW>0?' / '+ohNW+'~':''}</span></span>
+          <span style="color:${ohCol};font-weight:700">${ohEff.toLocaleString(undefined,{maximumFractionDigits:0})}</span>
+        </div>
+        <div style="height:3px;background:#0d1117;border-radius:2px;overflow:hidden;margin-bottom:4px">
+          <div style="height:100%;width:${ohPctBar.toFixed(0)}%;background:${ohCol}"></div>
+        </div>
+        ${topOh?`<div style="font-family:monospace;font-size:9px;color:#94a3b8;letter-spacing:.3px" title="Top overhead bear gaps — ~ = wicked / already tested">${topOh.replace(/~/g,'<span style="color:#6b7280">~</span>')}</div>`:''}
       </div>
     </div>`;
   }).join('');
