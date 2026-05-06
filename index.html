@@ -80,7 +80,7 @@ tr:hover td{background:#1a2533}
 .ab-bracket .t1{color:#22c55e;font-weight:700}
 
 /* ── Visual breathing room between major dashboard sections ───────────── */
-#abook, #fam, #statelookup, #momentum, #shorts, #recovery, #rejrevisit, #attribution,
+#abook, #fam, #famattr, #statelookup, #momentum, #shorts, #recovery, #rejrevisit, #attribution,
 #postmortem, #pnl, #recommend, #intraday {
   margin-top: 16px;
   border-top-left-radius: 6px;
@@ -236,11 +236,26 @@ tr:hover td{background:#1a2533}
 
 <div id="attribution" style="padding:12px 18px;background:linear-gradient(180deg,#0a2329 0%,#0d1117 100%);border-bottom:2px solid #14b8a6;display:none">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-    <div style="font-size:13px;font-weight:700;color:#14b8a6;letter-spacing:1px">📊 ATTRIBUTION <span style="font-size:10px;color:#6b7280;font-weight:500;letter-spacing:0;margin-left:8px">per-component edge · which layer is doing the work · <span id="attr-date">--</span></span></div>
+    <div style="font-size:13px;font-weight:700;color:#14b8a6;letter-spacing:1px">📊 FEM ATTRIBUTION <span style="font-size:10px;color:#6b7280;font-weight:500;letter-spacing:0;margin-left:8px">per-component edge · which layer is doing the work · <span id="attr-date">--</span></span></div>
     <div id="attr-summary" style="font-size:10px;color:#6b7280"></div>
   </div>
   <div id="attribution-tables" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:10px"></div>
   <div id="attribution-empty" style="display:none;color:#6b7280;font-size:11px;font-style:italic;padding:12px;text-align:center">No attribution data yet — needs at least one closed ticket. Run fem_ticket_outcome_updater.py after EOD to fill outcomes.</div>
+</div>
+
+<!-- ================================================================== -->
+<!-- FAM ATTRIBUTION — per-primitive edge for the FAM framework.        -->
+<!-- Reads fam_attribution_<DATE>.csv published by fam_attribution.py.   -->
+<!-- Shows which primitives carry the edge in the empirical loop.        -->
+<!-- ================================================================== -->
+<div id="famattr" style="padding:12px 18px;background:linear-gradient(180deg,#1a0f2e 0%,#0d1117 100%);border-bottom:2px solid #c084fc;display:none">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+    <div style="font-size:13px;font-weight:700;color:#c084fc;letter-spacing:1px">⚛ FAM ATTRIBUTION <span style="font-size:10px;color:#6b7280;font-weight:500;letter-spacing:0;margin-left:8px">per-primitive edge · empirical loop · <span id="famattr-date">--</span> · <span id="famattr-resolved">--</span></span></div>
+    <div id="famattr-summary" style="font-size:10px;color:#6b7280"></div>
+  </div>
+  <div id="famattr-tickets" style="margin-bottom:14px"></div>
+  <div id="famattr-table" style="overflow-x:auto"></div>
+  <div id="famattr-empty" style="display:none;color:#6b7280;font-size:11px;font-style:italic;padding:12px;text-align:center">No FAM attribution data yet. Run 3_EOD.bat after the market close to resolve outcomes and rebuild attribution.</div>
 </div>
 
 <div id="rejrevisit" style="padding:12px 18px;background:linear-gradient(180deg,#0f1830 0%,#0d1117 100%);border-bottom:2px solid #818cf8;display:none">
@@ -2075,6 +2090,131 @@ async function loadAttributionPanel(entries){
   }).join('');
 }
 
+// ── FAM Attribution panel (per-primitive edge for the FAM framework) ────────
+async function loadFamAttributionPanel(famAttrEntries){
+  const panel  = document.getElementById('famattr');
+  const tableEl= document.getElementById('famattr-table');
+  const ticketsEl = document.getElementById('famattr-tickets');
+  const empty  = document.getElementById('famattr-empty');
+  const dateEl = document.getElementById('famattr-date');
+  const resEl  = document.getElementById('famattr-resolved');
+  const sumEl  = document.getElementById('famattr-summary');
+
+  panel.style.display = 'block';
+
+  // ── PART 1: per-primitive attribution table ────────────────────────────
+  if(famAttrEntries && famAttrEntries.length){
+    famAttrEntries.sort((a,b)=>a.name.localeCompare(b.name));
+    const latest = famAttrEntries[famAttrEntries.length-1];
+    const text = await latest.getText();
+    const rows = parseCSV(text);
+    const m = latest.name.match(/fam_attribution_(\d{4}-\d{2}-\d{2})/);
+    dateEl.textContent = m ? m[1] : latest.name;
+    if(rows.length){
+      const totalResolved = rows[0].total_resolved || '?';
+      resEl.textContent = `${totalResolved} resolved fires`;
+      empty.style.display = 'none';
+
+      // Sort by edge_delta desc — best primitives first
+      rows.sort((a,b) => parseFloat(b.edge_delta||0) - parseFloat(a.edge_delta||0));
+
+      let html = '<table style="width:100%;border-collapse:collapse;font-size:11px">';
+      html += '<thead><tr style="border-bottom:2px solid #c084fc;color:#c084fc;text-align:left">';
+      html += '<th style="padding:6px 10px">PRIMITIVE</th>';
+      html += '<th style="padding:6px 10px;text-align:right">N</th>';
+      html += '<th style="padding:6px 10px;text-align:right">WR</th>';
+      html += '<th style="padding:6px 10px;text-align:right">AVG P&L</th>';
+      html += '<th style="padding:6px 10px;text-align:right">TOTAL P&L</th>';
+      html += '<th style="padding:6px 10px;text-align:right">EDGE Δ</th>';
+      html += '<th style="padding:6px 10px;text-align:right">AVG PTS</th>';
+      html += '</tr></thead><tbody>';
+      for(const r of rows){
+        const ed = parseFloat(r.edge_delta||0);
+        const tp = parseFloat(r.with_pnl||0);
+        const wr = parseFloat(r.with_wr||0);
+        const edCol = ed >= 5 ? '#22c55e' : ed <= -5 ? '#ef4444' : '#94a3b8';
+        const tpCol = tp > 0 ? '#22c55e' : tp < 0 ? '#ef4444' : '#94a3b8';
+        const wrCol = wr >= 60 ? '#22c55e' : wr >= 40 ? '#fbbf24' : '#ef4444';
+        html += `<tr style="border-bottom:1px solid #21262d">
+          <td style="padding:6px 10px;font-family:monospace;color:#e2e8f0">${escapeHtml(r.primitive||'')}</td>
+          <td style="padding:6px 10px;text-align:right;color:#94a3b8">${r.with_n||0}</td>
+          <td style="padding:6px 10px;text-align:right;color:${wrCol};font-weight:600">${wr.toFixed(0)}%</td>
+          <td style="padding:6px 10px;text-align:right;color:${tpCol}">$${parseFloat(r.with_avg||0).toFixed(2)}</td>
+          <td style="padding:6px 10px;text-align:right;color:${tpCol};font-weight:600">$${tp.toFixed(0)}</td>
+          <td style="padding:6px 10px;text-align:right;color:${edCol};font-weight:600">${ed >= 0 ? '+' : ''}${ed.toFixed(1)}pp</td>
+          <td style="padding:6px 10px;text-align:right;color:#a78bfa">${parseFloat(r.avg_contribution||0) >= 0 ? '+' : ''}${parseFloat(r.avg_contribution||0).toFixed(1)}</td>
+        </tr>`;
+      }
+      html += '</tbody></table>';
+      tableEl.innerHTML = html;
+      sumEl.textContent = `${rows.length} primitives tracked`;
+    } else {
+      tableEl.innerHTML = '';
+      empty.style.display = 'block';
+    }
+  } else {
+    dateEl.textContent = '--';
+    resEl.textContent = '--';
+    tableEl.innerHTML = '';
+    sumEl.textContent = '';
+  }
+
+  // ── PART 2: today's FAM fires (latest ticket log) ──────────────────────
+  try{
+    const r = await fetch(GH_RAW + 'fam_ticket_log.csv?_=' + Date.now());
+    if(r.ok){
+      const text = await r.text();
+      const fires = parseCSV(text);
+      const latestN = fires.slice(-15).reverse();  // most recent 15
+      let h = '';
+      if(latestN.length){
+        h += '<div style="font-size:11px;font-weight:700;color:#c084fc;letter-spacing:1px;margin-bottom:6px">RECENT FIRES (last 15)</div>';
+        h += '<table style="width:100%;border-collapse:collapse;font-size:11px">';
+        h += '<thead><tr style="color:#6b7280;text-align:left;border-bottom:1px solid #21262d">';
+        h += '<th style="padding:4px 8px">DATE</th><th style="padding:4px 8px">TICKER</th>';
+        h += '<th style="padding:4px 8px">SETUP</th><th style="padding:4px 8px">SIDE</th>';
+        h += '<th style="padding:4px 8px;text-align:right">SCORE</th>';
+        h += '<th style="padding:4px 8px;text-align:right">ENTRY</th>';
+        h += '<th style="padding:4px 8px;text-align:right">RR</th>';
+        h += '<th style="padding:4px 8px">OUTCOME</th>';
+        h += '<th style="padding:4px 8px;text-align:right">P&L</th>';
+        h += '</tr></thead><tbody>';
+        for(const f of latestN){
+          const ocColor = f.outcome === 'WIN' ? '#22c55e' :
+                          (f.outcome === 'LOSS' || f.outcome === 'TIME_STOP') ? '#ef4444' :
+                          f.outcome === 'NO_FILL' ? '#94a3b8' : '#fbbf24';
+          const sideCol = f.side === 'LONG' ? '#22c55e' : '#ef4444';
+          const pnl = parseFloat(f.pnl||0);
+          const pnlCol = pnl > 0 ? '#22c55e' : pnl < 0 ? '#ef4444' : '#94a3b8';
+          const score = parseFloat(f.score||0);
+          const scoreCol = score >= 90 ? '#a78bfa' : score >= 75 ? '#fbbf24' : '#94a3b8';
+          h += `<tr style="border-bottom:1px solid #161b22">
+            <td style="padding:3px 8px;color:#6b7280">${escapeHtml((f.asof_date||'').slice(5))}</td>
+            <td style="padding:3px 8px;color:#e2e8f0;font-weight:700">${escapeHtml(f.ticker||'')}</td>
+            <td style="padding:3px 8px;color:#94a3b8;font-family:monospace;font-size:10px">${escapeHtml(f.setup||'')}</td>
+            <td style="padding:3px 8px;color:${sideCol};font-weight:600">${escapeHtml(f.side||'')}</td>
+            <td style="padding:3px 8px;text-align:right;color:${scoreCol};font-weight:700">${score.toFixed(0)}</td>
+            <td style="padding:3px 8px;text-align:right">$${parseFloat(f.entry||0).toFixed(2)}</td>
+            <td style="padding:3px 8px;text-align:right;color:#94a3b8">${parseFloat(f.rr||0).toFixed(1)}</td>
+            <td style="padding:3px 8px;color:${ocColor};font-weight:600;font-size:10px">${escapeHtml(f.outcome||'PENDING')}</td>
+            <td style="padding:3px 8px;text-align:right;color:${pnlCol};font-weight:600">${f.pnl ? '$' + pnl.toFixed(0) : '--'}</td>
+          </tr>`;
+        }
+        h += '</tbody></table>';
+        ticketsEl.innerHTML = h;
+        if(empty){ empty.style.display = 'none'; }
+      } else {
+        ticketsEl.innerHTML = '';
+      }
+    } else {
+      ticketsEl.innerHTML = '';
+    }
+  } catch(e){
+    console.warn('FAM ticket log fetch failed', e);
+    ticketsEl.innerHTML = '';
+  }
+}
+
 // ── Rejection-Revisit Radar panel (narrative tracker) ───────────────────────
 async function loadRejRevisitPanel(entries){
   const panel = document.getElementById('rejrevisit');
@@ -2308,10 +2448,11 @@ async function processFiles(entries){
   LIFECYCLE.date = primaryDate;
   console.log('FEM dashboard primary scan date:', primaryDate);
 
-  const scanEntries=[], checkEntries=[], momentumEntries=[], consumptionEntries=[], postmortemEntries=[], analystEntries=[], shortsEntries=[], recommendEntries=[], pnlEntries=[], intradayEntries=[], rejRevisitEntries=[], attrEntries=[], famEntries=[];
+  const scanEntries=[], checkEntries=[], momentumEntries=[], consumptionEntries=[], postmortemEntries=[], analystEntries=[], shortsEntries=[], recommendEntries=[], pnlEntries=[], intradayEntries=[], rejRevisitEntries=[], attrEntries=[], famEntries=[], famAttrEntries=[];
   for(const e of entries){
     if(!e.name.endsWith('.csv')) continue;
     if(e.name.startsWith('fam_setups_')) famEntries.push(e);
+    else if(e.name.startsWith('fam_attribution_')) famAttrEntries.push(e);
     else if(e.name.startsWith('fem_momentum_')) momentumEntries.push(e);
     else if(e.name.startsWith('fem_consumption_')) consumptionEntries.push(e);
     else if(e.name.startsWith('fem_postmortem_')) postmortemEntries.push(e);
@@ -2339,6 +2480,7 @@ async function processFiles(entries){
   await loadRejRevisitPanel(rejRevisitEntries);
   await loadAttributionPanel(attrEntries);
   await loadFamPanel(famEntries);
+  await loadFamAttributionPanel(famAttrEntries);
   await loadStateLookupPanel();
 
   // Load check files -> outcome map
