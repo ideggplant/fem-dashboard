@@ -267,6 +267,24 @@ tr:hover td{background:#1a2533}
   <div id="rejrevisit-empty" style="display:none;color:#6b7280;font-size:11px;font-style:italic;padding:12px;text-align:center">No rejection-revisit stories yet today. Run REJECTION_REVISIT_RADAR.bat or wait for the autonomous run.</div>
 </div>
 
+<!-- ── NARRATIVE EVOLUTION (longitudinal journal replay) ── added 2026-05-06 ── -->
+<div id="narrative-evolution" style="padding:12px 18px;background:linear-gradient(180deg,#1a2e1f 0%,#0d1117 100%);border-bottom:2px solid #34d399">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+    <div style="font-size:13px;font-weight:700;color:#34d399;letter-spacing:1px">🔄 NARRATIVE EVOLUTION <span style="font-size:10px;color:#6b7280;font-weight:500;letter-spacing:0;margin-left:8px">longitudinal stage replay · journal-driven · A → B → C chains over time</span></div>
+    <div id="ne-summary" style="font-size:10px;color:#6b7280">data accumulating</div>
+  </div>
+  <div style="background:#0d1117;border:1px dashed #34d39955;border-radius:6px;padding:24px 18px;text-align:center;color:#6b7280;font-size:11px;line-height:1.6">
+    <div style="font-size:13px;color:#34d399;font-weight:600;margin-bottom:6px">Journal collecting per-ticker stage history nightly.</div>
+    Once 5–7 days of data accumulate, this panel renders multi-day narrative chains:<br>
+    BOUNCED_WAITING → EATING_X/Y → ALL_EATEN, with timing, conviction evolution, and stall detection.<br>
+    <br>
+    <span style="font-family:monospace;font-size:10px;color:#94a3b8">Source: Master&nbsp;Fem&nbsp;Fresh&nbsp;Scans/fem_ticker_journal.jsonl</span><br>
+    <span style="font-family:monospace;font-size:10px;color:#94a3b8">CLI:&nbsp;&nbsp; python fem_ticker_journal.py &lt;TICKER&gt;</span><br>
+    <span style="font-family:monospace;font-size:10px;color:#94a3b8">CLI:&nbsp;&nbsp; python fem_ticker_journal.py --chain BOUNCED_CLEAN ALL_EATEN</span><br>
+    <span style="font-family:monospace;font-size:10px;color:#94a3b8">CLI:&nbsp;&nbsp; python fem_ticker_journal.py --stats</span>
+  </div>
+</div>
+
 <div id="alignment" style="padding:12px 18px;background:linear-gradient(180deg,#2a1f3a 0%,#0d1117 100%);border-bottom:2px solid #e879f9;display:none">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
     <div style="font-size:13px;font-weight:700;color:#e879f9;letter-spacing:1px">🌟 ALIGNMENT <span style="font-size:10px;color:#6b7280;font-weight:500;letter-spacing:0;margin-left:8px">multi-lens confluence · apex setups · <span id="ali-date">--</span></span></div>
@@ -2765,36 +2783,4 @@ function applyFilters(){
     const srcCol = r._src==='PENNY'?'#22c55e':r._src==='BIGCAP'?'#60a5fa':r._src==='BOUNCE'?'#e879f9':'#a78bfa';
     const sideCol = r.side==='Long'?'#22c55e':'#ef4444';
     const fn = parseFloat(r.fem)||0;
-    const femCol = fn>=80?'#fbbf24':fn>=60?'#22c55e':'#60a5fa';
-    return `<tr class="${srcCls}">
-      <td style="color:#6b7280;font-size:11px">${r._date}</td>
-      <td style="font-size:10px;font-weight:700;color:${srcCol}">${r._src}</td>
-      <td style="font-weight:700">${r.ticker||'--'}</td>
-      <td style="color:${sideCol};font-weight:600">${r.side||'--'}</td>
-      <td style="color:#94a3b8;font-size:11px">${r.mode||'--'}</td>
-      <td class="${tierCls(r.tier)}">${tierLabel(r.tier)}</td>
-      <td style="color:${femCol};font-weight:600">${r.fem||'--'}</td>
-      <td>${fmt(r.entry)}</td>
-      <td style="color:#ef4444">${fmt(r.stop)}</td>
-      <td style="color:#22c55e">${fmt(r.t1)}</td>
-      <td style="font-weight:600">${r.rr?r.rr+'x':'--'}</td>
-      <td style="color:${({'NANO':'#f472b6','LOW':'#fbbf24','MED':'#94a3b8','HIGH':'#60a5fa','MEGA':'#a78bfa'})[r.float_label]||'#94a3b8'};font-weight:600">${r.float_m?parseFloat(r.float_m).toFixed(1)+'M ':''}${r.float_label||'--'}</td>
-      <td class="${ocCls(r._outcome)}">${r._outcome||'--'}</td>
-      <td ${rCls(r._result_r)}>${r._result_r?r._result_r+'R':'--'}</td>
-      <td ${lastPxCls(r._last_px, r.entry)}>${r._last_px?'$'+parseFloat(r._last_px).toFixed(3):'--'}</td>
-      <td ${deltaCls(r._entry_delta)}>${r._entry_delta||'--'}</td>
-    </tr>`;
-  }).join('');
-
-  const empty = document.getElementById('empty');
-  empty.style.display = filtered.length===0 && ALL_ROWS.length>0 ? 'block' : 'none';
-  document.getElementById('summary').textContent = filtered.length + ' setups';
-  updateScoreboard(filtered);
-  renderAbook();
-}
-
-// ── Auto-load on page open ───────────────────────────────────────────────────
-window.addEventListener('load', loadFromGitHub);
-</script>
-</body>
-</html>
+    const femCol = fn>=80?'#fbbf2
