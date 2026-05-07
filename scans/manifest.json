@@ -1,5 +1,5 @@
 {
-  "updated": "2026-05-07 06:34",
+  "updated": "2026-05-07 06:53",
   "files": [
     "fam_attribution_2026-05-05.csv",
     "fam_attribution_2026-05-06.csv",
@@ -106,7 +106,9 @@
     "fem_consumption_2026-05-05_0608.csv",
     "fem_consumption_2026-05-06_0554.csv",
     "fem_consumption_2026-05-07_0617.csv",
+    "fem_consumption_2026-05-07_0644.csv",
     "fem_consumption_backtest_2026-04-28.csv",
+    "fem_convergence_2026-05-07.csv",
     "fem_conviction_2026-04-21_0537.csv",
     "fem_intraday_scan_2026-04-29_1153.csv",
     "fem_intraday_scan_2026-04-30_0704.csv",
@@ -118,6 +120,7 @@
     "fem_momentum_2026-05-05_0606.csv",
     "fem_momentum_2026-05-06_0552.csv",
     "fem_momentum_2026-05-07_0615.csv",
+    "fem_momentum_2026-05-07_0641.csv",
     "fem_penny_scan_2026-04-01_0509.csv",
     "fem_penny_scan_2026-04-02_0516.csv",
     "fem_penny_scan_2026-04-02_0718.csv",
@@ -177,6 +180,7 @@
     "fem_short_2026-05-05_0612.csv",
     "fem_short_2026-05-06_0559.csv",
     "fem_short_2026-05-07_0621.csv",
+    "fem_short_2026-05-07_0652.csv",
     "fem_short_backtest_2026-04-28.csv",
     "fem_swing_20260210_2026-04-05_1402.csv",
     "fem_swing_20260210_2026-04-07_0654.csv",
