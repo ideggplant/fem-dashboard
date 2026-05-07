@@ -1508,7 +1508,7 @@ async function loadMomentumPanel(entries){
     return `<div style="background:#1a1208;border:1px solid #f59e0b44;border-left:3px solid #f59e0b;border-radius:6px;padding:8px 10px;font-size:11px">
       <div style="display:flex;justify-content:space-between;margin-bottom:4px">
         <span style="font-size:10px;color:#6b7280;font-weight:700">#${i+1}</span>
-        <span style="font-size:14px;font-weight:800;color:#e2e8f0;letter-spacing:.5px">${r.ticker}</span>
+        <span style="font-size:14px;font-weight:800;color:#e2e8f0;letter-spacing:.5px">${r.ticker}${r._alt_count > 0 ? ` <span style="font-size:9px;color:#94a3b8;font-weight:500">+${r._alt_count} alt</span>` : ''}</span>
         <span style="font-size:9px;color:#f59e0b;background:#0d1117;padding:2px 6px;border-radius:3px;border:1px solid #f59e0b44">GENESIS</span>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;color:#94a3b8;font-size:10px;margin-bottom:6px">
@@ -2308,6 +2308,22 @@ async function loadRejRevisitPanel(entries){
     return score;
   };
   rows.sort((a,b)=>rankScore(b) - rankScore(a));
+
+  // ── PER-TICKER DEDUPE (added 2026-05-06) ──────────────────────────────
+  // BRBR-style multi-narrative redundancy: a name with several historical
+  // rejection events all currently sitting at the same stage produced 6+
+  // identical cards. Collapse to one master narrative per ticker (highest
+  // ranked after sort), tag the collapsed count so the trader can see how
+  // many alternate narratives exist. Sorted-already, so first-seen wins.
+  const byTicker = new Map();
+  const altCounts = new Map();
+  for(const r of rows){
+    const tkr = (r.ticker||'').toUpperCase();
+    if(!byTicker.has(tkr)){ byTicker.set(tkr, r); altCounts.set(tkr, 0); }
+    else { altCounts.set(tkr, (altCounts.get(tkr)||0) + 1); }
+  }
+  rows = Array.from(byTicker.values());
+  rows.forEach(r => { r._alt_count = altCounts.get((r.ticker||'').toUpperCase()) || 0; });
 
   // Counts for summary
   const stageCounts = {};
