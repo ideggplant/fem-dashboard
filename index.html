@@ -80,7 +80,7 @@ tr:hover td{background:#1a2533}
 .ab-bracket .t1{color:#22c55e;font-weight:700}
 
 /* ── Visual breathing room between major dashboard sections ───────────── */
-#abook, #fam, #famattr, #statelookup, #momentum, #shorts, #recovery, #rejrevisit, #attribution,
+#convergence, #abook, #fam, #famattr, #statelookup, #momentum, #shorts, #recovery, #rejrevisit, #attribution,
 #postmortem, #pnl, #recommend, #intraday {
   margin-top: 16px;
   border-top-left-radius: 6px;
@@ -292,6 +292,20 @@ tr:hover td{background:#1a2533}
   </div>
   <div id="alignment-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:8px"></div>
   <div id="alignment-empty" style="display:none;color:#6b7280;font-size:11px;font-style:italic;padding:12px;text-align:center">No alignment confluence today — no ticker is in 2+ lenses simultaneously. Common; the apex setup is rare.</div>
+</div>
+
+<!-- ================================================================== -->
+<!-- CONVERGENCE — multi-scanner confluence detector. Shows tickers     -->
+<!-- appearing across multiple scanners with rank + side-agreement.     -->
+<!-- Reads fem_convergence_<DATE>.csv produced by fem_convergence.py.   -->
+<!-- ================================================================== -->
+<div id="convergence" style="padding:14px 18px;background:linear-gradient(180deg,#2a1a08 0%,#0d1117 100%);border-bottom:3px solid #fbbf24;display:none">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+    <div style="font-size:14px;font-weight:800;color:#fbbf24;letter-spacing:1px">🎯 CONVERGENCE <span style="font-size:11px;color:#94a3b8;font-weight:500;letter-spacing:0;margin-left:8px">multi-scanner confluence · "all roads lead here" · <span id="conv-date">--</span></span></div>
+    <div id="conv-summary" style="font-size:11px;color:#6b7280"></div>
+  </div>
+  <div id="conv-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:10px"></div>
+  <div id="conv-empty" style="display:none;color:#6b7280;font-size:11px;font-style:italic;padding:12px;text-align:center">No convergence data — run today's scans then fem_convergence.py.</div>
 </div>
 
 <div id="abook">
@@ -2108,6 +2122,72 @@ async function loadAttributionPanel(entries){
   }).join('');
 }
 
+// ── CONVERGENCE panel (multi-scanner confluence detector) ─────────────────
+async function loadConvergencePanel(entries){
+  const panel = document.getElementById('convergence');
+  const grid  = document.getElementById('conv-grid');
+  const empty = document.getElementById('conv-empty');
+  const dateEl= document.getElementById('conv-date');
+  const sumEl = document.getElementById('conv-summary');
+  if(!entries || !entries.length){ panel.style.display='none'; return; }
+
+  entries.sort((a,b)=>a.name.localeCompare(b.name));
+  const latest = entries[entries.length-1];
+  const text = await latest.getText();
+  const rows = parseCSV(text);
+  const m = latest.name.match(/fem_convergence_(\d{4}-\d{2}-\d{2})/);
+  dateEl.textContent = m ? m[1] : latest.name;
+  panel.style.display = 'block';
+
+  if(!rows.length){
+    empty.style.display = 'block';
+    grid.innerHTML = '';
+    return;
+  }
+  empty.style.display = 'none';
+
+  rows.sort((a,b) => parseFloat(b.convergence_score||0) - parseFloat(a.convergence_score||0));
+  const top = rows.slice(0, 12);
+  sumEl.textContent = `${rows.length} unique tickers · top 12 shown · highest confluence first`;
+
+  grid.innerHTML = top.map(r => {
+    const score = parseFloat(r.convergence_score || 0);
+    const n = parseInt(r.n_scanners || 0);
+    const agr = parseFloat(r.agreement_pct || 0);
+    const side = r.dominant_side || 'NA';
+    const sideCol = side === 'LONG' ? '#22c55e' : side === 'SHORT' ? '#ef4444' : '#94a3b8';
+    const scoreCol = score >= 60 ? '#fbbf24' : score >= 40 ? '#a78bfa' : '#94a3b8';
+    const agrCol = agr >= 85 ? '#22c55e' : agr >= 65 ? '#fbbf24' : '#ef4444';
+    const scanners = (r.scanners || '').split(';').filter(s=>s);
+    const scannerChips = scanners.map(s => {
+      const [name, rank] = s.split('#');
+      const rankN = parseInt(rank);
+      const chipCol = rankN === 1 ? '#fbbf24' : rankN <= 3 ? '#a78bfa' : '#94a3b8';
+      return `<span style="display:inline-block;background:#161b22;border:1px solid #30363d;padding:2px 6px;border-radius:3px;font-size:10px;margin:2px;font-family:monospace">
+        <span style="color:#94a3b8">${escapeHtml(name)}</span>
+        <span style="color:${chipCol};font-weight:700">#${rankN}</span>
+      </span>`;
+    }).join('');
+    const stars = '★'.repeat(Math.min(n, 8));
+    return `
+      <div style="background:#161b22;border:2px solid ${score>=60?'#fbbf24':'#30363d'};border-radius:6px;padding:12px">
+        <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:8px">
+          <div>
+            <span style="font-size:18px;font-weight:800;color:#fbbf24;letter-spacing:1px">${escapeHtml(r.ticker)}</span>
+            <span style="background:${sideCol};color:#0d1117;padding:2px 8px;border-radius:3px;font-size:10px;font-weight:800;margin-left:8px">${escapeHtml(side)}</span>
+          </div>
+          <div style="font-size:22px;font-weight:800;color:${scoreCol}">${score.toFixed(0)}</div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;font-size:11px;color:#94a3b8;margin-bottom:8px">
+          <span><span style="color:#fbbf24">${stars}</span> ${n} scanner${n!==1?'s':''}</span>
+          <span>agreement <span style="color:${agrCol};font-weight:700">${agr.toFixed(0)}%</span></span>
+          <span>best rank <span style="color:#a78bfa;font-weight:700">#${r.best_rank}</span></span>
+        </div>
+        <div>${scannerChips}</div>
+      </div>`;
+  }).join('');
+}
+
 // ── FAM Attribution panel (per-primitive edge for the FAM framework) ────────
 async function loadFamAttributionPanel(famAttrEntries){
   const panel  = document.getElementById('famattr');
@@ -2528,11 +2608,12 @@ async function processFiles(entries){
   LIFECYCLE.date = primaryDate;
   console.log('FEM dashboard primary scan date:', primaryDate);
 
-  const scanEntries=[], checkEntries=[], momentumEntries=[], consumptionEntries=[], postmortemEntries=[], analystEntries=[], shortsEntries=[], recommendEntries=[], pnlEntries=[], intradayEntries=[], rejRevisitEntries=[], attrEntries=[], famEntries=[], famAttrEntries=[];
+  const scanEntries=[], checkEntries=[], momentumEntries=[], consumptionEntries=[], postmortemEntries=[], analystEntries=[], shortsEntries=[], recommendEntries=[], pnlEntries=[], intradayEntries=[], rejRevisitEntries=[], attrEntries=[], famEntries=[], famAttrEntries=[], convergenceEntries=[];
   for(const e of entries){
     if(!e.name.endsWith('.csv')) continue;
     if(e.name.startsWith('fam_setups_')) famEntries.push(e);
     else if(e.name.startsWith('fam_attribution_')) famAttrEntries.push(e);
+    else if(e.name.startsWith('fem_convergence_')) convergenceEntries.push(e);
     else if(e.name.startsWith('fem_momentum_')) momentumEntries.push(e);
     else if(e.name.startsWith('fem_consumption_')) consumptionEntries.push(e);
     else if(e.name.startsWith('fem_postmortem_')) postmortemEntries.push(e);
@@ -2561,6 +2642,7 @@ async function processFiles(entries){
   await loadAttributionPanel(attrEntries);
   await loadFamPanel(famEntries);
   await loadFamAttributionPanel(famAttrEntries);
+  await loadConvergencePanel(convergenceEntries);
   await loadStateLookupPanel();
 
   // Load check files -> outcome map
