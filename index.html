@@ -52,7 +52,7 @@ tr:hover td{background:#1a2533}
 #abook-controls{display:flex;align-items:center;gap:10px;font-size:11px;color:#94a3b8}
 #abook-risk{background:#161b22;border:1px solid #30363d;color:#fbbf24;padding:4px 8px;border-radius:4px;font-size:12px;font-weight:700;width:70px;text-align:right}
 #abook-note{font-size:10px;color:#6b7280;font-style:italic}
-#abook-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:10px}
+#abook-grid,#abook-penny-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:10px}
 .ab-card{background:#161b22;border:1px solid #30363d;border-left:3px solid #fbbf24;border-radius:6px;padding:10px 12px;font-size:11px}
 .ab-card.rank1{border-left-color:#e879f9;box-shadow:0 0 8px #e879f922}
 .ab-card.rank2{border-left-color:#fbbf24}
@@ -84,7 +84,7 @@ tr:hover td{background:#1a2533}
 [data-tv]:hover{opacity:.82;text-decoration:underline;text-decoration-color:currentColor}
 
 /* ── Visual breathing room between major dashboard sections ───────────── */
-#convergence, #abook, #fam, #famattr, #statelookup, #momentum, #shorts, #recovery, #rejrevisit, #attribution,
+#convergence, #abook, #abook-penny, #fam, #famattr, #statelookup, #momentum, #shorts, #recovery, #rejrevisit, #attribution,
 #postmortem, #pnl, #recommend, #intraday {
   margin-top: 16px;
   border-top-left-radius: 6px;
@@ -312,9 +312,10 @@ tr:hover td{background:#1a2533}
   <div id="conv-empty" style="display:none;color:#6b7280;font-size:11px;font-style:italic;padding:12px;text-align:center">No convergence data — run today's scans then fem_convergence.py.</div>
 </div>
 
+<!-- ⭐ A-BOOK MID — entry > $5, LIMIT cascade (CONTRACT-13 cohort split) -->
 <div id="abook">
   <div id="abook-head">
-    <div id="abook-title">⭐ A-BOOK <span class="sub">pullback lens · top-5 ranked picks · data-validated composite · <span id="abook-date">--</span></span></div>
+    <div id="abook-title">🏛 A-BOOK MID <span class="sub">entry &gt; $5 · LIMIT cascade · data-validated composite · <span id="abook-date">--</span></span></div>
     <div id="abook-controls">
       <label>Risk $<input type="number" id="abook-risk" value="100" min="10" max="10000" step="10" onchange="renderAbook()"></label>
       <select id="abook-top" onchange="renderAbook()" style="background:#161b22;border:1px solid #30363d;color:#e2e8f0;padding:4px 8px;border-radius:4px;font-size:12px">
@@ -326,7 +327,19 @@ tr:hover td{background:#1a2533}
     </div>
   </div>
   <div id="abook-grid"></div>
-  <div id="abook-empty" style="display:none">No A-book picks for this date (all rows killed by filters or no penny scan loaded).</div>
+  <div id="abook-empty" style="display:none">No mid-class A-book picks for this date.</div>
+</div>
+
+<!-- ⚡ A-BOOK PENNY — entry ≤ $5, MARKET-on-open (CONTRACT-13 cohort split) -->
+<div id="abook-penny">
+  <div id="abook-head">
+    <div id="abook-title">⚡ A-BOOK PENNY <span class="sub">entry ≤ $5 · MOO MARKET · 1.5%/3.0% bracket · <span id="abook-penny-date">--</span></span></div>
+    <div id="abook-controls">
+      <span style="color:#94a3b8;font-size:11px">⚠ MOO entry only — penny tape rarely retraces to LIMITs. Stops 1.5%, target 3.0%.</span>
+    </div>
+  </div>
+  <div id="abook-penny-grid"></div>
+  <div id="abook-penny-empty" style="display:none">No penny-class A-book picks for this date.</div>
 </div>
 
 <!-- ================================================================== -->
@@ -705,7 +718,7 @@ function abMooPlan(r, riskDollars){
   };
 }
 
-function buildAbookForDate(date, topN){
+function buildAbookForDate(date, topN, cohort){
   if(!ALL_ROWS.length || !date) return [];
   // A-book operates on PENNY scan rows only (that's what ranker targets)
   const pool = ALL_ROWS.filter(r=>r._date===date && r._src==='PENNY');
@@ -713,7 +726,19 @@ function buildAbookForDate(date, topN){
   if(!alive.length) return [];
   const scored = abScoreRows(alive);
   scored.sort((a,b)=>b._ab_score - a._ab_score);
-  return scored.slice(0, topN);
+
+  // CONTRACT-13 cohort filter — slice by entry price after scoring
+  cohort = (cohort || 'all').toLowerCase();
+  let filtered = scored;
+  if(cohort === 'mid'){
+    filtered = scored.filter(r => parseFloat(r.entry||r.last_px||0) > 5.0);
+  } else if(cohort === 'penny'){
+    filtered = scored.filter(r => {
+      const px = parseFloat(r.entry||r.last_px||0);
+      return px > 0 && px <= 5.0;
+    });
+  }
+  return filtered.slice(0, topN);
 }
 
 // ── FAM PROBABILITY-SCORED SETUPS ───────────────────────────────────────
@@ -846,81 +871,95 @@ document.addEventListener('click', function(e){
   window.open('https://www.tradingview.com/chart/?symbol=' + encodeURIComponent(tk), '_blank', 'noopener');
 });
 
-function renderAbook(){
-  const grid = document.getElementById('abook-grid');
-  const empty = document.getElementById('abook-empty');
-  const dateEl = document.getElementById('abook-date');
-  const date = document.getElementById('filter-date').value;
-  const topN = parseInt(document.getElementById('abook-top').value, 10) || 5;
-  const risk = Math.max(10, parseFloat(document.getElementById('abook-risk').value)||100);
+function _renderAbookCard(r, idx, risk, cohort){
+  const cas = abComputeCascade(r, risk);
+  if(!cas) return '';
+  const moo = abMooPlan(r, risk);
+  const rankCls = idx===0?'rank1':idx===1?'rank2':idx===2?'rank3':'';
+  const flLbl = r.float_label || '?';
+  const flM = r.float_m ? parseFloat(r.float_m).toFixed(1)+'M' : '';
+  const rrStr = n => n.toFixed(1)+'x';
+  const pxStr = n => '$'+n.toFixed(4);
+  const pxStr2 = n => '$'+n.toFixed(2);
+  const outcome = r._outcome ? ` · <span style="color:${r._outcome==='TARGET_HIT'||r._outcome==='WINNING'?'#22c55e':r._outcome==='STOPPED'||r._outcome==='LOSING'?'#ef4444':'#6b7280'};font-weight:700">${r._outcome}${r._result_r?' '+r._result_r+'R':''}</span>` : '';
+  const mooBlock = moo ? `
+    <div class="ab-moo">
+      <div class="ab-moo-head"><span>⚡ MOO PLAN · 1.5% / 3.0%</span><span class="note">validated +72% ROI · 14d</span></div>
+      <div class="ab-moo-row"><span class="tag">MOO BUY</span><span class="desc">at open ~${pxStr2(moo.est_open)}</span><span class="px">${pxStr2(moo.est_open)}</span><span class="sh">${moo.shares}sh</span></div>
+      <div class="ab-moo-row stop"><span class="tag">STOP -1.5</span><span class="desc">risk ~$${moo.risk_dollars.toFixed(0)}</span><span class="px">${pxStr2(moo.stop_px)}</span><span class="sh">${moo.shares}sh</span></div>
+      <div class="ab-moo-row t1"><span class="tag">T1 +3.0</span><span class="desc">target ~+$${moo.reward_dollars.toFixed(0)}</span><span class="px">${pxStr2(moo.t1_px)}</span><span class="sh">${moo.shares}sh</span></div>
+    </div>` : '';
+  // Penny cohort: omit LIMIT cascade, MOO is the entry
+  const showLimitCascade = (cohort !== 'penny');
+  const limitLadder = showLimitCascade ? `
+    <div class="ab-ladder"><span class="lv l1">L1</span><span class="tp">PATIENT</span><span class="px">${pxStr(cas.L1_px)}</span><span class="sh">${cas.L1_sh}sh</span><span class="rr">${rrStr(cas.L1_rr)}</span></div>
+    <div class="ab-ladder"><span class="lv l2">L2</span><span class="tp">PRIMARY</span><span class="px">${pxStr(cas.L2_px)}</span><span class="sh">${cas.L2_sh}sh</span><span class="rr">${rrStr(cas.L2_rr)}</span></div>
+    <div class="ab-ladder"><span class="lv l3">L3</span><span class="tp">CHASE</span><span class="px">${pxStr(cas.L3_px)}</span><span class="sh">${cas.L3_sh}sh</span><span class="rr">${rrStr(cas.L3_rr)}</span></div>` : '';
+  return `<div class="ab-card ${rankCls}">
+    <div class="ab-head">
+      <div>
+        <span class="ab-rank">#${idx+1}</span>
+        <span class="ab-ticker" data-tv="${r.ticker}">${r.ticker}</span>
+        <span class="ab-tier">${tierLabel(r.tier)}</span>
+      </div>
+      <div class="ab-score">S ${r._ab_score.toFixed(3)}</div>
+    </div>
+    <div class="ab-meta">
+      <span><b>${r.mode||'?'}</b></span>
+      <span>${flM} ${flLbl}</span>
+      <span>FEM <b>${r.fem||'?'}</b></span>
+      <span>dist <b>${r.dist_pct?parseFloat(r.dist_pct).toFixed(2)+'%':'?'}</b></span>
+      <span>frot <b>${r.float_rotation?parseFloat(r.float_rotation).toFixed(2):'?'}</b></span>${outcome}
+    </div>${limitLadder}
+    <div class="ab-bracket">
+      <div class="bx"><span class="lbl">Stop</span><span class="stop">${pxStr(cas.stop_px)}</span></div>
+      <div class="bx"><span class="lbl">T1</span><span class="t1">${pxStr(cas.t1_px)}</span></div>
+      <div class="bx"><span class="lbl">Cutoff</span><span class="cut">${cas.cutoff} ET</span></div>
+    </div>${mooBlock}
+  </div>`;
+}
+
+function _renderAbookCohort(cohort, gridId, emptyId, dateId, date, topN, risk){
+  const grid = document.getElementById(gridId);
+  const empty = document.getElementById(emptyId);
+  const dateEl = document.getElementById(dateId);
   if(!date){
-    dateEl.textContent = '(pick a date)';
+    if(dateEl) dateEl.textContent = '(pick a date)';
     grid.innerHTML = '';
     empty.style.display = 'block';
     empty.textContent = 'Select a specific date in the filter bar to see the A-book.';
-    document.getElementById('abook').style.display = 'block';
-    return;
+    return [];
   }
-  dateEl.textContent = date;
-  const picks = buildAbookForDate(date, topN);
+  if(dateEl) dateEl.textContent = date;
+  const picks = buildAbookForDate(date, topN, cohort);
   if(!picks.length){
     grid.innerHTML = '';
     empty.style.display = 'block';
-    empty.textContent = 'No A-book picks for ' + date + ' (no penny scan rows survived kill filters).';
-    document.getElementById('abook').style.display = 'block';
-    LIFECYCLE.pullback = {}; renderAlignment();
-    return;
+    empty.textContent = `No ${cohort.toUpperCase()} A-book picks for ` + date + '.';
+    return [];
   }
   empty.style.display = 'none';
-  // Populate lifecycle aggregator for cross-panel alignment
+  grid.innerHTML = picks.map((r,idx) => _renderAbookCard(r, idx, risk, cohort)).join('');
+  return picks;
+}
+
+function renderAbook(){
+  const date = document.getElementById('filter-date').value;
+  const topN = parseInt(document.getElementById('abook-top').value, 10) || 5;
+  const risk = Math.max(10, parseFloat(document.getElementById('abook-risk').value)||100);
+
+  // CONTRACT-13: render BOTH cohorts as separate stacked panels
+  const midPicks   = _renderAbookCohort('mid',   'abook-grid',       'abook-empty',       'abook-date',       date, topN, risk);
+  const pennyPicks = _renderAbookCohort('penny', 'abook-penny-grid', 'abook-penny-empty', 'abook-penny-date', date, topN, risk);
+
+  // Lifecycle aggregator: feed BOTH cohorts into cross-panel alignment
   LIFECYCLE.pullback = {};
-  picks.forEach(r=>{ if(r.ticker) LIFECYCLE.pullback[r.ticker.toUpperCase()] = r; });
+  midPicks.forEach(r=>{ if(r.ticker) LIFECYCLE.pullback[r.ticker.toUpperCase()] = r; });
+  pennyPicks.forEach(r=>{ if(r.ticker) LIFECYCLE.pullback[r.ticker.toUpperCase()] = r; });
   renderAlignment();
-  grid.innerHTML = picks.map((r,idx)=>{
-    const cas = abComputeCascade(r, risk);
-    if(!cas) return '';
-    const moo = abMooPlan(r, risk);
-    const rankCls = idx===0?'rank1':idx===1?'rank2':idx===2?'rank3':'';
-    const flLbl = r.float_label || '?';
-    const flM = r.float_m ? parseFloat(r.float_m).toFixed(1)+'M' : '';
-    const rrStr = n => n.toFixed(1)+'x';
-    const pxStr = n => '$'+n.toFixed(4);
-    const pxStr2 = n => '$'+n.toFixed(2);
-    const outcome = r._outcome ? ` · <span style="color:${r._outcome==='TARGET_HIT'||r._outcome==='WINNING'?'#22c55e':r._outcome==='STOPPED'||r._outcome==='LOSING'?'#ef4444':'#6b7280'};font-weight:700">${r._outcome}${r._result_r?' '+r._result_r+'R':''}</span>` : '';
-    const mooBlock = moo ? `
-      <div class="ab-moo">
-        <div class="ab-moo-head"><span>⚡ MOO PLAN · 1.5% / 3.0%</span><span class="note">validated +72% ROI · 14d</span></div>
-        <div class="ab-moo-row"><span class="tag">MOO BUY</span><span class="desc">at open ~${pxStr2(moo.est_open)}</span><span class="px">${pxStr2(moo.est_open)}</span><span class="sh">${moo.shares}sh</span></div>
-        <div class="ab-moo-row stop"><span class="tag">STOP -1.5</span><span class="desc">risk ~$${moo.risk_dollars.toFixed(0)}</span><span class="px">${pxStr2(moo.stop_px)}</span><span class="sh">${moo.shares}sh</span></div>
-        <div class="ab-moo-row t1"><span class="tag">T1 +3.0</span><span class="desc">target ~+$${moo.reward_dollars.toFixed(0)}</span><span class="px">${pxStr2(moo.t1_px)}</span><span class="sh">${moo.shares}sh</span></div>
-      </div>` : '';
-    return `<div class="ab-card ${rankCls}">
-      <div class="ab-head">
-        <div>
-          <span class="ab-rank">#${idx+1}</span>
-          <span class="ab-ticker" data-tv="${r.ticker}">${r.ticker}</span>
-          <span class="ab-tier">${tierLabel(r.tier)}</span>
-        </div>
-        <div class="ab-score">S ${r._ab_score.toFixed(3)}</div>
-      </div>
-      <div class="ab-meta">
-        <span><b>${r.mode||'?'}</b></span>
-        <span>${flM} ${flLbl}</span>
-        <span>FEM <b>${r.fem||'?'}</b></span>
-        <span>dist <b>${r.dist_pct?parseFloat(r.dist_pct).toFixed(2)+'%':'?'}</b></span>
-        <span>frot <b>${r.float_rotation?parseFloat(r.float_rotation).toFixed(2):'?'}</b></span>${outcome}
-      </div>
-      <div class="ab-ladder"><span class="lv l1">L1</span><span class="tp">PATIENT</span><span class="px">${pxStr(cas.L1_px)}</span><span class="sh">${cas.L1_sh}sh</span><span class="rr">${rrStr(cas.L1_rr)}</span></div>
-      <div class="ab-ladder"><span class="lv l2">L2</span><span class="tp">PRIMARY</span><span class="px">${pxStr(cas.L2_px)}</span><span class="sh">${cas.L2_sh}sh</span><span class="rr">${rrStr(cas.L2_rr)}</span></div>
-      <div class="ab-ladder"><span class="lv l3">L3</span><span class="tp">CHASE</span><span class="px">${pxStr(cas.L3_px)}</span><span class="sh">${cas.L3_sh}sh</span><span class="rr">${rrStr(cas.L3_rr)}</span></div>
-      <div class="ab-bracket">
-        <div class="bx"><span class="lbl">Stop</span><span class="stop">${pxStr(cas.stop_px)}</span></div>
-        <div class="bx"><span class="lbl">T1</span><span class="t1">${pxStr(cas.t1_px)}</span></div>
-        <div class="bx"><span class="lbl">Cutoff</span><span class="cut">${cas.cutoff} ET</span></div>
-      </div>${mooBlock}
-    </div>`;
-  }).join('');
+
   document.getElementById('abook').style.display = 'block';
+  document.getElementById('abook-penny').style.display = 'block';
 }
 
 // ── Core: process a list of {name, getText} entries ─────────────────────────
