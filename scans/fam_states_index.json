@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-05-07T13:07:02",
-  "asof_date": "2026-05-07",
-  "count": 242,
+  "generated_at": "2026-05-11T07:33:01",
+  "asof_date": "2026-05-11",
+  "count": 238,
   "index": [
     {
-      "ticker": "BLZE",
-      "current_price": 7.44,
+      "ticker": "MRAM",
+      "current_price": 35.08,
       "spy_regime": "FAVORABLE",
       "best_score": 100.0,
       "best_setup": "BULL_BOUNCE_PENDING",
@@ -13,8 +13,8 @@
       "tier": "CONVICTION"
     },
     {
-      "ticker": "CYTK",
-      "current_price": 75.02,
+      "ticker": "GLW",
+      "current_price": 197.2375,
       "spy_regime": "FAVORABLE",
       "best_score": 100.0,
       "best_setup": "BULL_BOUNCE_PENDING",
@@ -22,8 +22,8 @@
       "tier": "CONVICTION"
     },
     {
-      "ticker": "RXT",
-      "current_price": 3.46,
+      "ticker": "AEHR",
+      "current_price": 101.0,
       "spy_regime": "FAVORABLE",
       "best_score": 100.0,
       "best_setup": "BULL_BOUNCE_PENDING",
@@ -31,8 +31,8 @@
       "tier": "CONVICTION"
     },
     {
-      "ticker": "CELC",
-      "current_price": 130.24,
+      "ticker": "GEO",
+      "current_price": 21.58,
       "spy_regime": "FAVORABLE",
       "best_score": 100.0,
       "best_setup": "BULL_BOUNCE_PENDING",
@@ -40,8 +40,8 @@
       "tier": "CONVICTION"
     },
     {
-      "ticker": "TVTX",
-      "current_price": 42.425,
+      "ticker": "AXTI",
+      "current_price": 118.78,
       "spy_regime": "FAVORABLE",
       "best_score": 100.0,
       "best_setup": "BULL_BOUNCE_PENDING",
@@ -49,44 +49,26 @@
       "tier": "CONVICTION"
     },
     {
-      "ticker": "SEZL",
-      "current_price": 100.89,
+      "ticker": "APLS",
+      "current_price": 41.025,
       "spy_regime": "FAVORABLE",
-      "best_score": 100.0,
+      "best_score": 99.0,
       "best_setup": "BULL_BOUNCE_PENDING",
       "best_side": "LONG",
       "tier": "CONVICTION"
     },
     {
-      "ticker": "FLNC",
-      "current_price": 19.385,
+      "ticker": "POWI",
+      "current_price": 72.99,
       "spy_regime": "FAVORABLE",
-      "best_score": 100.0,
+      "best_score": 98.9,
       "best_setup": "BULL_BOUNCE_PENDING",
       "best_side": "LONG",
       "tier": "CONVICTION"
     },
     {
-      "ticker": "CCRN",
-      "current_price": 13.06,
-      "spy_regime": "FAVORABLE",
-      "best_score": 100.0,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "EVC",
-      "current_price": 6.885,
-      "spy_regime": "FAVORABLE",
-      "best_score": 100.0,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "NBIS",
-      "current_price": 183.67,
+      "ticker": "WOLF",
+      "current_price": 51.665,
       "spy_regime": "FAVORABLE",
       "best_score": 98.7,
       "best_setup": "BULL_BOUNCE_PENDING",
@@ -94,53 +76,8 @@
       "tier": "CONVICTION"
     },
     {
-      "ticker": "PENG",
-      "current_price": 38.36,
-      "spy_regime": "FAVORABLE",
-      "best_score": 98.0,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "AXSM",
-      "current_price": 219.0,
-      "spy_regime": "FAVORABLE",
-      "best_score": 98.0,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "CRCL",
-      "current_price": 111.93,
-      "spy_regime": "FAVORABLE",
-      "best_score": 97.6,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "FN",
-      "current_price": 617.02,
-      "spy_regime": "FAVORABLE",
-      "best_score": 97.3,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "SYNA",
-      "current_price": 106.94,
-      "spy_regime": "FAVORABLE",
-      "best_score": 97.2,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "APP",
-      "current_price": 493.65,
+      "ticker": "LITE",
+      "current_price": 970.36,
       "spy_regime": "FAVORABLE",
       "best_score": 97.0,
       "best_setup": "BULL_BOUNCE_PENDING",
@@ -148,17 +85,17 @@
       "tier": "CONVICTION"
     },
     {
-      "ticker": "HUBS",
-      "current_price": 247.791,
+      "ticker": "HIMX",
+      "current_price": 20.17,
       "spy_regime": "FAVORABLE",
-      "best_score": 96.9,
+      "best_score": 96.6,
       "best_setup": "BULL_BOUNCE_PENDING",
       "best_side": "LONG",
       "tier": "CONVICTION"
     },
     {
-      "ticker": "FCEL",
-      "current_price": 12.15,
+      "ticker": "BE",
+      "current_price": 285.0,
       "spy_regime": "FAVORABLE",
       "best_score": 96.0,
       "best_setup": "BULL_BOUNCE_PENDING",
@@ -166,8 +103,62 @@
       "tier": "CONVICTION"
     },
     {
-      "ticker": "PLNT",
-      "current_price": 43.525,
+      "ticker": "GSIT",
+      "current_price": 11.755,
+      "spy_regime": "FAVORABLE",
+      "best_score": 95.7,
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "DXYZ",
+      "current_price": 66.8299,
+      "spy_regime": "FAVORABLE",
+      "best_score": 95.6,
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "HPAI",
+      "current_price": 1.34,
+      "spy_regime": "FAVORABLE",
+      "best_score": 95.0,
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "CRCL",
+      "current_price": 112.71,
+      "spy_regime": "FAVORABLE",
+      "best_score": 95.0,
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "PRSO",
+      "current_price": 1.17,
+      "spy_regime": "FAVORABLE",
+      "best_score": 94.6,
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "MDB",
+      "current_price": 298.14,
+      "spy_regime": "FAVORABLE",
+      "best_score": 92.5,
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "MEHA",
+      "current_price": 0.1712,
       "spy_regime": "FAVORABLE",
       "best_score": 92.2,
       "best_setup": "BULL_BOUNCE_PENDING",
@@ -175,8 +166,8 @@
       "tier": "CONVICTION"
     },
     {
-      "ticker": "QLYS",
-      "current_price": 94.51,
+      "ticker": "SMCI",
+      "current_price": 35.67,
       "spy_regime": "FAVORABLE",
       "best_score": 92.0,
       "best_setup": "BULL_BOUNCE_PENDING",
@@ -184,8 +175,17 @@
       "tier": "CONVICTION"
     },
     {
-      "ticker": "FROG",
-      "current_price": 57.3,
+      "ticker": "WRBY",
+      "current_price": 28.05,
+      "spy_regime": "FAVORABLE",
+      "best_score": 92.0,
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "CLIK",
+      "current_price": 3.2,
       "spy_regime": "FAVORABLE",
       "best_score": 91.6,
       "best_setup": "BULL_BOUNCE_PENDING",
@@ -193,170 +193,233 @@
       "tier": "CONVICTION"
     },
     {
-      "ticker": "AAOI",
-      "current_price": 155.3564,
+      "ticker": "MXL",
+      "current_price": 99.695,
       "spy_regime": "FAVORABLE",
-      "best_score": 90.2,
+      "best_score": 91.4,
       "best_setup": "BULL_BOUNCE_PENDING",
       "best_side": "LONG",
       "tier": "CONVICTION"
     },
     {
-      "ticker": "DOCN",
-      "current_price": 149.28,
+      "ticker": "DRTS",
+      "current_price": 10.15,
       "spy_regime": "FAVORABLE",
-      "best_score": 90.0,
+      "best_score": 90.4,
       "best_setup": "BULL_BOUNCE_PENDING",
       "best_side": "LONG",
       "tier": "CONVICTION"
     },
     {
-      "ticker": "AIM",
-      "current_price": 0.5473,
+      "ticker": "CRML",
+      "current_price": 12.42,
       "spy_regime": "FAVORABLE",
-      "best_score": 89.7,
+      "best_score": 88.4,
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "GAMB",
+      "current_price": 4.895,
+      "spy_regime": "FAVORABLE",
+      "best_score": 87.4,
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "LASR",
+      "current_price": 83.615,
+      "spy_regime": "FAVORABLE",
+      "best_score": 87.4,
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "NVAX",
+      "current_price": 10.307,
+      "spy_regime": "FAVORABLE",
+      "best_score": 87.0,
+      "best_setup": "DOUBLE_REJECTION_SHORT",
+      "best_side": "SHORT",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "VOYG",
+      "current_price": 31.79,
+      "spy_regime": "FAVORABLE",
+      "best_score": 87.0,
+      "best_setup": "DOUBLE_REJECTION_SHORT",
+      "best_side": "SHORT",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "CODI",
+      "current_price": 12.3,
+      "spy_regime": "FAVORABLE",
+      "best_score": 87.0,
+      "best_setup": "DOUBLE_REJECTION_SHORT",
+      "best_side": "SHORT",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "ACLS",
+      "current_price": 165.46,
+      "spy_regime": "FAVORABLE",
+      "best_score": 87.0,
+      "best_setup": "DOUBLE_REJECTION_SHORT",
+      "best_side": "SHORT",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "NUAI",
+      "current_price": 5.0,
+      "spy_regime": "FAVORABLE",
+      "best_score": 87.0,
+      "best_setup": "DOUBLE_REJECTION_SHORT",
+      "best_side": "SHORT",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "VCX",
+      "current_price": 255.46,
+      "spy_regime": "FAVORABLE",
+      "best_score": 86.8,
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "FROG",
+      "current_price": 70.68,
+      "spy_regime": "FAVORABLE",
+      "best_score": 86.5,
+      "best_setup": "DOUBLE_REJECTION_SHORT",
+      "best_side": "SHORT",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "RVTY",
+      "current_price": 101.2,
+      "spy_regime": "FAVORABLE",
+      "best_score": 86.5,
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "ROAD",
+      "current_price": 142.69,
+      "spy_regime": "FAVORABLE",
+      "best_score": 86.4,
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "AMD",
+      "current_price": 456.795,
+      "spy_regime": "FAVORABLE",
+      "best_score": 86.0,
+      "best_setup": "CHANNEL_GAP_BREAKOUT_LONG",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "SITM",
+      "current_price": 828.81,
+      "spy_regime": "FAVORABLE",
+      "best_score": 86.0,
+      "best_setup": "DOUBLE_REJECTION_SHORT",
+      "best_side": "SHORT",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "COIN",
+      "current_price": 202.11,
+      "spy_regime": "FAVORABLE",
+      "best_score": 85.4,
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "MWG",
+      "current_price": 1.54,
+      "spy_regime": "FAVORABLE",
+      "best_score": 85.1,
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "DGXX",
+      "current_price": 7.72,
+      "spy_regime": "FAVORABLE",
+      "best_score": 85.0,
       "best_setup": "BULL_BOUNCE_PENDING",
       "best_side": "LONG",
       "tier": "CONVICTION"
     },
     {
       "ticker": "MU",
-      "current_price": 639.19,
+      "current_price": 782.86,
       "spy_regime": "FAVORABLE",
-      "best_score": 89.2,
-      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_score": 85.0,
+      "best_setup": "CHANNEL_GAP_BREAKOUT_LONG",
       "best_side": "LONG",
       "tier": "CONVICTION"
     },
     {
-      "ticker": "STX",
-      "current_price": 751.85,
+      "ticker": "MRNA",
+      "current_price": 57.405,
       "spy_regime": "FAVORABLE",
-      "best_score": 88.5,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "COHR",
-      "current_price": 309.87,
-      "spy_regime": "FAVORABLE",
-      "best_score": 88.0,
-      "best_setup": "BULL_BOUNCE_CONFIRMED",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "AAON",
-      "current_price": 128.065,
-      "spy_regime": "FAVORABLE",
-      "best_score": 88.0,
-      "best_setup": "BULL_BOUNCE_CONFIRMED",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "AGL",
-      "current_price": 59.78,
-      "spy_regime": "FAVORABLE",
-      "best_score": 87.3,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "PLTR",
-      "current_price": 136.7707,
-      "spy_regime": "FAVORABLE",
-      "best_score": 86.3,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "CNSP",
-      "current_price": 7.365,
-      "spy_regime": "FAVORABLE",
-      "best_score": 86.0,
+      "best_score": 85.0,
       "best_setup": "DOUBLE_REJECTION_SHORT",
       "best_side": "SHORT",
       "tier": "CONVICTION"
     },
     {
-      "ticker": "ICHR",
-      "current_price": 70.035,
+      "ticker": "VPG",
+      "current_price": 67.0,
       "spy_regime": "FAVORABLE",
-      "best_score": 86.0,
-      "best_setup": "DOUBLE_REJECTION_SHORT",
-      "best_side": "SHORT",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "SDGR",
-      "current_price": 12.995,
-      "spy_regime": "FAVORABLE",
-      "best_score": 86.0,
-      "best_setup": "DOUBLE_REJECTION_SHORT",
-      "best_side": "SHORT",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "MLYS",
-      "current_price": 29.265,
-      "spy_regime": "FAVORABLE",
-      "best_score": 86.0,
-      "best_setup": "DOUBLE_REJECTION_SHORT",
-      "best_side": "SHORT",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "OPRA",
-      "current_price": 18.75,
-      "spy_regime": "FAVORABLE",
-      "best_score": 86.0,
-      "best_setup": "DOUBLE_REJECTION_SHORT",
-      "best_side": "SHORT",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "RMSG",
-      "current_price": 1.7214,
-      "spy_regime": "FAVORABLE",
-      "best_score": 84.9,
+      "best_score": 85.0,
       "best_setup": "BULL_BOUNCE_PENDING",
       "best_side": "LONG",
       "tier": "CONVICTION"
     },
     {
-      "ticker": "RDDT",
-      "current_price": 162.54,
+      "ticker": "IPX",
+      "current_price": 42.28,
       "spy_regime": "FAVORABLE",
-      "best_score": 84.3,
-      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_score": 85.0,
+      "best_setup": "CHANNEL_GAP_BREAKOUT_LONG",
       "best_side": "LONG",
       "tier": "CONVICTION"
     },
     {
-      "ticker": "VG",
-      "current_price": 11.695,
+      "ticker": "AMG",
+      "current_price": 304.42,
       "spy_regime": "FAVORABLE",
-      "best_score": 84.0,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
+      "best_score": 85.0,
+      "best_setup": "DOUBLE_REJECTION_SHORT",
+      "best_side": "SHORT",
       "tier": "CONVICTION"
     },
     {
-      "ticker": "SABR",
-      "current_price": 2.025,
+      "ticker": "BZH",
+      "current_price": 24.665,
       "spy_regime": "FAVORABLE",
-      "best_score": 84.0,
-      "best_setup": "BULL_BOUNCE_CONFIRMED",
-      "best_side": "LONG",
+      "best_score": 85.0,
+      "best_setup": "DOUBLE_REJECTION_SHORT",
+      "best_side": "SHORT",
       "tier": "CONVICTION"
     },
     {
-      "ticker": "APPS",
-      "current_price": 3.955,
+      "ticker": "NXT",
+      "current_price": 129.925,
       "spy_regime": "FAVORABLE",
       "best_score": 84.0,
       "best_setup": "DOUBLE_REJECTION_SHORT",
@@ -364,71 +427,26 @@
       "tier": "CONVICTION"
     },
     {
-      "ticker": "RYTM",
-      "current_price": 95.18,
+      "ticker": "MRX",
+      "current_price": 55.595,
       "spy_regime": "FAVORABLE",
-      "best_score": 84.0,
-      "best_setup": "DOUBLE_REJECTION_SHORT",
-      "best_side": "SHORT",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "GLE",
-      "current_price": 0.6136,
-      "spy_regime": "FAVORABLE",
-      "best_score": 84.0,
-      "best_setup": "BULL_BOUNCE_CONFIRMED",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "NNE",
-      "current_price": 26.68,
-      "spy_regime": "FAVORABLE",
-      "best_score": 84.0,
+      "best_score": 83.1,
       "best_setup": "BULL_BOUNCE_PENDING",
       "best_side": "LONG",
       "tier": "CONVICTION"
     },
     {
-      "ticker": "DXYZ",
-      "current_price": 43.62,
-      "spy_regime": "FAVORABLE",
-      "best_score": 83.9,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "FUN",
-      "current_price": 22.79,
-      "spy_regime": "FAVORABLE",
-      "best_score": 83.4,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "PATH",
-      "current_price": 10.85,
-      "spy_regime": "FAVORABLE",
-      "best_score": 83.2,
-      "best_setup": "BULL_BOUNCE",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "VRDN",
-      "current_price": 17.33,
+      "ticker": "MRVI",
+      "current_price": 4.945,
       "spy_regime": "FAVORABLE",
       "best_score": 83.0,
-      "best_setup": "BULL_BOUNCE_CONFIRMED",
-      "best_side": "LONG",
+      "best_setup": "BEAR_REJECTION_PENDING",
+      "best_side": "SHORT",
       "tier": "CONVICTION"
     },
     {
-      "ticker": "LITE",
-      "current_price": 868.3501,
+      "ticker": "PENG",
+      "current_price": 44.889,
       "spy_regime": "FAVORABLE",
       "best_score": 83.0,
       "best_setup": "BULL_BOUNCE_PENDING",
@@ -436,17 +454,8 @@
       "tier": "CONVICTION"
     },
     {
-      "ticker": "GLBE",
-      "current_price": 32.355,
-      "spy_regime": "FAVORABLE",
-      "best_score": 83.0,
-      "best_setup": "BULL_BOUNCE_CONFIRMED",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "ETON",
-      "current_price": 31.28,
+      "ticker": "SYNA",
+      "current_price": 126.505,
       "spy_regime": "FAVORABLE",
       "best_score": 83.0,
       "best_setup": "BULL_BOUNCE_PENDING",
@@ -454,134 +463,80 @@
       "tier": "CONVICTION"
     },
     {
-      "ticker": "ONEG",
-      "current_price": 1.381,
+      "ticker": "AMBA",
+      "current_price": 78.71,
       "spy_regime": "FAVORABLE",
       "best_score": 83.0,
+      "best_setup": "BEAR_REJECTION_PENDING",
+      "best_side": "SHORT",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "FA",
+      "current_price": 15.9,
+      "spy_regime": "FAVORABLE",
+      "best_score": 82.2,
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "NTCL",
+      "current_price": 0.25,
+      "spy_regime": "FAVORABLE",
+      "best_score": 82.0,
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "PCT",
+      "current_price": 9.785,
+      "spy_regime": "FAVORABLE",
+      "best_score": 82.0,
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "MIRM",
+      "current_price": 106.47,
+      "spy_regime": "FAVORABLE",
+      "best_score": 82.0,
+      "best_setup": "DOUBLE_REJECTION_SHORT",
+      "best_side": "SHORT",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "MBUU",
+      "current_price": 30.66,
+      "spy_regime": "FAVORABLE",
+      "best_score": 81.7,
       "best_setup": "BEAR_REJECTION_PENDING",
       "best_side": "SHORT",
       "tier": "CONVICTION"
     },
     {
       "ticker": "MNDY",
-      "current_price": 76.44,
+      "current_price": 77.1544,
       "spy_regime": "FAVORABLE",
-      "best_score": 82.6,
+      "best_score": 81.5,
       "best_setup": "BEAR_REJECTION_PENDING",
       "best_side": "SHORT",
       "tier": "CONVICTION"
     },
     {
-      "ticker": "PHVS",
-      "current_price": 29.3,
-      "spy_regime": "FAVORABLE",
-      "best_score": 82.4,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "ALTO",
-      "current_price": 4.5176,
-      "spy_regime": "FAVORABLE",
-      "best_score": 82.3,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "DDOG",
-      "current_price": 186.2384,
-      "spy_regime": "FAVORABLE",
-      "best_score": 82.2,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "XNDU",
-      "current_price": 16.7999,
-      "spy_regime": "FAVORABLE",
-      "best_score": 82.2,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "MASK",
-      "current_price": 2.4,
-      "spy_regime": "FAVORABLE",
-      "best_score": 82.0,
-      "best_setup": "DOUBLE_REJECTION_SHORT",
-      "best_side": "SHORT",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "KODK",
-      "current_price": 13.9,
-      "spy_regime": "FAVORABLE",
-      "best_score": 82.0,
-      "best_setup": "DOUBLE_REJECTION_SHORT",
-      "best_side": "SHORT",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "ZBIO",
-      "current_price": 19.21,
-      "spy_regime": "FAVORABLE",
-      "best_score": 82.0,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "OSS",
-      "current_price": 14.93,
-      "spy_regime": "FAVORABLE",
-      "best_score": 82.0,
-      "best_setup": "DOUBLE_REJECTION_SHORT",
-      "best_side": "SHORT",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "INTC",
-      "current_price": 109.305,
-      "spy_regime": "FAVORABLE",
-      "best_score": 81.9,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "INO",
-      "current_price": 1.325,
-      "spy_regime": "FAVORABLE",
-      "best_score": 81.6,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "NNBR",
-      "current_price": 2.765,
-      "spy_regime": "FAVORABLE",
-      "best_score": 81.4,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "UPST",
-      "current_price": 28.63,
+      "ticker": "JZXN",
+      "current_price": 1.51,
       "spy_regime": "FAVORABLE",
       "best_score": 81.3,
-      "best_setup": "BEAR_REJECTION_PENDING",
-      "best_side": "SHORT",
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
       "tier": "CONVICTION"
     },
     {
-      "ticker": "SMX",
-      "current_price": 1.19,
+      "ticker": "NVDA",
+      "current_price": 219.598,
       "spy_regime": "FAVORABLE",
       "best_score": 81.0,
       "best_setup": "BULL_BOUNCE_PENDING",
@@ -589,35 +544,26 @@
       "tier": "CONVICTION"
     },
     {
-      "ticker": "DPLS",
-      "current_price": 0.01615,
+      "ticker": "ARES",
+      "current_price": 126.115,
       "spy_regime": "FAVORABLE",
       "best_score": 81.0,
-      "best_setup": "DOUBLE_REJECTION_SHORT",
+      "best_setup": "BEAR_REJECTION_PENDING",
       "best_side": "SHORT",
       "tier": "CONVICTION"
     },
     {
-      "ticker": "ASPN",
-      "current_price": 5.115,
+      "ticker": "SATL",
+      "current_price": 7.98,
       "spy_regime": "FAVORABLE",
-      "best_score": 81.0,
-      "best_setup": "DOUBLE_REJECTION_SHORT",
-      "best_side": "SHORT",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "MOG.A",
-      "current_price": 316.71,
-      "spy_regime": "FAVORABLE",
-      "best_score": 80.8,
-      "best_setup": "BULL_BOUNCE",
+      "best_score": 80.4,
+      "best_setup": "BULL_BOUNCE_PENDING",
       "best_side": "LONG",
       "tier": "CONVICTION"
     },
     {
-      "ticker": "ATRA",
-      "current_price": 11.18,
+      "ticker": "KRYS",
+      "current_price": 311.53,
       "spy_regime": "FAVORABLE",
       "best_score": 80.3,
       "best_setup": "BULL_BOUNCE_PENDING",
@@ -625,26 +571,44 @@
       "tier": "CONVICTION"
     },
     {
-      "ticker": "SKYX",
-      "current_price": 1.44,
+      "ticker": "GRPN",
+      "current_price": 16.3384,
       "spy_regime": "FAVORABLE",
-      "best_score": 79.5,
-      "best_setup": "DOUBLE_REJECTION_SHORT",
-      "best_side": "SHORT",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "SHLS",
-      "current_price": 7.915,
-      "spy_regime": "FAVORABLE",
-      "best_score": 79.2,
-      "best_setup": "BULL_BOUNCE",
+      "best_score": 80.0,
+      "best_setup": "BULL_BOUNCE_PENDING",
       "best_side": "LONG",
       "tier": "CONVICTION"
     },
     {
-      "ticker": "WDC",
-      "current_price": 453.14,
+      "ticker": "VYX",
+      "current_price": 7.995,
+      "spy_regime": "FAVORABLE",
+      "best_score": 80.0,
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "HIMS",
+      "current_price": 28.7799,
+      "spy_regime": "FAVORABLE",
+      "best_score": 79.4,
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "CCTG",
+      "current_price": 0.3945,
+      "spy_regime": "FAVORABLE",
+      "best_score": 79.0,
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "ACHR",
+      "current_price": 6.4702,
       "spy_regime": "FAVORABLE",
       "best_score": 79.0,
       "best_setup": "DOUBLE_REJECTION_SHORT",
@@ -652,161 +616,170 @@
       "tier": "CONVICTION"
     },
     {
-      "ticker": "CECO",
-      "current_price": 81.84,
+      "ticker": "TE",
+      "current_price": 6.27,
       "spy_regime": "FAVORABLE",
       "best_score": 79.0,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "AMPL",
-      "current_price": 5.965,
-      "spy_regime": "FAVORABLE",
-      "best_score": 79.0,
-      "best_setup": "BEAR_REJECTION_PENDING",
-      "best_side": "SHORT",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "SHAK",
-      "current_price": 68.655,
-      "spy_regime": "FAVORABLE",
-      "best_score": 79.0,
-      "best_setup": "BEAR_REJECTION_PENDING",
-      "best_side": "SHORT",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "SRPT",
-      "current_price": 20.61,
-      "spy_regime": "FAVORABLE",
-      "best_score": 79.0,
-      "best_setup": "BEAR_REJECTION_PENDING",
-      "best_side": "SHORT",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "BMNR",
-      "current_price": 21.84,
-      "spy_regime": "FAVORABLE",
-      "best_score": 78.5,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "CORZ",
-      "current_price": 22.265,
-      "spy_regime": "FAVORABLE",
-      "best_score": 78.4,
-      "best_setup": "BEAR_REJECTION_PENDING",
-      "best_side": "SHORT",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "VBIO",
-      "current_price": 0.993,
-      "spy_regime": "FAVORABLE",
-      "best_score": 78.0,
-      "best_setup": "DOUBLE_REJECTION_SHORT",
-      "best_side": "SHORT",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "GDYN",
-      "current_price": 6.99,
-      "spy_regime": "FAVORABLE",
-      "best_score": 78.0,
-      "best_setup": "DOUBLE_REJECTION_SHORT",
-      "best_side": "SHORT",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "ESTA",
-      "current_price": 71.425,
-      "spy_regime": "FAVORABLE",
-      "best_score": 78.0,
-      "best_setup": "BEAR_REJECTION_PENDING",
-      "best_side": "SHORT",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "OSG",
-      "current_price": 6.145,
-      "spy_regime": "FAVORABLE",
-      "best_score": 78.0,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "MIRM",
-      "current_price": 103.56,
-      "spy_regime": "FAVORABLE",
-      "best_score": 77.8,
-      "best_setup": "DOUBLE_REJECTION_SHORT",
-      "best_side": "SHORT",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "TLN",
-      "current_price": 387.42,
-      "spy_regime": "FAVORABLE",
-      "best_score": 77.6,
-      "best_setup": "BULL_BOUNCE",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "KOPN",
-      "current_price": 4.84,
-      "spy_regime": "FAVORABLE",
-      "best_score": 77.4,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "BAND",
-      "current_price": 48.8,
-      "spy_regime": "FAVORABLE",
-      "best_score": 77.4,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "WT",
-      "current_price": 18.8,
-      "spy_regime": "FAVORABLE",
-      "best_score": 76.8,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "INTA",
-      "current_price": 24.13,
-      "spy_regime": "FAVORABLE",
-      "best_score": 76.6,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "VRNS",
-      "current_price": 28.745,
-      "spy_regime": "FAVORABLE",
-      "best_score": 76.5,
       "best_setup": "CHANNEL_GAP_BREAKOUT_LONG",
       "best_side": "LONG",
       "tier": "CONVICTION"
     },
     {
-      "ticker": "CYPH",
-      "current_price": 1.055,
+      "ticker": "TGB",
+      "current_price": 7.93,
+      "spy_regime": "FAVORABLE",
+      "best_score": 79.0,
+      "best_setup": "CHANNEL_GAP_BREAKOUT_LONG",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "AMN",
+      "current_price": 29.13,
+      "spy_regime": "FAVORABLE",
+      "best_score": 79.0,
+      "best_setup": "DOUBLE_REJECTION_SHORT",
+      "best_side": "SHORT",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "RDNT",
+      "current_price": 60.2,
+      "spy_regime": "FAVORABLE",
+      "best_score": 79.0,
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "YYGH",
+      "current_price": 1.135,
+      "spy_regime": "FAVORABLE",
+      "best_score": 79.0,
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "BB",
+      "current_price": 6.375,
+      "spy_regime": "FAVORABLE",
+      "best_score": 78.7,
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "CTGO",
+      "current_price": 28.285,
+      "spy_regime": "FAVORABLE",
+      "best_score": 78.3,
+      "best_setup": "BEAR_REJECTION_PENDING",
+      "best_side": "SHORT",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "PHVS",
+      "current_price": 29.94,
+      "spy_regime": "FAVORABLE",
+      "best_score": 78.1,
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "COHR",
+      "current_price": 350.6,
+      "spy_regime": "FAVORABLE",
+      "best_score": 78.0,
+      "best_setup": "BULL_BOUNCE_CONFIRMED",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "MUX",
+      "current_price": 25.28,
+      "spy_regime": "FAVORABLE",
+      "best_score": 78.0,
+      "best_setup": "DOUBLE_REJECTION_SHORT",
+      "best_side": "SHORT",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "PDFS",
+      "current_price": 53.7,
+      "spy_regime": "FAVORABLE",
+      "best_score": 78.0,
+      "best_setup": "DOUBLE_REJECTION_SHORT",
+      "best_side": "SHORT",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "HZO",
+      "current_price": 33.54,
+      "spy_regime": "FAVORABLE",
+      "best_score": 78.0,
+      "best_setup": "DOUBLE_REJECTION_SHORT",
+      "best_side": "SHORT",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "TRAW",
+      "current_price": 2.6,
+      "spy_regime": "FAVORABLE",
+      "best_score": 78.0,
+      "best_setup": "DOUBLE_REJECTION_SHORT",
+      "best_side": "SHORT",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "FORM",
+      "current_price": 151.28,
+      "spy_regime": "FAVORABLE",
+      "best_score": 78.0,
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "NTGR",
+      "current_price": 27.035,
+      "spy_regime": "FAVORABLE",
+      "best_score": 77.9,
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "AEHL",
+      "current_price": 1.2295,
+      "spy_regime": "FAVORABLE",
+      "best_score": 77.5,
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "KEEL",
+      "current_price": 4.04,
+      "spy_regime": "FAVORABLE",
+      "best_score": 77.0,
+      "best_setup": "DOUBLE_REJECTION_SHORT",
+      "best_side": "SHORT",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "NSIT",
+      "current_price": 86.0,
+      "spy_regime": "FAVORABLE",
+      "best_score": 77.0,
+      "best_setup": "CHANNEL_GAP_BREAKOUT_LONG",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "POET",
+      "current_price": 12.05,
       "spy_regime": "FAVORABLE",
       "best_score": 76.5,
       "best_setup": "DOUBLE_REJECTION_SHORT",
@@ -814,8 +787,26 @@
       "tier": "CONVICTION"
     },
     {
-      "ticker": "BKSY",
-      "current_price": 31.3425,
+      "ticker": "HYMC",
+      "current_price": 45.2901,
+      "spy_regime": "FAVORABLE",
+      "best_score": 76.5,
+      "best_setup": "BEAR_REJECTION_PENDING",
+      "best_side": "SHORT",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "PCTY",
+      "current_price": 108.39,
+      "spy_regime": "FAVORABLE",
+      "best_score": 76.4,
+      "best_setup": "BEAR_REJECTION_PENDING",
+      "best_side": "SHORT",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "XGN",
+      "current_price": 3.58,
       "spy_regime": "FAVORABLE",
       "best_score": 76.3,
       "best_setup": "BULL_BOUNCE_PENDING",
@@ -823,62 +814,35 @@
       "tier": "CONVICTION"
     },
     {
-      "ticker": "CHSN",
-      "current_price": 1.88,
+      "ticker": "GCTS",
+      "current_price": 1.675,
       "spy_regime": "FAVORABLE",
-      "best_score": 76.1,
-      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_score": 76.0,
+      "best_setup": "BULL_BOUNCE_CONFIRMED",
       "best_side": "LONG",
       "tier": "CONVICTION"
     },
     {
-      "ticker": "ARES",
-      "current_price": 123.015,
+      "ticker": "WLDN",
+      "current_price": 91.15,
       "spy_regime": "FAVORABLE",
       "best_score": 76.0,
-      "best_setup": "DOUBLE_REJECTION_SHORT",
-      "best_side": "SHORT",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "AGYS",
-      "current_price": 73.05,
-      "spy_regime": "FAVORABLE",
-      "best_score": 76.0,
-      "best_setup": "DOUBLE_REJECTION_SHORT",
-      "best_side": "SHORT",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "STOK",
-      "current_price": 32.745,
-      "spy_regime": "FAVORABLE",
-      "best_score": 75.5,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "RAPP",
-      "current_price": 39.63,
-      "spy_regime": "FAVORABLE",
-      "best_score": 75.3,
       "best_setup": "CHANNEL_GAP_BREAKOUT_LONG",
       "best_side": "LONG",
       "tier": "CONVICTION"
     },
     {
-      "ticker": "CRML",
-      "current_price": 12.975,
+      "ticker": "POM",
+      "current_price": 0.0998,
       "spy_regime": "FAVORABLE",
-      "best_score": 75.1,
+      "best_score": 75.0,
       "best_setup": "BULL_BOUNCE_PENDING",
       "best_side": "LONG",
       "tier": "CONVICTION"
     },
     {
-      "ticker": "AESI",
-      "current_price": 18.23,
+      "ticker": "HPQ",
+      "current_price": 22.53,
       "spy_regime": "FAVORABLE",
       "best_score": 75.0,
       "best_setup": "DOUBLE_REJECTION_SHORT",
@@ -886,35 +850,35 @@
       "tier": "CONVICTION"
     },
     {
-      "ticker": "PGY",
-      "current_price": 15.22,
+      "ticker": "CDNL",
+      "current_price": 55.15,
       "spy_regime": "FAVORABLE",
       "best_score": 75.0,
+      "best_setup": "CHANNEL_GAP_BREAKOUT_LONG",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "BILL",
+      "current_price": 42.67,
+      "spy_regime": "FAVORABLE",
+      "best_score": 74.4,
+      "best_setup": "BULL_BOUNCE_CONFIRMED",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "MNTS",
+      "current_price": 6.2,
+      "spy_regime": "FAVORABLE",
+      "best_score": 74.4,
       "best_setup": "BULL_BOUNCE_PENDING",
       "best_side": "LONG",
       "tier": "CONVICTION"
     },
     {
-      "ticker": "ASBP",
-      "current_price": 0.143501,
-      "spy_regime": "FAVORABLE",
-      "best_score": 75.0,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "SAIL",
-      "current_price": 12.125,
-      "spy_regime": "FAVORABLE",
-      "best_score": 74.8,
-      "best_setup": "BULL_BOUNCE",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "FIVN",
-      "current_price": 22.5,
+      "ticker": "EZGO",
+      "current_price": 0.0612,
       "spy_regime": "FAVORABLE",
       "best_score": 74.2,
       "best_setup": "BULL_BOUNCE_PENDING",
@@ -922,62 +886,44 @@
       "tier": "CONVICTION"
     },
     {
-      "ticker": "OUST",
-      "current_price": 24.565,
+      "ticker": "ZVRA",
+      "current_price": 11.55,
       "spy_regime": "FAVORABLE",
-      "best_score": 74.2,
+      "best_score": 74.0,
       "best_setup": "BULL_BOUNCE_PENDING",
       "best_side": "LONG",
       "tier": "CONVICTION"
     },
     {
-      "ticker": "BETA",
-      "current_price": 17.88,
+      "ticker": "IRDM",
+      "current_price": 41.865,
       "spy_regime": "FAVORABLE",
       "best_score": 74.0,
-      "best_setup": "BULL_BOUNCE",
+      "best_setup": "BULL_BOUNCE_PENDING",
       "best_side": "LONG",
       "tier": "CONVICTION"
     },
     {
-      "ticker": "RNG",
-      "current_price": 45.42,
+      "ticker": "SERV",
+      "current_price": 8.9701,
       "spy_regime": "FAVORABLE",
       "best_score": 74.0,
-      "best_setup": "DOUBLE_REJECTION_SHORT",
-      "best_side": "SHORT",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "MKSI",
-      "current_price": 298.4,
-      "spy_regime": "FAVORABLE",
-      "best_score": 74.0,
-      "best_setup": "DOUBLE_REJECTION_SHORT",
-      "best_side": "SHORT",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "WYFI",
-      "current_price": 19.89,
-      "spy_regime": "FAVORABLE",
-      "best_score": 74.0,
-      "best_setup": "BULL_BOUNCE",
+      "best_setup": "BULL_BOUNCE_PENDING",
       "best_side": "LONG",
       "tier": "CONVICTION"
     },
     {
-      "ticker": "AXTI",
-      "current_price": 106.93,
+      "ticker": "AMBQ",
+      "current_price": 45.44,
       "spy_regime": "FAVORABLE",
-      "best_score": 73.8,
-      "best_setup": "DOUBLE_REJECTION_SHORT",
-      "best_side": "SHORT",
+      "best_score": 73.6,
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
       "tier": "CONVICTION"
     },
     {
-      "ticker": "NUTX",
-      "current_price": 133.705,
+      "ticker": "PTCT",
+      "current_price": 76.73,
       "spy_regime": "FAVORABLE",
       "best_score": 73.5,
       "best_setup": "BULL_BOUNCE",
@@ -985,53 +931,35 @@
       "tier": "CONVICTION"
     },
     {
-      "ticker": "WHR",
-      "current_price": 47.5,
+      "ticker": "INV",
+      "current_price": 7.295,
       "spy_regime": "FAVORABLE",
-      "best_score": 73.1,
+      "best_score": 73.5,
       "best_setup": "BULL_BOUNCE_PENDING",
       "best_side": "LONG",
       "tier": "CONVICTION"
     },
     {
-      "ticker": "SEGG",
-      "current_price": 1.4,
+      "ticker": "GOLD",
+      "current_price": 46.85,
       "spy_regime": "FAVORABLE",
-      "best_score": 73.1,
-      "best_setup": "DOUBLE_REJECTION_SHORT",
+      "best_score": 73.0,
+      "best_setup": "BULL_BOUNCE_CONFIRMED",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "GH",
+      "current_price": 95.71,
+      "spy_regime": "FAVORABLE",
+      "best_score": 72.4,
+      "best_setup": "BEAR_REJECTION_PENDING",
       "best_side": "SHORT",
       "tier": "CONVICTION"
     },
     {
-      "ticker": "LNAI",
-      "current_price": 0.34,
-      "spy_regime": "FAVORABLE",
-      "best_score": 73.0,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "AEVA",
-      "current_price": 13.45,
-      "spy_regime": "FAVORABLE",
-      "best_score": 73.0,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "PMAX",
-      "current_price": 4.14,
-      "spy_regime": "FAVORABLE",
-      "best_score": 72.6,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "NOK",
-      "current_price": 12.1981,
+      "ticker": "CLDX",
+      "current_price": 33.925,
       "spy_regime": "FAVORABLE",
       "best_score": 72.4,
       "best_setup": "BULL_BOUNCE_PENDING",
@@ -1039,17 +967,8 @@
       "tier": "CONVICTION"
     },
     {
-      "ticker": "MWH",
-      "current_price": 42.1,
-      "spy_regime": "FAVORABLE",
-      "best_score": 72.4,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "RDNT",
-      "current_price": 57.415,
+      "ticker": "XNDU",
+      "current_price": 15.07,
       "spy_regime": "FAVORABLE",
       "best_score": 72.3,
       "best_setup": "BULL_BOUNCE_PENDING",
@@ -1057,71 +976,98 @@
       "tier": "CONVICTION"
     },
     {
-      "ticker": "PN",
-      "current_price": 7.57,
+      "ticker": "DAIC",
+      "current_price": 0.1568,
       "spy_regime": "FAVORABLE",
       "best_score": 72.0,
-      "best_setup": "DOUBLE_REJECTION_SHORT",
-      "best_side": "SHORT",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "SPT",
-      "current_price": 6.81,
-      "spy_regime": "FAVORABLE",
-      "best_score": 71.4,
-      "best_setup": "CHANNEL_GAP_BREAKOUT_LONG",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "WOLF",
-      "current_price": 45.7074,
-      "spy_regime": "FAVORABLE",
-      "best_score": 71.3,
-      "best_setup": "CHANNEL_GAP_BREAKOUT_LONG",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "DGXX",
-      "current_price": 6.025,
-      "spy_regime": "FAVORABLE",
-      "best_score": 71.1,
       "best_setup": "BULL_BOUNCE_PENDING",
       "best_side": "LONG",
       "tier": "CONVICTION"
     },
     {
-      "ticker": "NWL",
-      "current_price": 4.495,
+      "ticker": "NOK",
+      "current_price": 13.055,
       "spy_regime": "FAVORABLE",
-      "best_score": 71.0,
-      "best_setup": "BULL_BOUNCE",
+      "best_score": 71.8,
+      "best_setup": "BULL_BOUNCE_PENDING",
       "best_side": "LONG",
       "tier": "CONVICTION"
     },
     {
-      "ticker": "KVYO",
-      "current_price": 15.835,
+      "ticker": "ARLO",
+      "current_price": 14.23,
       "spy_regime": "FAVORABLE",
-      "best_score": 71.0,
+      "best_score": 71.6,
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "RNG",
+      "current_price": 45.63,
+      "spy_regime": "FAVORABLE",
+      "best_score": 71.3,
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "TPB",
+      "current_price": 94.0,
+      "spy_regime": "FAVORABLE",
+      "best_score": 71.3,
       "best_setup": "BEAR_REJECTION_PENDING",
       "best_side": "SHORT",
       "tier": "CONVICTION"
     },
     {
-      "ticker": "FMCC",
-      "current_price": 7.2,
+      "ticker": "KLIC",
+      "current_price": 103.83,
+      "spy_regime": "FAVORABLE",
+      "best_score": 71.1,
+      "best_setup": "DOUBLE_REJECTION_SHORT",
+      "best_side": "SHORT",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "ALB",
+      "current_price": 215.72,
       "spy_regime": "FAVORABLE",
       "best_score": 71.0,
-      "best_setup": "BULL_BOUNCE",
+      "best_setup": "DOUBLE_REJECTION_SHORT",
+      "best_side": "SHORT",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "IREN",
+      "current_price": 56.6,
+      "spy_regime": "FAVORABLE",
+      "best_score": 70.9,
+      "best_setup": "BULL_BOUNCE_PENDING",
       "best_side": "LONG",
       "tier": "CONVICTION"
     },
     {
-      "ticker": "CLRB",
-      "current_price": 3.38,
+      "ticker": "CG",
+      "current_price": 51.02,
+      "spy_regime": "FAVORABLE",
+      "best_score": 70.7,
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "MGNI",
+      "current_price": 13.92,
+      "spy_regime": "FAVORABLE",
+      "best_score": 70.5,
+      "best_setup": "DOUBLE_REJECTION_SHORT",
+      "best_side": "SHORT",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "WTI",
+      "current_price": 3.835,
       "spy_regime": "FAVORABLE",
       "best_score": 70.5,
       "best_setup": "BULL_BOUNCE_PENDING",
@@ -1129,17 +1075,35 @@
       "tier": "CONVICTION"
     },
     {
-      "ticker": "BRBR",
-      "current_price": 10.755,
+      "ticker": "SVC",
+      "current_price": 1.605,
       "spy_regime": "FAVORABLE",
       "best_score": 70.3,
-      "best_setup": "BEAR_REJECTION_PENDING",
-      "best_side": "SHORT",
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
       "tier": "CONVICTION"
     },
     {
-      "ticker": "IOVA",
-      "current_price": 3.5,
+      "ticker": "SIDU",
+      "current_price": 3.6499,
+      "spy_regime": "FAVORABLE",
+      "best_score": 70.2,
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "INO",
+      "current_price": 1.475,
+      "spy_regime": "FAVORABLE",
+      "best_score": 70.1,
+      "best_setup": "CHANNEL_GAP_BREAKOUT_LONG",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "ZBAO",
+      "current_price": 0.62455,
       "spy_regime": "FAVORABLE",
       "best_score": 70.0,
       "best_setup": "BULL_BOUNCE_PENDING",
@@ -1147,134 +1111,116 @@
       "tier": "CONVICTION"
     },
     {
-      "ticker": "SKK",
-      "current_price": 5.59,
+      "ticker": "BMXC",
+      "current_price": 0.00195,
       "spy_regime": "FAVORABLE",
       "best_score": 70.0,
-      "best_setup": "DOUBLE_REJECTION_SHORT",
-      "best_side": "SHORT",
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
       "tier": "CONVICTION"
     },
     {
-      "ticker": "PURR",
-      "current_price": 6.545,
+      "ticker": "RKLB",
+      "current_price": 112.515,
       "spy_regime": "FAVORABLE",
-      "best_score": 70.0,
+      "best_score": 69.9,
+      "best_setup": "CHANNEL_GAP_BREAKOUT_LONG",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "MITK",
+      "current_price": 16.095,
+      "spy_regime": "FAVORABLE",
+      "best_score": 69.9,
+      "best_setup": "CHANNEL_GAP_BREAKOUT_LONG",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "CSIQ",
+      "current_price": 20.335,
+      "spy_regime": "FAVORABLE",
+      "best_score": 69.6,
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "ROCK",
+      "current_price": 39.65,
+      "spy_regime": "FAVORABLE",
+      "best_score": 69.6,
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "MASK",
+      "current_price": 2.645,
+      "spy_regime": "FAVORABLE",
+      "best_score": 69.4,
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "CADL",
+      "current_price": 9.14,
+      "spy_regime": "FAVORABLE",
+      "best_score": 69.4,
+      "best_setup": "CHANNEL_GAP_BREAKOUT_LONG",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "LINK",
+      "current_price": 3.07,
+      "spy_regime": "FAVORABLE",
+      "best_score": 69.0,
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "NCI",
+      "current_price": 1.17,
+      "spy_regime": "FAVORABLE",
+      "best_score": 69.0,
       "best_setup": "BULL_BOUNCE",
       "best_side": "LONG",
       "tier": "CONVICTION"
     },
     {
-      "ticker": "PAR",
-      "current_price": 15.225,
+      "ticker": "LZMH",
+      "current_price": 0.095,
       "spy_regime": "FAVORABLE",
-      "best_score": 70.0,
+      "best_score": 69.0,
+      "best_setup": "BULL_BOUNCE",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "LAZ",
+      "current_price": 47.275,
+      "spy_regime": "FAVORABLE",
+      "best_score": 68.6,
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "RVI",
+      "current_price": 46.75,
+      "spy_regime": "FAVORABLE",
+      "best_score": 68.1,
       "best_setup": "CHANNEL_GAP_BREAKOUT_LONG",
       "best_side": "LONG",
       "tier": "CONVICTION"
     },
     {
-      "ticker": "SATL",
-      "current_price": 6.62,
-      "spy_regime": "FAVORABLE",
-      "best_score": 69.7,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "REAL",
-      "current_price": 12.41,
-      "spy_regime": "FAVORABLE",
-      "best_score": 69.6,
-      "best_setup": "CHANNEL_GAP_BREAKOUT_LONG",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "DNA",
-      "current_price": 10.4,
-      "spy_regime": "FAVORABLE",
-      "best_score": 69.6,
-      "best_setup": "CHANNEL_GAP_BREAKOUT_LONG",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "CGEM",
-      "current_price": 14.21,
-      "spy_regime": "FAVORABLE",
-      "best_score": 69.1,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "VEEE",
-      "current_price": 6.7,
-      "spy_regime": "FAVORABLE",
-      "best_score": 69.0,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "VITL",
-      "current_price": 9.3207,
-      "spy_regime": "FAVORABLE",
-      "best_score": 69.0,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "UBXG",
-      "current_price": 0.3801,
-      "spy_regime": "FAVORABLE",
-      "best_score": 69.0,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "FIG",
-      "current_price": 20.59,
-      "spy_regime": "FAVORABLE",
-      "best_score": 68.8,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "GCTS",
-      "current_price": 1.495,
-      "spy_regime": "FAVORABLE",
-      "best_score": 68.7,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "SBET",
-      "current_price": 7.455,
-      "spy_regime": "FAVORABLE",
-      "best_score": 68.4,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "LSCC",
-      "current_price": 119.08,
-      "spy_regime": "FAVORABLE",
-      "best_score": 68.3,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "BUR",
-      "current_price": 5.195,
+      "ticker": "REPL",
+      "current_price": 4.0727,
       "spy_regime": "FAVORABLE",
       "best_score": 68.0,
       "best_setup": "DOUBLE_REJECTION_SHORT",
@@ -1282,53 +1228,80 @@
       "tier": "MARGINAL"
     },
     {
-      "ticker": "TDOC",
-      "current_price": 6.895,
+      "ticker": "BKSY",
+      "current_price": 40.7,
       "spy_regime": "FAVORABLE",
-      "best_score": 67.9,
+      "best_score": 68.0,
       "best_setup": "BULL_BOUNCE_PENDING",
       "best_side": "LONG",
       "tier": "CONVICTION"
     },
     {
-      "ticker": "ALP",
-      "current_price": 0.259899,
+      "ticker": "WYFI",
+      "current_price": 28.14,
+      "spy_regime": "FAVORABLE",
+      "best_score": 68.0,
+      "best_setup": "DOUBLE_REJECTION_SHORT",
+      "best_side": "SHORT",
+      "tier": "MARGINAL"
+    },
+    {
+      "ticker": "MBX",
+      "current_price": 45.265,
+      "spy_regime": "FAVORABLE",
+      "best_score": 67.8,
+      "best_setup": "CHANNEL_GAP_BREAKOUT_LONG",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "ATEX",
+      "current_price": 55.385,
       "spy_regime": "FAVORABLE",
       "best_score": 67.6,
-      "best_setup": "BULL_BOUNCE_CONFIRMED",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "SDOT",
-      "current_price": 0.3206,
-      "spy_regime": "FAVORABLE",
-      "best_score": 67.0,
       "best_setup": "BULL_BOUNCE_PENDING",
       "best_side": "LONG",
       "tier": "CONVICTION"
     },
     {
-      "ticker": "SNDK",
-      "current_price": 1308.0,
+      "ticker": "VRAX",
+      "current_price": 0.17385,
       "spy_regime": "FAVORABLE",
-      "best_score": 67.0,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "SRFM",
-      "current_price": 1.415,
-      "spy_regime": "FAVORABLE",
-      "best_score": 67.0,
+      "best_score": 67.4,
       "best_setup": "CHANNEL_GAP_BREAKOUT_LONG",
       "best_side": "LONG",
       "tier": "CONVICTION"
     },
     {
-      "ticker": "PROP",
-      "current_price": 0.9613,
+      "ticker": "JKS",
+      "current_price": 25.095,
+      "spy_regime": "FAVORABLE",
+      "best_score": 67.3,
+      "best_setup": "CHANNEL_GAP_BREAKOUT_LONG",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "INTC",
+      "current_price": 128.05,
+      "spy_regime": "FAVORABLE",
+      "best_score": 67.1,
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "SPIR",
+      "current_price": 18.8,
+      "spy_regime": "FAVORABLE",
+      "best_score": 67.1,
+      "best_setup": "CHANNEL_GAP_BREAKOUT_LONG",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "GFS",
+      "current_price": 73.935,
       "spy_regime": "FAVORABLE",
       "best_score": 67.0,
       "best_setup": "BULL_BOUNCE_PENDING",
@@ -1336,44 +1309,53 @@
       "tier": "CONVICTION"
     },
     {
-      "ticker": "AIXI",
-      "current_price": 0.7348,
+      "ticker": "FLGT",
+      "current_price": 16.01,
       "spy_regime": "FAVORABLE",
-      "best_score": 66.5,
+      "best_score": 67.0,
       "best_setup": "BULL_BOUNCE_PENDING",
       "best_side": "LONG",
       "tier": "CONVICTION"
     },
     {
-      "ticker": "GRAB",
-      "current_price": 3.7914,
+      "ticker": "AAOI",
+      "current_price": 173.2,
+      "spy_regime": "FAVORABLE",
+      "best_score": 67.0,
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "RBRK",
+      "current_price": 61.83,
       "spy_regime": "FAVORABLE",
       "best_score": 66.3,
+      "best_setup": "DOUBLE_REJECTION_SHORT",
+      "best_side": "SHORT",
+      "tier": "MARGINAL"
+    },
+    {
+      "ticker": "MNPR",
+      "current_price": 66.71,
+      "spy_regime": "FAVORABLE",
+      "best_score": 66.2,
+      "best_setup": "DOUBLE_REJECTION_SHORT",
+      "best_side": "SHORT",
+      "tier": "MARGINAL"
+    },
+    {
+      "ticker": "GILT",
+      "current_price": 19.4,
+      "spy_regime": "FAVORABLE",
+      "best_score": 66.1,
       "best_setup": "BULL_BOUNCE_PENDING",
       "best_side": "LONG",
       "tier": "CONVICTION"
     },
     {
-      "ticker": "OSRH",
-      "current_price": 0.6773,
-      "spy_regime": "FAVORABLE",
-      "best_score": 66.3,
-      "best_setup": "CHANNEL_GAP_BREAKOUT_LONG",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "GCTK",
-      "current_price": 0.8745,
-      "spy_regime": "FAVORABLE",
-      "best_score": 66.0,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "UTI",
-      "current_price": 34.345,
+      "ticker": "INTA",
+      "current_price": 24.88,
       "spy_regime": "FAVORABLE",
       "best_score": 65.9,
       "best_setup": "BULL_BOUNCE_PENDING",
@@ -1381,44 +1363,17 @@
       "tier": "CONVICTION"
     },
     {
-      "ticker": "BZAI",
-      "current_price": 1.805,
+      "ticker": "NTSK",
+      "current_price": 11.365,
       "spy_regime": "FAVORABLE",
-      "best_score": 65.6,
+      "best_score": 65.4,
       "best_setup": "BULL_BOUNCE_PENDING",
       "best_side": "LONG",
       "tier": "CONVICTION"
     },
     {
-      "ticker": "WGS",
-      "current_price": 40.2,
-      "spy_regime": "FAVORABLE",
-      "best_score": 65.5,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "NVCR",
-      "current_price": 16.35,
-      "spy_regime": "FAVORABLE",
-      "best_score": 65.3,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "AHMA",
-      "current_price": 1.75,
-      "spy_regime": "FAVORABLE",
-      "best_score": 65.3,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "DEVS",
-      "current_price": 0.164849,
+      "ticker": "AREB",
+      "current_price": 0.1423,
       "spy_regime": "FAVORABLE",
       "best_score": 65.0,
       "best_setup": "BULL_BOUNCE_PENDING",
@@ -1426,17 +1381,8 @@
       "tier": "CONVICTION"
     },
     {
-      "ticker": "BTBT",
-      "current_price": 1.815,
-      "spy_regime": "FAVORABLE",
-      "best_score": 65.0,
-      "best_setup": "DOUBLE_REJECTION_SHORT",
-      "best_side": "SHORT",
-      "tier": "MARGINAL"
-    },
-    {
-      "ticker": "QURE",
-      "current_price": 24.1,
+      "ticker": "EOSE",
+      "current_price": 8.63,
       "spy_regime": "FAVORABLE",
       "best_score": 65.0,
       "best_setup": "BULL_BOUNCE_PENDING",
@@ -1444,8 +1390,8 @@
       "tier": "CONVICTION"
     },
     {
-      "ticker": "VCX",
-      "current_price": 169.5,
+      "ticker": "FLNC",
+      "current_price": 22.99,
       "spy_regime": "FAVORABLE",
       "best_score": 65.0,
       "best_setup": "BULL_BOUNCE_PENDING",
@@ -1453,8 +1399,8 @@
       "tier": "CONVICTION"
     },
     {
-      "ticker": "POET",
-      "current_price": 9.73,
+      "ticker": "LUNR",
+      "current_price": 31.265,
       "spy_regime": "FAVORABLE",
       "best_score": 65.0,
       "best_setup": "BULL_BOUNCE_PENDING",
@@ -1462,8 +1408,17 @@
       "tier": "CONVICTION"
     },
     {
-      "ticker": "SLNH",
-      "current_price": 1.56,
+      "ticker": "SPT",
+      "current_price": 6.98,
+      "spy_regime": "FAVORABLE",
+      "best_score": 65.0,
+      "best_setup": "BULL_BOUNCE",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "VLN",
+      "current_price": 2.755,
       "spy_regime": "FAVORABLE",
       "best_score": 65.0,
       "best_setup": "BULL_BOUNCE_PENDING",
@@ -1471,35 +1426,8 @@
       "tier": "CONVICTION"
     },
     {
-      "ticker": "BATL",
-      "current_price": 2.865,
-      "spy_regime": "FAVORABLE",
-      "best_score": 65.0,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "CCLD",
-      "current_price": 2.47,
-      "spy_regime": "FAVORABLE",
-      "best_score": 65.0,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "TRUP",
-      "current_price": 25.89,
-      "spy_regime": "FAVORABLE",
-      "best_score": 64.9,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "ULCC",
-      "current_price": 5.355,
+      "ticker": "PRM",
+      "current_price": 33.39,
       "spy_regime": "FAVORABLE",
       "best_score": 64.6,
       "best_setup": "BULL_BOUNCE_PENDING",
@@ -1507,197 +1435,71 @@
       "tier": "CONVICTION"
     },
     {
+      "ticker": "SNDK",
+      "current_price": 1541.98,
+      "spy_regime": "FAVORABLE",
+      "best_score": 64.1,
+      "best_setup": "CHANNEL_GAP_BREAKOUT_LONG",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "ORLA",
+      "current_price": 14.96,
+      "spy_regime": "FAVORABLE",
+      "best_score": 64.1,
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
+    },
+    {
       "ticker": "TRVI",
-      "current_price": 14.22,
-      "spy_regime": "FAVORABLE",
-      "best_score": 64.4,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "ARDX",
-      "current_price": 7.0,
-      "spy_regime": "FAVORABLE",
-      "best_score": 64.3,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "CIFR",
-      "current_price": 19.95,
-      "spy_regime": "FAVORABLE",
-      "best_score": 64.2,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "BDRX",
-      "current_price": 4.8466,
+      "current_price": 14.83,
       "spy_regime": "FAVORABLE",
       "best_score": 64.0,
+      "best_setup": "CHANNEL_GAP_BREAKOUT_LONG",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "DELL",
+      "current_price": 249.105,
+      "spy_regime": "FAVORABLE",
+      "best_score": 63.2,
       "best_setup": "BULL_BOUNCE_PENDING",
       "best_side": "LONG",
       "tier": "CONVICTION"
     },
     {
-      "ticker": "VRAX",
-      "current_price": 0.1398,
+      "ticker": "OUST",
+      "current_price": 27.545,
       "spy_regime": "FAVORABLE",
-      "best_score": 64.0,
+      "best_score": 62.9,
       "best_setup": "BULL_BOUNCE_PENDING",
       "best_side": "LONG",
       "tier": "CONVICTION"
     },
     {
-      "ticker": "PUMP",
-      "current_price": 15.61,
+      "ticker": "MKSI",
+      "current_price": 315.9,
       "spy_regime": "FAVORABLE",
-      "best_score": 63.6,
-      "best_setup": "BEAR_REJECTION_PENDING",
-      "best_side": "SHORT",
-      "tier": "MARGINAL"
+      "best_score": 62.8,
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "FFAI",
+      "current_price": 0.4185,
+      "spy_regime": "FAVORABLE",
+      "best_score": 62.0,
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
     },
     {
       "ticker": "SRXH",
-      "current_price": 0.11005,
-      "spy_regime": "FAVORABLE",
-      "best_score": 63.0,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "BB",
-      "current_price": 5.945,
-      "spy_regime": "FAVORABLE",
-      "best_score": 63.0,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "NAK",
-      "current_price": 2.0745,
-      "spy_regime": "FAVORABLE",
-      "best_score": 63.0,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "VSH",
-      "current_price": 32.45,
-      "spy_regime": "FAVORABLE",
-      "best_score": 63.0,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "WEAV",
-      "current_price": 6.075,
-      "spy_regime": "FAVORABLE",
-      "best_score": 63.0,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "AGRO",
-      "current_price": 13.41,
-      "spy_regime": "FAVORABLE",
-      "best_score": 63.0,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "ALKT",
-      "current_price": 17.34,
-      "spy_regime": "FAVORABLE",
-      "best_score": 63.0,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "CEVA",
-      "current_price": 33.6,
-      "spy_regime": "FAVORABLE",
-      "best_score": 63.0,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "HNST",
-      "current_price": 3.72,
-      "spy_regime": "FAVORABLE",
-      "best_score": 63.0,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "PYPL",
-      "current_price": 46.655,
-      "spy_regime": "FAVORABLE",
-      "best_score": 62.9,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "AMRC",
-      "current_price": 30.04,
-      "spy_regime": "FAVORABLE",
-      "best_score": 62.9,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "OWL",
-      "current_price": 10.375,
-      "spy_regime": "FAVORABLE",
-      "best_score": 62.6,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "PINS",
-      "current_price": 21.485,
-      "spy_regime": "FAVORABLE",
-      "best_score": 62.4,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "FTRE",
-      "current_price": 15.52,
-      "spy_regime": "FAVORABLE",
-      "best_score": 62.4,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "ADPT",
-      "current_price": 14.296,
-      "spy_regime": "FAVORABLE",
-      "best_score": 62.3,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "TLIH",
-      "current_price": 3.9,
+      "current_price": 0.12,
       "spy_regime": "FAVORABLE",
       "best_score": 62.0,
       "best_setup": "BULL_BOUNCE_PENDING",
@@ -1705,8 +1507,8 @@
       "tier": "CONVICTION"
     },
     {
-      "ticker": "LAES",
-      "current_price": 3.045,
+      "ticker": "GPUS",
+      "current_price": 0.1166,
       "spy_regime": "FAVORABLE",
       "best_score": 62.0,
       "best_setup": "BULL_BOUNCE_PENDING",
@@ -1714,8 +1516,8 @@
       "tier": "CONVICTION"
     },
     {
-      "ticker": "PCRX",
-      "current_price": 23.615,
+      "ticker": "RDW",
+      "current_price": 11.785,
       "spy_regime": "FAVORABLE",
       "best_score": 62.0,
       "best_setup": "BULL_BOUNCE_PENDING",
@@ -1723,8 +1525,8 @@
       "tier": "CONVICTION"
     },
     {
-      "ticker": "USEG",
-      "current_price": 0.95465,
+      "ticker": "PL",
+      "current_price": 39.895,
       "spy_regime": "FAVORABLE",
       "best_score": 62.0,
       "best_setup": "BULL_BOUNCE_PENDING",
@@ -1732,44 +1534,80 @@
       "tier": "CONVICTION"
     },
     {
-      "ticker": "LRHC",
-      "current_price": 1.81,
+      "ticker": "MTSI",
+      "current_price": 366.005,
       "spy_regime": "FAVORABLE",
       "best_score": 62.0,
-      "best_setup": "BULL_BOUNCE",
+      "best_setup": "BULL_BOUNCE_PENDING",
       "best_side": "LONG",
       "tier": "CONVICTION"
     },
     {
-      "ticker": "NUAI",
-      "current_price": 4.725,
+      "ticker": "BLLN",
+      "current_price": 100.215,
       "spy_regime": "FAVORABLE",
-      "best_score": 61.6,
+      "best_score": 62.0,
+      "best_setup": "CHANNEL_GAP_BREAKOUT_LONG",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "FEIM",
+      "current_price": 63.5,
+      "spy_regime": "FAVORABLE",
+      "best_score": 62.0,
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "BZAI",
+      "current_price": 1.885,
+      "spy_regime": "FAVORABLE",
+      "best_score": 62.0,
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "DCH",
+      "current_price": 7.025,
+      "spy_regime": "FAVORABLE",
+      "best_score": 61.7,
       "best_setup": "DOUBLE_REJECTION_SHORT",
       "best_side": "SHORT",
       "tier": "MARGINAL"
     },
     {
-      "ticker": "ARVN",
-      "current_price": 10.085,
+      "ticker": "VOR",
+      "current_price": 18.0897,
       "spy_regime": "FAVORABLE",
-      "best_score": 61.0,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "NTRA",
-      "current_price": 216.43,
-      "spy_regime": "FAVORABLE",
-      "best_score": 61.0,
+      "best_score": 61.7,
       "best_setup": "CHANNEL_GAP_BREAKOUT_LONG",
       "best_side": "LONG",
       "tier": "CONVICTION"
     },
     {
-      "ticker": "DNUT",
-      "current_price": 3.615,
+      "ticker": "LINC",
+      "current_price": 49.4938,
+      "spy_regime": "FAVORABLE",
+      "best_score": 61.6,
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "AIP",
+      "current_price": 31.755,
+      "spy_regime": "FAVORABLE",
+      "best_score": 61.2,
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
+      "tier": "CONVICTION"
+    },
+    {
+      "ticker": "SHLS",
+      "current_price": 9.18,
       "spy_regime": "FAVORABLE",
       "best_score": 61.0,
       "best_setup": "BULL_BOUNCE_PENDING",
@@ -1777,35 +1615,44 @@
       "tier": "CONVICTION"
     },
     {
-      "ticker": "BKKT",
-      "current_price": 8.53,
+      "ticker": "IE",
+      "current_price": 14.865,
       "spy_regime": "FAVORABLE",
-      "best_score": 60.9,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
+      "best_score": 61.0,
+      "best_setup": "DOUBLE_REJECTION_SHORT",
+      "best_side": "SHORT",
+      "tier": "MARGINAL"
     },
     {
-      "ticker": "INOD",
-      "current_price": 46.32,
+      "ticker": "IBRX",
+      "current_price": 8.675,
       "spy_regime": "FAVORABLE",
-      "best_score": 60.8,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "CONVICTION"
-    },
-    {
-      "ticker": "FNMA",
-      "current_price": 8.01,
-      "spy_regime": "FAVORABLE",
-      "best_score": 60.1,
+      "best_score": 60.7,
       "best_setup": "CHANNEL_GAP_BREAKOUT_LONG",
       "best_side": "LONG",
       "tier": "CONVICTION"
     },
     {
-      "ticker": "ELPW",
-      "current_price": 6.76,
+      "ticker": "TREX",
+      "current_price": 40.43,
+      "spy_regime": "FAVORABLE",
+      "best_score": 60.2,
+      "best_setup": "DOUBLE_REJECTION_SHORT",
+      "best_side": "SHORT",
+      "tier": "MARGINAL"
+    },
+    {
+      "ticker": "NONOF",
+      "current_price": 46.68,
+      "spy_regime": "FAVORABLE",
+      "best_score": 60.0,
+      "best_setup": "BEAR_REJECTION_PENDING",
+      "best_side": "SHORT",
+      "tier": "MARGINAL"
+    },
+    {
+      "ticker": "FCEL",
+      "current_price": 15.64,
       "spy_regime": "FAVORABLE",
       "best_score": 59.6,
       "best_setup": "BULL_BOUNCE_PENDING",
@@ -1813,8 +1660,35 @@
       "tier": "MARGINAL"
     },
     {
-      "ticker": "ABCL",
-      "current_price": 4.75,
+      "ticker": "SPCE",
+      "current_price": 2.84,
+      "spy_regime": "FAVORABLE",
+      "best_score": 59.5,
+      "best_setup": "DOUBLE_REJECTION_SHORT",
+      "best_side": "SHORT",
+      "tier": "MARGINAL"
+    },
+    {
+      "ticker": "PNTG",
+      "current_price": 36.16,
+      "spy_regime": "FAVORABLE",
+      "best_score": 59.5,
+      "best_setup": "DOUBLE_REJECTION_SHORT",
+      "best_side": "SHORT",
+      "tier": "MARGINAL"
+    },
+    {
+      "ticker": "INOD",
+      "current_price": 103.76,
+      "spy_regime": "FAVORABLE",
+      "best_score": 59.4,
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
+      "tier": "MARGINAL"
+    },
+    {
+      "ticker": "SLNH",
+      "current_price": 1.84,
       "spy_regime": "FAVORABLE",
       "best_score": 59.0,
       "best_setup": "BULL_BOUNCE_PENDING",
@@ -1822,8 +1696,8 @@
       "tier": "MARGINAL"
     },
     {
-      "ticker": "NEXT",
-      "current_price": 7.635,
+      "ticker": "HRB",
+      "current_price": 36.775,
       "spy_regime": "FAVORABLE",
       "best_score": 59.0,
       "best_setup": "BULL_BOUNCE_PENDING",
@@ -1831,44 +1705,26 @@
       "tier": "MARGINAL"
     },
     {
-      "ticker": "BNZI",
-      "current_price": 0.34295,
+      "ticker": "SFM",
+      "current_price": 81.785,
       "spy_regime": "FAVORABLE",
-      "best_score": 59.0,
+      "best_score": 58.9,
       "best_setup": "BULL_BOUNCE_PENDING",
       "best_side": "LONG",
       "tier": "MARGINAL"
     },
     {
-      "ticker": "WAI",
-      "current_price": 2.05,
+      "ticker": "URGN",
+      "current_price": 31.655,
       "spy_regime": "FAVORABLE",
-      "best_score": 58.4,
-      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_score": 57.5,
+      "best_setup": "CHANNEL_GAP_BREAKOUT_LONG",
       "best_side": "LONG",
       "tier": "MARGINAL"
     },
     {
-      "ticker": "LEGN",
-      "current_price": 28.48,
-      "spy_regime": "FAVORABLE",
-      "best_score": 58.0,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "MARGINAL"
-    },
-    {
-      "ticker": "OVID",
-      "current_price": 2.745,
-      "spy_regime": "FAVORABLE",
-      "best_score": 58.0,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "MARGINAL"
-    },
-    {
-      "ticker": "PFE",
-      "current_price": 26.52,
+      "ticker": "AMZE",
+      "current_price": 0.1262,
       "spy_regime": "FAVORABLE",
       "best_score": 57.0,
       "best_setup": "BULL_BOUNCE_PENDING",
@@ -1876,26 +1732,26 @@
       "tier": "MARGINAL"
     },
     {
-      "ticker": "PDYN",
-      "current_price": 6.1,
+      "ticker": "CLOV",
+      "current_price": 3.085,
       "spy_regime": "FAVORABLE",
-      "best_score": 56.5,
-      "best_setup": "BEAR_REJECTION_PENDING",
-      "best_side": "SHORT",
+      "best_score": 56.9,
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
       "tier": "MARGINAL"
     },
     {
-      "ticker": "AUR",
-      "current_price": 7.285,
+      "ticker": "IMVT",
+      "current_price": 29.685,
       "spy_regime": "FAVORABLE",
-      "best_score": 56.3,
+      "best_score": 56.9,
       "best_setup": "CHANNEL_GAP_BREAKOUT_LONG",
       "best_side": "LONG",
       "tier": "MARGINAL"
     },
     {
-      "ticker": "XNCR",
-      "current_price": 12.345,
+      "ticker": "SG",
+      "current_price": 6.785,
       "spy_regime": "FAVORABLE",
       "best_score": 56.3,
       "best_setup": "BEAR_REJECTION_PENDING",
@@ -1903,8 +1759,44 @@
       "tier": "MARGINAL"
     },
     {
-      "ticker": "BHVN",
-      "current_price": 9.715,
+      "ticker": "ALP",
+      "current_price": 0.223295,
+      "spy_regime": "FAVORABLE",
+      "best_score": 56.0,
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
+      "tier": "MARGINAL"
+    },
+    {
+      "ticker": "QURE",
+      "current_price": 27.025,
+      "spy_regime": "FAVORABLE",
+      "best_score": 56.0,
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
+      "tier": "MARGINAL"
+    },
+    {
+      "ticker": "UROY",
+      "current_price": 4.2,
+      "spy_regime": "FAVORABLE",
+      "best_score": 55.9,
+      "best_setup": "CHANNEL_GAP_BREAKOUT_LONG",
+      "best_side": "LONG",
+      "tier": "MARGINAL"
+    },
+    {
+      "ticker": "RUM",
+      "current_price": 8.04,
+      "spy_regime": "FAVORABLE",
+      "best_score": 55.7,
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
+      "tier": "MARGINAL"
+    },
+    {
+      "ticker": "PAYO",
+      "current_price": 5.23,
       "spy_regime": "FAVORABLE",
       "best_score": 55.6,
       "best_setup": "BULL_BOUNCE_PENDING",
@@ -1912,26 +1804,62 @@
       "tier": "MARGINAL"
     },
     {
-      "ticker": "DVLT",
-      "current_price": 0.4954,
+      "ticker": "ENGN",
+      "current_price": 1.57,
       "spy_regime": "FAVORABLE",
-      "best_score": 55.5,
+      "best_score": 55.3,
       "best_setup": "BULL_BOUNCE_PENDING",
       "best_side": "LONG",
       "tier": "MARGINAL"
     },
     {
-      "ticker": "AREB",
-      "current_price": 0.2321,
+      "ticker": "RUN",
+      "current_price": 14.83,
       "spy_regime": "FAVORABLE",
-      "best_score": 54.7,
-      "best_setup": "BEAR_REJECTION_PENDING",
-      "best_side": "SHORT",
+      "best_score": 55.0,
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
       "tier": "MARGINAL"
     },
     {
-      "ticker": "TPG",
-      "current_price": 44.57,
+      "ticker": "NAMS",
+      "current_price": 41.13,
+      "spy_regime": "FAVORABLE",
+      "best_score": 55.0,
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
+      "tier": "MARGINAL"
+    },
+    {
+      "ticker": "GPRE",
+      "current_price": 17.81,
+      "spy_regime": "FAVORABLE",
+      "best_score": 55.0,
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
+      "tier": "MARGINAL"
+    },
+    {
+      "ticker": "COCP",
+      "current_price": 1.34,
+      "spy_regime": "FAVORABLE",
+      "best_score": 55.0,
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
+      "tier": "MARGINAL"
+    },
+    {
+      "ticker": "UDMY",
+      "current_price": 4.6555,
+      "spy_regime": "FAVORABLE",
+      "best_score": 55.0,
+      "best_setup": "CHANNEL_RECLAIM_LONG",
+      "best_side": "LONG",
+      "tier": "MARGINAL"
+    },
+    {
+      "ticker": "RXT",
+      "current_price": 4.85,
       "spy_regime": "FAVORABLE",
       "best_score": 54.5,
       "best_setup": "BULL_BOUNCE_PENDING",
@@ -1939,17 +1867,26 @@
       "tier": "MARGINAL"
     },
     {
-      "ticker": "PNXP",
-      "current_price": 0.002255,
+      "ticker": "DIN",
+      "current_price": 28.76,
       "spy_regime": "FAVORABLE",
-      "best_score": 54.4,
+      "best_score": 53.6,
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
+      "tier": "MARGINAL"
+    },
+    {
+      "ticker": "AAL",
+      "current_price": 12.995,
+      "spy_regime": "FAVORABLE",
+      "best_score": 53.3,
       "best_setup": "BEAR_REJECTION_PENDING",
       "best_side": "SHORT",
       "tier": "MARGINAL"
     },
     {
-      "ticker": "AMOD",
-      "current_price": 0.2299,
+      "ticker": "NAVN",
+      "current_price": 18.27,
       "spy_regime": "FAVORABLE",
       "best_score": 53.0,
       "best_setup": "BULL_BOUNCE_PENDING",
@@ -1957,89 +1894,71 @@
       "tier": "MARGINAL"
     },
     {
-      "ticker": "GEVO",
-      "current_price": 1.985,
+      "ticker": "BHVN",
+      "current_price": 9.695,
       "spy_regime": "FAVORABLE",
-      "best_score": 53.0,
+      "best_score": 52.8,
       "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
+      "tier": "MARGINAL"
+    },
+    {
+      "ticker": "LQDA",
+      "current_price": 48.93,
+      "spy_regime": "FAVORABLE",
+      "best_score": 52.2,
+      "best_setup": "CHANNEL_GAP_BREAKOUT_LONG",
+      "best_side": "LONG",
+      "tier": "MARGINAL"
+    },
+    {
+      "ticker": "AIIO",
+      "current_price": 0.830001,
+      "spy_regime": "FAVORABLE",
+      "best_score": 52.0,
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
+      "tier": "MARGINAL"
+    },
+    {
+      "ticker": "RYZ",
+      "current_price": 26.995,
+      "spy_regime": "FAVORABLE",
+      "best_score": 51.9,
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
+      "tier": "MARGINAL"
+    },
+    {
+      "ticker": "EVC",
+      "current_price": 8.16,
+      "spy_regime": "FAVORABLE",
+      "best_score": 51.0,
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
+      "tier": "MARGINAL"
+    },
+    {
+      "ticker": "FLY",
+      "current_price": 38.205,
+      "spy_regime": "FAVORABLE",
+      "best_score": 50.0,
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
+      "tier": "MARGINAL"
+    },
+    {
+      "ticker": "BKKT",
+      "current_price": 10.118,
+      "spy_regime": "FAVORABLE",
+      "best_score": 50.0,
+      "best_setup": "CHANNEL_GAP_BREAKOUT_LONG",
       "best_side": "LONG",
       "tier": "MARGINAL"
     },
     {
       "ticker": "ASAN",
-      "current_price": 7.05,
-      "spy_regime": "FAVORABLE",
-      "best_score": 52.6,
-      "best_setup": "BEAR_REJECTION_PENDING",
-      "best_side": "SHORT",
-      "tier": "MARGINAL"
-    },
-    {
-      "ticker": "CYAB",
-      "current_price": 0.5618,
-      "spy_regime": "FAVORABLE",
-      "best_score": 52.0,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "MARGINAL"
-    },
-    {
-      "ticker": "SOWG",
-      "current_price": 1.16,
-      "spy_regime": "FAVORABLE",
-      "best_score": 52.0,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "MARGINAL"
-    },
-    {
-      "ticker": "MLTX",
-      "current_price": 17.165,
-      "spy_regime": "FAVORABLE",
-      "best_score": 52.0,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "MARGINAL"
-    },
-    {
-      "ticker": "SAFX",
-      "current_price": 0.4133,
-      "spy_regime": "FAVORABLE",
-      "best_score": 51.0,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "MARGINAL"
-    },
-    {
-      "ticker": "CABA",
-      "current_price": 3.927,
-      "spy_regime": "FAVORABLE",
-      "best_score": 51.0,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "MARGINAL"
-    },
-    {
-      "ticker": "OLED",
-      "current_price": 92.74,
-      "spy_regime": "FAVORABLE",
-      "best_score": 50.0,
-      "best_setup": "BEAR_REJECTION_PENDING",
-      "best_side": "SHORT",
-      "tier": "MARGINAL"
-    },
-    {
-      "ticker": "INHD",
-      "current_price": 1.675,
-      "spy_regime": "FAVORABLE",
-      "best_score": 49.5,
-      "best_setup": "BULL_BOUNCE_PENDING",
-      "best_side": "LONG",
-      "tier": "MARGINAL"
-    },
-    {
-      "ticker": "CCCC",
-      "current_price": 3.0,
+      "current_price": 6.465,
       "spy_regime": "FAVORABLE",
       "best_score": 49.1,
       "best_setup": "BULL_BOUNCE_PENDING",
@@ -2047,26 +1966,26 @@
       "tier": "MARGINAL"
     },
     {
-      "ticker": "BIYA",
-      "current_price": 1.175,
+      "ticker": "PNXP",
+      "current_price": 0.0029,
       "spy_regime": "FAVORABLE",
-      "best_score": 49.0,
-      "best_setup": "CHANNEL_RECLAIM_LONG",
-      "best_side": "LONG",
+      "best_score": 48.7,
+      "best_setup": "BEAR_REJECTION_PENDING",
+      "best_side": "SHORT",
       "tier": "MARGINAL"
     },
     {
-      "ticker": "TEAM",
-      "current_price": 93.64,
+      "ticker": "OFRM",
+      "current_price": 15.3,
       "spy_regime": "FAVORABLE",
-      "best_score": 49.0,
+      "best_score": 48.0,
       "best_setup": "BULL_BOUNCE_PENDING",
       "best_side": "LONG",
       "tier": "MARGINAL"
     },
     {
-      "ticker": "ABSI",
-      "current_price": 5.58,
+      "ticker": "RKT",
+      "current_price": 15.18,
       "spy_regime": "FAVORABLE",
       "best_score": 47.0,
       "best_setup": "BULL_BOUNCE_PENDING",
@@ -2074,8 +1993,44 @@
       "tier": "MARGINAL"
     },
     {
+      "ticker": "PURR",
+      "current_price": 6.28,
+      "spy_regime": "FAVORABLE",
+      "best_score": 47.0,
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
+      "tier": "MARGINAL"
+    },
+    {
+      "ticker": "DVLT",
+      "current_price": 0.5556,
+      "spy_regime": "FAVORABLE",
+      "best_score": 46.0,
+      "best_setup": "BULL_BOUNCE_PENDING",
+      "best_side": "LONG",
+      "tier": "MARGINAL"
+    },
+    {
+      "ticker": "YMAT",
+      "current_price": 0.441,
+      "spy_regime": "FAVORABLE",
+      "best_score": 45.1,
+      "best_setup": "BEAR_REJECTION_PENDING",
+      "best_side": "SHORT",
+      "tier": "MARGINAL"
+    },
+    {
+      "ticker": "GDC",
+      "current_price": 0.122,
+      "spy_regime": "FAVORABLE",
+      "best_score": 44.0,
+      "best_setup": "BEAR_REJECTION_PENDING",
+      "best_side": "SHORT",
+      "tier": "MARGINAL"
+    },
+    {
       "ticker": "HUBC",
-      "current_price": 0.2448,
+      "current_price": 0.175,
       "spy_regime": "FAVORABLE",
       "best_score": 44.0,
       "best_setup": "BEAR_REJECTION_PENDING",
@@ -2083,8 +2038,8 @@
       "tier": "MARGINAL"
     },
     {
-      "ticker": "LZMH",
-      "current_price": 0.0952,
+      "ticker": "BOBS",
+      "current_price": 13.16,
       "spy_regime": "FAVORABLE",
       "best_score": 44.0,
       "best_setup": "BEAR_REJECTION_PENDING",
@@ -2092,26 +2047,35 @@
       "tier": "MARGINAL"
     },
     {
-      "ticker": "SIDU",
-      "current_price": 2.955,
+      "ticker": "FBLG",
+      "current_price": 1.0,
       "spy_regime": "FAVORABLE",
-      "best_score": 43.7,
+      "best_score": 44.0,
       "best_setup": "BEAR_REJECTION_PENDING",
       "best_side": "SHORT",
       "tier": "MARGINAL"
     },
     {
-      "ticker": "ENGN",
-      "current_price": 1.735,
+      "ticker": "SRFM",
+      "current_price": 1.455,
       "spy_regime": "FAVORABLE",
-      "best_score": 41.9,
+      "best_score": 44.0,
       "best_setup": "BEAR_REJECTION_PENDING",
       "best_side": "SHORT",
       "tier": "MARGINAL"
     },
     {
-      "ticker": "EZGO",
-      "current_price": 0.071,
+      "ticker": "KIDZ",
+      "current_price": 0.5349,
+      "spy_regime": "FAVORABLE",
+      "best_score": 43.1,
+      "best_setup": "BEAR_REJECTION_PENDING",
+      "best_side": "SHORT",
+      "tier": "MARGINAL"
+    },
+    {
+      "ticker": "ENSC",
+      "current_price": 0.3036,
       "spy_regime": "FAVORABLE",
       "best_score": 40.0,
       "best_setup": "BEAR_REJECTION_PENDING",
@@ -2119,17 +2083,8 @@
       "tier": "MARGINAL"
     },
     {
-      "ticker": "SKYQ",
-      "current_price": 4.06,
-      "spy_regime": "FAVORABLE",
-      "best_score": 40.0,
-      "best_setup": "BEAR_REJECTION_PENDING",
-      "best_side": "SHORT",
-      "tier": "MARGINAL"
-    },
-    {
-      "ticker": "SOBR",
-      "current_price": 1.655,
+      "ticker": "ODYS",
+      "current_price": 7.38,
       "spy_regime": "FAVORABLE",
       "best_score": 39.5,
       "best_setup": "BEAR_REJECTION_PENDING",
@@ -2137,31 +2092,13 @@
       "tier": "MARGINAL"
     },
     {
-      "ticker": "SOAR",
-      "current_price": 0.20295,
+      "ticker": "HAO",
+      "current_price": 0.0546,
       "spy_regime": "FAVORABLE",
-      "best_score": 32.0,
+      "best_score": 34.2,
       "best_setup": "BEAR_REJECTION_PENDING",
       "best_side": "SHORT",
       "tier": "MARGINAL"
-    },
-    {
-      "ticker": "GDC",
-      "current_price": 0.158,
-      "spy_regime": "FAVORABLE",
-      "best_score": 0,
-      "best_setup": null,
-      "best_side": null,
-      "tier": "NONE"
-    },
-    {
-      "ticker": "KMDRF",
-      "current_price": 0.0001,
-      "spy_regime": "FAVORABLE",
-      "best_score": 0,
-      "best_setup": null,
-      "best_side": null,
-      "tier": "NONE"
     },
     {
       "ticker": "SNWR",
@@ -2173,8 +2110,35 @@
       "tier": "NONE"
     },
     {
+      "ticker": "WOK",
+      "current_price": 0.25,
+      "spy_regime": "FAVORABLE",
+      "best_score": 0,
+      "best_setup": null,
+      "best_side": null,
+      "tier": "NONE"
+    },
+    {
       "ticker": "GRCO",
       "current_price": 0.0001,
+      "spy_regime": "FAVORABLE",
+      "best_score": 0,
+      "best_setup": null,
+      "best_side": null,
+      "tier": "NONE"
+    },
+    {
+      "ticker": "VICA",
+      "current_price": 0.001,
+      "spy_regime": "FAVORABLE",
+      "best_score": 0,
+      "best_setup": null,
+      "best_side": null,
+      "tier": "NONE"
+    },
+    {
+      "ticker": "CCCFF",
+      "current_price": 0.004,
       "spy_regime": "FAVORABLE",
       "best_score": 0,
       "best_setup": null,
