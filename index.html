@@ -872,7 +872,7 @@ document.addEventListener('click', function(e){
   if(!tk) return;
   e.preventDefault();
   e.stopPropagation();
-  window.open('https://www.tradingview.com/chart/?symbol=' + encodeURIComponent(tk), '_blank', 'noopener');
+  window.open('https://www.tradingview.com/chart/a3HJQgVX/?symbol=' + encodeURIComponent(tk), '_blank', 'noopener');
 });
 
 function _renderAbookCard(r, idx, risk, cohort){
@@ -2492,6 +2492,78 @@ function _neStageRank(stage){
   return 0;
 }
 
+function _neQualityStratification(rows){
+  // Group BOUNCED records by bounce_tier, compute WR + avg return at 5d/10d/20d.
+  const horizons = ['fwd_ret_5d', 'fwd_ret_10d', 'fwd_ret_20d'];
+  const tiers = ['HIGH', 'MID', 'LOW', 'NEGATIVE'];
+  const tierStats = {};
+  let totalBounced = 0;
+  let totalLabeled = 0;
+  for(const r of rows){
+    const stage = r.stage || '';
+    if(!stage.startsWith('BOUNCED')) continue;
+    totalBounced++;
+    const tier = r.bounce_tier;
+    if(!tier) continue;
+    if(!tierStats[tier]) tierStats[tier] = {h5:[], h10:[], h20:[]};
+    for(const h of horizons){
+      const v = r[h];
+      if(v === null || v === undefined) continue;
+      const k = h === 'fwd_ret_5d' ? 'h5' : h === 'fwd_ret_10d' ? 'h10' : 'h20';
+      tierStats[tier][k].push(parseFloat(v));
+      if(k === 'h5') totalLabeled++;
+    }
+  }
+  function fmtCell(vals){
+    if(!vals || !vals.length) return '<span style="color:#3a4356">—</span>';
+    const wr = vals.filter(v => v > 0).length / vals.length * 100;
+    const avg = vals.reduce((a,b) => a+b, 0) / vals.length * 100;
+    const col = avg >= 1 ? '#22c55e' : avg <= -1 ? '#ef4444' : '#94a3b8';
+    return `<span style="color:${col}"><b>${wr.toFixed(0)}%</b> ${avg >= 0 ? '+' : ''}${avg.toFixed(1)}%</span>`;
+  }
+  function tierColor(t){
+    if(t === 'HIGH') return '#22c55e';
+    if(t === 'MID') return '#fbbf24';
+    if(t === 'LOW') return '#94a3b8';
+    if(t === 'NEGATIVE') return '#ef4444';
+    return '#6b7280';
+  }
+  const tableRows = tiers.map(t => {
+    const s = tierStats[t];
+    if(!s) return `<tr style="color:#3a4356"><td style="padding:3px 8px">${t}</td><td style="padding:3px 8px;text-align:right">0</td><td colspan="3" style="padding:3px 8px;text-align:center;font-style:italic">no records</td></tr>`;
+    const n = Math.max(s.h5.length, s.h10.length, s.h20.length);
+    return `<tr>
+      <td style="padding:3px 8px;color:${tierColor(t)};font-weight:700">${t}</td>
+      <td style="padding:3px 8px;text-align:right;color:#94a3b8">${n}</td>
+      <td style="padding:3px 8px;text-align:right;font-family:monospace">${fmtCell(s.h5)}</td>
+      <td style="padding:3px 8px;text-align:right;font-family:monospace">${fmtCell(s.h10)}</td>
+      <td style="padding:3px 8px;text-align:right;font-family:monospace">${fmtCell(s.h20)}</td>
+    </tr>`;
+  }).join('');
+  return `
+    <div style="grid-column:1 / -1;background:#0d1117;border:1px solid #34d39966;border-radius:6px;padding:8px 12px;margin-bottom:10px">
+      <div style="font-size:11px;color:#34d399;font-weight:700;letter-spacing:.5px;margin-bottom:6px">
+        ⚖ BOUNCE QUALITY STRATIFICATION
+        <span style="color:#6b7280;font-weight:500;margin-left:6px">(${totalBounced} BOUNCED records, ${totalLabeled} with 5d outcome)</span>
+      </div>
+      <table style="width:100%;border-collapse:collapse;font-size:11px">
+        <thead>
+          <tr style="color:#6b7280;font-weight:600;border-bottom:1px solid #21262d">
+            <th style="padding:3px 8px;text-align:left">TIER</th>
+            <th style="padding:3px 8px;text-align:right">N</th>
+            <th style="padding:3px 8px;text-align:right">WR_5d / AVG</th>
+            <th style="padding:3px 8px;text-align:right">WR_10d / AVG</th>
+            <th style="padding:3px 8px;text-align:right">WR_20d / AVG</th>
+          </tr>
+        </thead>
+        <tbody>${tableRows}</tbody>
+      </table>
+      <div style="font-size:9px;color:#6b7280;margin-top:4px">
+        Quality score from vol, prior consumption, OBV, climax/exhaustion flags, sector tailwind. NEGATIVE = skip. See CONTRACT notes.
+      </div>
+    </div>`;
+}
+
 async function renderNarrativeEvolution(){
   const grid = document.getElementById('narrative-grid');
   const empty = document.getElementById('narrative-empty');
@@ -2507,6 +2579,10 @@ async function renderNarrativeEvolution(){
     return;
   }
   empty.style.display = 'none';
+
+  // Bounce quality stratification table (added 2026-05-13)
+  // Renders above the per-ticker chains so traders see the meta-signal first.
+  const stratHtml = _neQualityStratification(rows);
 
   // Group by ticker — keep chronological by date
   const byTicker = {};
@@ -2571,7 +2647,7 @@ async function renderNarrativeEvolution(){
   sumEl.textContent = `${filtered.length} tickers · ${rows.length} journal records · ` +
     `${new Set(rows.map(r => r.date)).size} days observed`;
 
-  grid.innerHTML = filtered.slice(0, 60).map(t => {
+  grid.innerHTML = stratHtml + filtered.slice(0, 60).map(t => {
     const arrow = ' <span style="color:#34d399;font-weight:700;margin:0 4px">→</span> ';
     const chainHtml = t.chain.map(c => {
       const col = _neStageColor(c.stage);
