@@ -2452,15 +2452,24 @@ let NARRATIVE_JOURNAL = null;
 async function loadNarrativeJournal(){
   if(NARRATIVE_JOURNAL !== null) return NARRATIVE_JOURNAL;
   try{
-    const url = 'https://raw.githubusercontent.com/ideggplant/fem-dashboard/main/scans/fem_ticker_journal.jsonl?t=' + Date.now();
+    // Use the same GH_RAW base the rest of the dashboard uses
+    const url = GH_RAW + 'fem_ticker_journal.jsonl?t=' + Date.now();
+    console.log('[NarrativeEvolution] fetching', url);
     const res = await fetch(url);
-    if(!res.ok){ NARRATIVE_JOURNAL = []; return NARRATIVE_JOURNAL; }
+    console.log('[NarrativeEvolution] response status', res.status);
+    if(!res.ok){
+      console.warn('[NarrativeEvolution] fetch failed', res.status, url);
+      NARRATIVE_JOURNAL = [];
+      return NARRATIVE_JOURNAL;
+    }
     const text = await res.text();
+    console.log('[NarrativeEvolution] received', text.length, 'bytes');
     NARRATIVE_JOURNAL = text.trim().split('\n').map(l => {
       try { return JSON.parse(l); } catch(e){ return null; }
     }).filter(r => r);
+    console.log('[NarrativeEvolution] parsed', NARRATIVE_JOURNAL.length, 'records');
   } catch(e){
-    console.warn('Narrative journal fetch failed', e);
+    console.warn('[NarrativeEvolution] journal fetch threw', e);
     NARRATIVE_JOURNAL = [];
   }
   return NARRATIVE_JOURNAL;
