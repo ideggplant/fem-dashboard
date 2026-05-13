@@ -271,22 +271,26 @@ tr:hover td{background:#1a2533}
   <div id="rejrevisit-empty" style="display:none;color:#6b7280;font-size:11px;font-style:italic;padding:12px;text-align:center">No rejection-revisit stories yet today. Run REJECTION_REVISIT_RADAR.bat or wait for the autonomous run.</div>
 </div>
 
-<!-- NARRATIVE EVOLUTION (longitudinal journal replay) added 2026-05-06 -->
+<!-- NARRATIVE EVOLUTION (longitudinal journal replay) — render added 2026-05-13 -->
 <div id="narrative-evolution" style="padding:12px 18px;background:linear-gradient(180deg,#1a2e1f 0%,#0d1117 100%);border-bottom:2px solid #34d399">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-    <div style="font-size:13px;font-weight:700;color:#34d399;letter-spacing:1px">&#128260; NARRATIVE EVOLUTION <span style="font-size:10px;color:#6b7280;font-weight:500;letter-spacing:0;margin-left:8px">longitudinal stage replay &middot; journal-driven &middot; A &rarr; B &rarr; C chains over time</span></div>
-    <div id="ne-summary" style="font-size:10px;color:#6b7280">data accumulating</div>
+    <div style="font-size:13px;font-weight:700;color:#34d399;letter-spacing:1px">🔄 NARRATIVE EVOLUTION <span style="font-size:10px;color:#6b7280;font-weight:500;letter-spacing:0;margin-left:8px">longitudinal stage replay · journal-driven · A → B → C chains over time</span></div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <label style="font-size:10px;color:#6b7280">filter
+        <select id="ne-filter" onchange="renderNarrativeEvolution()" style="background:#161b22;border:1px solid #30363d;color:#e2e8f0;padding:2px 6px;border-radius:3px;font-size:10px;margin-left:4px">
+          <option value="all">all</option>
+          <option value="advanced">advanced (≥2 stages)</option>
+          <option value="completed">completed (ALL_EATEN)</option>
+          <option value="stalled">stalled (no change in 3+ days)</option>
+        </select>
+      </label>
+      <div id="ne-summary" style="font-size:10px;color:#6b7280">—</div>
+    </div>
   </div>
-  <div style="background:#0d1117;border:1px dashed #34d39955;border-radius:6px;padding:24px 18px;text-align:center;color:#6b7280;font-size:11px;line-height:1.6">
-    <div style="font-size:13px;color:#34d399;font-weight:600;margin-bottom:6px">Journal collecting per-ticker stage history nightly.</div>
-    Once 5&ndash;7 days of data accumulate, this panel renders multi-day narrative chains:<br>
-    BOUNCED_WAITING &rarr; EATING_X/Y &rarr; ALL_EATEN, with timing, conviction evolution, and stall detection.<br>
-    <br>
-    <span style="font-family:monospace;font-size:10px;color:#94a3b8">Source: Master Fem Fresh Scans/fem_ticker_journal.jsonl</span><br>
-    <span style="font-family:monospace;font-size:10px;color:#94a3b8">CLI: python fem_ticker_journal.py &lt;TICKER&gt;</span><br>
-    <span style="font-family:monospace;font-size:10px;color:#94a3b8">CLI: python fem_ticker_journal.py --chain BOUNCED_CLEAN ALL_EATEN</span><br>
-    <span style="font-family:monospace;font-size:10px;color:#94a3b8">CLI: python fem_ticker_journal.py --stats</span>
+  <div id="narrative-empty" style="display:none;background:#0d1117;border:1px dashed #34d39955;border-radius:6px;padding:18px;text-align:center;color:#6b7280;font-size:11px">
+    Journal not yet loaded — run <span style="font-family:monospace;color:#94a3b8">push_scans.py</span> to upload <span style="font-family:monospace;color:#94a3b8">fem_ticker_journal.jsonl</span> to GitHub.
   </div>
+  <div id="narrative-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:8px"></div>
 </div>
 
 <div id="alignment" style="padding:12px 18px;background:linear-gradient(180deg,#2a1f3a 0%,#0d1117 100%);border-bottom:2px solid #e879f9;display:none">
@@ -2440,6 +2444,143 @@ async function loadFamAttributionPanel(famAttrEntries){
   }
 }
 
+// ── NARRATIVE EVOLUTION panel (longitudinal stage chains from journal) ───
+// Loads fem_ticker_journal.jsonl from /scans/, groups by ticker, sorts by
+// date, renders one row per ticker with chronological stage chain.
+let NARRATIVE_JOURNAL = null;
+
+async function loadNarrativeJournal(){
+  if(NARRATIVE_JOURNAL !== null) return NARRATIVE_JOURNAL;
+  try{
+    const url = 'https://raw.githubusercontent.com/ideggplant/fem-dashboard/main/scans/fem_ticker_journal.jsonl?t=' + Date.now();
+    const res = await fetch(url);
+    if(!res.ok){ NARRATIVE_JOURNAL = []; return NARRATIVE_JOURNAL; }
+    const text = await res.text();
+    NARRATIVE_JOURNAL = text.trim().split('\n').map(l => {
+      try { return JSON.parse(l); } catch(e){ return null; }
+    }).filter(r => r);
+  } catch(e){
+    console.warn('Narrative journal fetch failed', e);
+    NARRATIVE_JOURNAL = [];
+  }
+  return NARRATIVE_JOURNAL;
+}
+
+function _neStageColor(stage){
+  if(!stage) return '#94a3b8';
+  if(stage === 'ALL_EATEN') return '#22c55e';
+  if(stage.startsWith('EATING_')) return '#34d399';
+  if(stage === 'BOUNCED_CLEAN') return '#fbbf24';
+  if(stage === 'BOUNCED_WAITING') return '#94a3b8';
+  return '#a78bfa';
+}
+
+function _neStageRank(stage){
+  if(stage === 'ALL_EATEN') return 4;
+  if(stage && stage.startsWith('EATING_')) return 3;
+  if(stage === 'BOUNCED_CLEAN') return 2;
+  if(stage === 'BOUNCED_WAITING') return 1;
+  return 0;
+}
+
+async function renderNarrativeEvolution(){
+  const grid = document.getElementById('narrative-grid');
+  const empty = document.getElementById('narrative-empty');
+  const sumEl = document.getElementById('ne-summary');
+  const filterEl = document.getElementById('ne-filter');
+  const filter = filterEl ? filterEl.value : 'all';
+
+  const rows = await loadNarrativeJournal();
+  if(!rows || !rows.length){
+    empty.style.display = 'block';
+    grid.innerHTML = '';
+    sumEl.textContent = '—';
+    return;
+  }
+  empty.style.display = 'none';
+
+  // Group by ticker — keep chronological by date
+  const byTicker = {};
+  for(const r of rows){
+    const t = (r.ticker || '').toUpperCase();
+    if(!t) continue;
+    if(!byTicker[t]) byTicker[t] = [];
+    byTicker[t].push(r);
+  }
+  // Sort each ticker's history by date asc, dedupe consecutive identical stages
+  // (the same ticker can have multiple records per day — keep one transition)
+  const tickers = [];
+  for(const [t, history] of Object.entries(byTicker)){
+    history.sort((a,b)=> (a.date||'').localeCompare(b.date||''));
+    const chain = [];
+    let prevStage = null;
+    for(const r of history){
+      const stage = r.stage || '';
+      if(stage !== prevStage){
+        chain.push({date: r.date, stage, snapshot_price: r.snapshot_price,
+                    conviction: r.conviction, vol: r.today_vol_pct_of_avg});
+        prevStage = stage;
+      }
+    }
+    if(chain.length === 0) continue;
+    const last = chain[chain.length - 1];
+    const first = chain[0];
+    const daysObserved = chain.length === 1 ? 0 :
+      Math.round((new Date(last.date) - new Date(first.date)) / 86400000);
+    tickers.push({
+      ticker: t,
+      chain,
+      n_stages: chain.length,
+      last_stage: last.stage,
+      last_date: last.date,
+      first_date: first.date,
+      days_observed: daysObserved,
+      max_rank: Math.max(...chain.map(c => _neStageRank(c.stage))),
+    });
+  }
+
+  // Filter
+  const today = new Date().toISOString().slice(0,10);
+  function isStalled(t){
+    if(t.chain.length < 2) return false;
+    const last = t.chain[t.chain.length - 1];
+    const daysSinceLastChange = Math.round((new Date(today) - new Date(last.date)) / 86400000);
+    return daysSinceLastChange >= 3;
+  }
+  let filtered = tickers;
+  if(filter === 'advanced')  filtered = tickers.filter(t => t.n_stages >= 2);
+  else if(filter === 'completed') filtered = tickers.filter(t => t.last_stage === 'ALL_EATEN');
+  else if(filter === 'stalled') filtered = tickers.filter(t => isStalled(t) && t.n_stages >= 1);
+
+  // Sort: highest stage reached first, then most chain links, then most recent
+  filtered.sort((a,b) =>
+    b.max_rank - a.max_rank ||
+    b.n_stages - a.n_stages ||
+    (b.last_date || '').localeCompare(a.last_date || '')
+  );
+
+  sumEl.textContent = `${filtered.length} tickers · ${rows.length} journal records · ` +
+    `${new Set(rows.map(r => r.date)).size} days observed`;
+
+  grid.innerHTML = filtered.slice(0, 60).map(t => {
+    const arrow = ' <span style="color:#34d399;font-weight:700;margin:0 4px">→</span> ';
+    const chainHtml = t.chain.map(c => {
+      const col = _neStageColor(c.stage);
+      const dateShort = (c.date || '').slice(5);   // MM-DD
+      const px = c.snapshot_price ? `$${parseFloat(c.snapshot_price).toFixed(2)}` : '';
+      return `<span style="display:inline-block;background:#161b22;border:1px solid ${col}66;color:${col};padding:2px 7px;border-radius:3px;font-size:10px;font-family:monospace;margin:2px 0">${dateShort} ${c.stage} ${px}</span>`;
+    }).join(arrow);
+    const stallTag = isStalled(t) ? '<span style="color:#ef4444;font-size:9px;margin-left:6px">STALLED</span>' : '';
+    return `<div style="background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:10px 12px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
+        <span style="font-size:14px;font-weight:800;color:#34d399;letter-spacing:.5px" data-tv="${t.ticker}">${t.ticker}</span>
+        <span style="font-size:10px;color:#6b7280">${t.n_stages} stage(s) · ${t.days_observed}d ${stallTag}</span>
+      </div>
+      <div style="line-height:1.8">${chainHtml}</div>
+    </div>`;
+  }).join('');
+}
+
 // ── Rejection-Revisit Radar panel (narrative tracker) ───────────────────────
 async function loadRejRevisitPanel(entries){
   const panel = document.getElementById('rejrevisit');
@@ -2771,6 +2912,7 @@ async function processFiles(entries){
   await loadFamAttributionPanel(famAttrEntries);
   await loadConvergencePanel(convergenceEntries);
   await loadStateLookupPanel();
+  await renderNarrativeEvolution();
 
   // Load check files -> outcome map
   const outcomeMap = {};
