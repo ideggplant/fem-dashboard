@@ -872,7 +872,17 @@ document.addEventListener('click', function(e){
   if(!tk) return;
   e.preventDefault();
   e.stopPropagation();
-  window.open('https://www.tradingview.com/chart/a3HJQgVX/?symbol=' + encodeURIComponent(tk), '_blank', 'noopener');
+  // Use anchor element so the browser preserves session cookies → TV
+  // honors the chart_id (a3HJQgVX) instead of redirecting to a default.
+  // `noopener` was stripping the referrer/session context and TV was
+  // falling back to a generic chart layout.
+  const a = document.createElement('a');
+  a.href = 'https://www.tradingview.com/chart/a3HJQgVX/?symbol=' + encodeURIComponent(tk);
+  a.target = '_blank';
+  a.rel = 'noreferrer';   // intentionally OMIT noopener so TV session passes through
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 });
 
 function _renderAbookCard(r, idx, risk, cohort){
@@ -2624,7 +2634,7 @@ async function renderNarrativeEvolution(){
     });
   }
 
-  // Filter
+  // Filter / classify
   const today = new Date().toISOString().slice(0,10);
   function isStalled(t){
     if(t.chain.length < 2) return false;
@@ -2632,39 +2642,113 @@ async function renderNarrativeEvolution(){
     const daysSinceLastChange = Math.round((new Date(today) - new Date(last.date)) / 86400000);
     return daysSinceLastChange >= 3;
   }
-  let filtered = tickers;
-  if(filter === 'advanced')  filtered = tickers.filter(t => t.n_stages >= 2);
-  else if(filter === 'completed') filtered = tickers.filter(t => t.last_stage === 'ALL_EATEN');
-  else if(filter === 'stalled') filtered = tickers.filter(t => isStalled(t) && t.n_stages >= 1);
+  function justAdvanced(t){
+    // True if the chain extended in the last 2 days
+    if(t.chain.length < 2) return false;
+    const last = t.chain[t.chain.length - 1];
+    const daysSinceLastChange = Math.round((new Date(today) - new Date(last.date)) / 86400000);
+    return daysSinceLastChange <= 2;
+  }
 
   // Sort: highest stage reached first, then most chain links, then most recent
-  filtered.sort((a,b) =>
+  tickers.sort((a,b) =>
     b.max_rank - a.max_rank ||
     b.n_stages - a.n_stages ||
     (b.last_date || '').localeCompare(a.last_date || '')
   );
 
-  sumEl.textContent = `${filtered.length} tickers · ${rows.length} journal records · ` +
-    `${new Set(rows.map(r => r.date)).size} days observed`;
+  // ── BUCKET into actionable sections ───────────────────────────────────
+  // The old design dumped 100+ single-stage BOUNCED_WAITING cards in one
+  // grid — pure noise. New layout: 4 prioritized sections + collapsed rest.
+  const activeEating = tickers.filter(t => t.max_rank >= 3);          // EATING_* or ALL_EATEN
+  const freshTransitions = tickers.filter(t =>
+    t.max_rank < 3 && t.n_stages >= 2 && justAdvanced(t));
+  const stalled = tickers.filter(t => t.max_rank < 3 && t.n_stages >= 1 && isStalled(t));
+  const singleStage = tickers.filter(t => t.n_stages === 1 && !isStalled(t));
 
-  grid.innerHTML = stratHtml + filtered.slice(0, 60).map(t => {
-    const arrow = ' <span style="color:#34d399;font-weight:700;margin:0 4px">→</span> ';
+  let visibleTickers = [];
+  if(filter === 'advanced')        visibleTickers = tickers.filter(t => t.n_stages >= 2);
+  else if(filter === 'completed')  visibleTickers = tickers.filter(t => t.last_stage === 'ALL_EATEN');
+  else if(filter === 'stalled')    visibleTickers = stalled;
+  else                              visibleTickers = tickers;   // 'all'
+
+  sumEl.textContent = `${tickers.length} tickers · ${rows.length} records · ` +
+    `${new Set(rows.map(r => r.date)).size}d`;
+
+  // ── Compact single-line row renderer ──────────────────────────────────
+  function renderCompactRow(t, opts){
+    opts = opts || {};
+    const tier = t.chain[t.chain.length - 1].bounce_tier || '';
+    const tierCol = tier === 'HIGH' ? '#22c55e' : tier === 'MID' ? '#fbbf24'
+                  : tier === 'LOW' ? '#94a3b8' : tier === 'NEGATIVE' ? '#ef4444' : '#6b7280';
+    const arrow = ' <span style="color:#3a4356;margin:0 4px">→</span> ';
     const chainHtml = t.chain.map(c => {
       const col = _neStageColor(c.stage);
-      const dateShort = (c.date || '').slice(5);   // MM-DD
+      const dateShort = (c.date || '').slice(5);
       const px = c.snapshot_price ? `$${parseFloat(c.snapshot_price).toFixed(2)}` : '';
-      return `<span style="display:inline-block;background:#161b22;border:1px solid ${col}66;color:${col};padding:2px 7px;border-radius:3px;font-size:10px;font-family:monospace;margin:2px 0">${dateShort} ${c.stage} ${px}</span>`;
+      return `<span style="color:${col};font-family:monospace;font-size:10px">${dateShort} ${c.stage} ${px}</span>`;
     }).join(arrow);
-    const stallTag = isStalled(t) ? '<span style="color:#ef4444;font-size:9px;margin-left:6px">STALLED</span>' : '';
-    return `<div style="background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:10px 12px">
-      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
-        <span style="font-size:14px;font-weight:800;color:#34d399;letter-spacing:.5px" data-tv="${t.ticker}">${t.ticker}</span>
-        <span style="font-size:10px;color:#6b7280">${t.n_stages} stage(s) · ${t.days_observed}d ${stallTag}</span>
-      </div>
-      <div style="line-height:1.8">${chainHtml}</div>
+    const stallTag = isStalled(t) ? ' <span style="color:#ef4444;font-size:9px">⚠STALL</span>' : '';
+    const tierTag = tier ? `<span style="display:inline-block;background:${tierCol}22;color:${tierCol};border:1px solid ${tierCol}77;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700;margin-left:6px">${tier}</span>` : '';
+    return `<div style="display:flex;align-items:center;padding:5px 10px;border-bottom:1px solid #21262d;gap:10px;font-size:11px">
+      <span style="font-weight:700;color:#e2e8f0;width:80px;flex-shrink:0" data-tv="${t.ticker}">${t.ticker}</span>
+      <span style="flex:1;line-height:1.4">${chainHtml}</span>
+      ${tierTag}
+      <span style="color:#6b7280;font-size:9px;width:50px;text-align:right;flex-shrink:0">${t.days_observed}d${stallTag}</span>
     </div>`;
-  }).join('');
+  }
+
+  function sectionHtml(title, color, items, emptyMsg){
+    if(!items.length){
+      return `<div style="margin-bottom:14px">
+        <div style="font-size:11px;font-weight:700;color:${color};letter-spacing:1px;padding:6px 10px;border-bottom:2px solid ${color}55;margin-bottom:4px">${title} <span style="color:#6b7280;font-weight:500;letter-spacing:0">— 0</span></div>
+        <div style="color:#3a4356;font-size:10px;font-style:italic;padding:6px 10px">${emptyMsg}</div>
+      </div>`;
+    }
+    return `<div style="margin-bottom:14px">
+      <div style="font-size:11px;font-weight:700;color:${color};letter-spacing:1px;padding:6px 10px;border-bottom:2px solid ${color}55;margin-bottom:4px">${title} <span style="color:#6b7280;font-weight:500;letter-spacing:0">— ${items.length}</span></div>
+      <div style="background:#0d1117;border-radius:6px;border:1px solid #21262d">
+        ${items.map(t => renderCompactRow(t)).join('')}
+      </div>
+    </div>`;
+  }
+
+  // If user picked a specific filter (advanced/completed/stalled), just show that list
+  if(filter !== 'all'){
+    grid.style.gridTemplateColumns = '1fr';   // single column for sectioned view
+    grid.innerHTML = stratHtml + sectionHtml(
+      `FILTERED: ${filter.toUpperCase()}`, '#34d399',
+      visibleTickers,
+      'no records match this filter'
+    );
+    return;
+  }
+
+  // Default 'all' view: sectioned layout
+  grid.style.gridTemplateColumns = '1fr';
+  grid.innerHTML = stratHtml +
+    sectionHtml('🎯 ACTIVE EATING / COMPLETED', '#22c55e', activeEating,
+      'no tickers in EATING / ALL_EATEN yet — the recovery arc is rare') +
+    sectionHtml('⚡ FRESH TRANSITIONS (last 2 days)', '#fbbf24', freshTransitions,
+      'no chain extended in the last 2 days') +
+    sectionHtml('⚠ STALLED (no progress 3+ days)', '#ef4444', stalled,
+      'no stalled chains') +
+    `<div style="margin-bottom:14px">
+      <div style="font-size:11px;font-weight:700;color:#6b7280;letter-spacing:1px;padding:6px 10px;border-bottom:2px solid #21262d;margin-bottom:4px">
+        📋 SINGLE-STAGE (first sighting, no chain yet) — ${singleStage.length}
+        <span style="color:#3a4356;font-weight:500;margin-left:6px;letter-spacing:0">noise — use 'advanced' filter to hide</span>
+      </div>
+      <div style="color:#3a4356;font-size:10px;padding:6px 10px">
+        ${singleStage.length} tickers tracked but haven't transitioned yet.
+        Most stay here — only 1.6% historically advance to EATING.
+      </div>
+    </div>`;
+  return;
 }
+
+// Old per-ticker card-grid render replaced 2026-05-13 with the sectioned
+// layout above. The new layout buckets tickers into ACTIVE EATING / FRESH
+// TRANSITIONS / STALLED / SINGLE-STAGE so the noise doesn't drown the signal.
 
 // ── Rejection-Revisit Radar panel (narrative tracker) ───────────────────────
 async function loadRejRevisitPanel(entries){
