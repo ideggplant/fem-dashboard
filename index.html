@@ -295,6 +295,16 @@ tr:hover td{background:#1a2533}
   <div id="famattr-empty" style="display:none;color:#6b7280;font-size:11px;font-style:italic;padding:12px;text-align:center">No FAM attribution data yet. Run 3_EOD.bat after the market close to resolve outcomes and rebuild attribution.</div>
 </div>
 
+<!-- ATH ATTRIBUTION — overhead-supply edge per bucket (added 2026-05-13) -->
+<div id="ath-attribution" style="padding:12px 18px;background:linear-gradient(180deg,#0f2030 0%,#0d1117 100%);border-bottom:2px solid #60a5fa;display:none">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+    <div style="font-size:13px;font-weight:700;color:#60a5fa;letter-spacing:1px">🌌 ATH ATTRIBUTION <span style="font-size:10px;color:#6b7280;font-weight:500;letter-spacing:0;margin-left:8px">forward-return edge by overhead-supply bucket · empirical loop · <span id="ath-attr-date">--</span></span></div>
+    <div id="ath-attr-summary" style="font-size:10px;color:#6b7280"></div>
+  </div>
+  <div id="ath-attr-table" style="overflow-x:auto"></div>
+  <div id="ath-attr-empty" style="display:none;color:#6b7280;font-size:11px;font-style:italic;padding:12px;text-align:center">No ATH attribution yet. After ~30 fires across BLUE_SKY / NEAR_HIGH / BELOW / DEEP_BELOW buckets, the table populates with WR and avg pnl per bucket.</div>
+</div>
+
 <div id="rejrevisit" style="padding:12px 18px;background:linear-gradient(180deg,#0f1830 0%,#0d1117 100%);border-bottom:2px solid #818cf8;display:none">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
     <div style="font-size:13px;font-weight:700;color:#818cf8;letter-spacing:1px">🌀 REJECTION-REVISIT RADAR <span style="font-size:10px;color:#6b7280;font-weight:500;letter-spacing:0;margin-left:8px">fractal narrative · 1m · 3m · 5m · 10m · 15m · 1h · 4h · 1d · <span id="rrr-date">--</span></span></div>
@@ -887,6 +897,63 @@ function escapeHtml(s){
   const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
   return String(s).replace(/[&<>"']/g, c => map[c]);
 }
+
+// ── ATH (all-time-high) badge wiring ─────────────────────────────────────
+// Built from fam_states.json after load. Painted onto every element with
+// [data-tv="TICKER"] across all panels so traders see overhead-supply
+// status (BLUE_SKY = no resistance / NEAR_HIGH / BELOW / DEEP_BELOW) at a
+// glance without opening the state lookup card.
+window.ATH_BY_TICKER = {};
+
+function _buildAthIndex(stateData){
+  window.ATH_BY_TICKER = {};
+  const states = (stateData && stateData.states) || {};
+  for(const [t, st] of Object.entries(states)){
+    const status = st && st.ath_status;
+    if(!status) continue;
+    let pct = st.pct_from_52w_high;
+    try { pct = pct !== null && pct !== undefined ? parseFloat(pct) : null; }
+    catch(e){ pct = null; }
+    window.ATH_BY_TICKER[t.toUpperCase()] = { status, pct };
+  }
+}
+
+function _athBadgeHtml(ticker){
+  const info = window.ATH_BY_TICKER[(ticker || '').toUpperCase()];
+  if(!info || !info.status) return '';
+  const palette = {
+    BLUE_SKY:   { col: '#60a5fa', bg: '#0f2030', icon: '🌌', label: 'BLUE SKY' },
+    NEAR_HIGH:  { col: '#22c55e', bg: '#0a1f0e', icon: '↑',  label: 'NEAR HIGH' },
+    BELOW:      { col: '#fbbf24', bg: '#1a1408', icon: '↓',  label: 'BELOW'  },
+    DEEP_BELOW: { col: '#ef4444', bg: '#1f0a0a', icon: '⬇', label: 'DEEP BELOW' },
+  };
+  const p = palette[info.status];
+  if(!p) return '';
+  const pctTxt = (info.pct !== null && info.pct !== undefined)
+    ? `${(info.pct * 100).toFixed(0)}%` : '';
+  return `<span class="ath-badge" title="ATH status: ${info.status}${pctTxt ? ' (' + pctTxt + ' from 52w high)' : ''}" style="display:inline-block;background:${p.bg};border:1px solid ${p.col}77;color:${p.col};padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700;margin-left:5px;letter-spacing:.3px;vertical-align:middle">${p.icon} ${p.label}${pctTxt ? ' ' + pctTxt : ''}</span>`;
+}
+
+function _paintAthBadges(){
+  // Walk every element with data-tv attribute, append an ATH badge sibling
+  // if we haven't already painted one. Idempotent — safe to call repeatedly.
+  if(!window.ATH_BY_TICKER || Object.keys(window.ATH_BY_TICKER).length === 0) return;
+  const els = document.querySelectorAll('[data-tv]');
+  for(const el of els){
+    if(el.dataset.athPainted === '1') continue;
+    const tk = (el.getAttribute('data-tv') || '').trim().toUpperCase();
+    if(!tk) continue;
+    const html = _athBadgeHtml(tk);
+    if(!html) continue;
+    el.insertAdjacentHTML('afterend', html);
+    el.dataset.athPainted = '1';
+  }
+}
+
+// Re-paint after panels render. The main load loop hooks this in via
+// loadStateLookupPanel, but late-rendering panels (filter changes, live
+// fetches) can call _paintAthBadges() manually.
+window._paintAthBadges = _paintAthBadges;
 
 // ── TradingView click-through delegation ─────────────────────────────────
 // Any element with [data-tv="TICKER"] becomes a clickable link to TV.
@@ -1950,7 +2017,11 @@ async function loadStateLookupPanel(){
     dateEl.textContent = slData.asof_date || '--';
     countEl.textContent = `${slData.count || 0} tickers`;
     empty.style.display = 'none';
+    // Build ATH index for cross-panel badge painting
+    _buildAthIndex(slData);
     renderStateLookup();
+    // Paint ATH badges on every ticker rendered by other panels
+    _paintAthBadges();
   }catch(e){
     if(!slLiveUrl){
       empty.style.display = 'block';
@@ -2487,6 +2558,81 @@ async function loadFamAttributionPanel(famAttrEntries){
     console.warn('FAM ticket log fetch failed', e);
     ticketsEl.innerHTML = '';
   }
+}
+
+// ── ATH ATTRIBUTION panel (overhead-supply edge by bucket) ──────────────
+// Reads the most-recent fam_attribution_ath_*.csv from the manifest entries
+// and renders a small bucket table: BLUE_SKY / NEAR_HIGH / BELOW / DEEP_BELOW
+// with N, WR, avg pnl, total pnl. The trader empirically learns whether
+// blue-sky names actually outperform names with overhead supply.
+async function loadAthAttributionPanel(entries){
+  const panel  = document.getElementById('ath-attribution');
+  const tblEl  = document.getElementById('ath-attr-table');
+  const empty  = document.getElementById('ath-attr-empty');
+  const dateEl = document.getElementById('ath-attr-date');
+  const sumEl  = document.getElementById('ath-attr-summary');
+  if(!entries || !entries.length){ panel.style.display='none'; return; }
+  entries.sort((a,b)=>a.name.localeCompare(b.name));
+  const latest = entries[entries.length-1];
+  const text = await latest.getText();
+  const rows = parseCSV(text);
+  const m = latest.name.match(/fam_attribution_ath_(\d{4}-\d{2}-\d{2})/);
+  dateEl.textContent = m ? m[1] : latest.name;
+  panel.style.display = 'block';
+  if(!rows.length){ empty.style.display='block'; tblEl.innerHTML=''; return; }
+  empty.style.display = 'none';
+
+  const palette = {
+    BLUE_SKY:   { col: '#60a5fa', bg: '#0f2030', label: '🌌 BLUE SKY' },
+    NEAR_HIGH:  { col: '#22c55e', bg: '#0a1f0e', label: '↑ NEAR HIGH' },
+    BELOW:      { col: '#fbbf24', bg: '#1a1408', label: '↓ BELOW' },
+    DEEP_BELOW: { col: '#ef4444', bg: '#1f0a0a', label: '⬇ DEEP BELOW' },
+    UNKNOWN:    { col: '#6b7280', bg: '#161b22', label: '? UNKNOWN' },
+  };
+  const order = ['BLUE_SKY', 'NEAR_HIGH', 'BELOW', 'DEEP_BELOW', 'UNKNOWN'];
+  const byBucket = {};
+  for(const r of rows){
+    const b = (r.ath_bucket || 'UNKNOWN').toUpperCase();
+    byBucket[b] = r;
+  }
+  let totalN = 0;
+  const trs = order.map(b => {
+    const r = byBucket[b];
+    const p = palette[b] || palette.UNKNOWN;
+    if(!r){
+      return `<tr style="opacity:.45"><td style="padding:4px 10px;color:${p.col};font-weight:700">${p.label}</td><td style="padding:4px 10px;text-align:right;color:#3a4356">0</td><td colspan="3" style="padding:4px 10px;text-align:center;color:#3a4356;font-style:italic">no records</td></tr>`;
+    }
+    const n = parseInt(r.n) || 0; totalN += n;
+    const wr = parseFloat(r.wr);
+    const avg = parseFloat(r.avg_pnl);
+    const tot = parseFloat(r.total_pnl);
+    const wrCol = wr >= 60 ? '#22c55e' : wr >= 45 ? '#fbbf24' : '#ef4444';
+    const avgCol = avg > 0 ? '#22c55e' : avg < 0 ? '#ef4444' : '#94a3b8';
+    return `<tr>
+      <td style="padding:4px 10px;color:${p.col};font-weight:700;background:${p.bg}">${p.label}</td>
+      <td style="padding:4px 10px;text-align:right;color:#94a3b8;font-family:monospace">${n}</td>
+      <td style="padding:4px 10px;text-align:right;color:${wrCol};font-family:monospace;font-weight:700">${isNaN(wr)?'—':wr.toFixed(1)+'%'}</td>
+      <td style="padding:4px 10px;text-align:right;color:${avgCol};font-family:monospace">${isNaN(avg)?'—':(avg>=0?'+':'')+'$'+avg.toFixed(2)}</td>
+      <td style="padding:4px 10px;text-align:right;color:${avgCol};font-family:monospace">${isNaN(tot)?'—':(tot>=0?'+':'')+'$'+tot.toFixed(0)}</td>
+    </tr>`;
+  }).join('');
+  sumEl.textContent = `${totalN} closed fires across ${rows.length} bucket(s)`;
+  tblEl.innerHTML = `
+    <table style="width:100%;border-collapse:collapse;font-size:11px">
+      <thead>
+        <tr style="color:#6b7280;border-bottom:1px solid #21262d">
+          <th style="padding:5px 10px;text-align:left;letter-spacing:.5px">BUCKET</th>
+          <th style="padding:5px 10px;text-align:right">N</th>
+          <th style="padding:5px 10px;text-align:right">WR</th>
+          <th style="padding:5px 10px;text-align:right">AVG PNL</th>
+          <th style="padding:5px 10px;text-align:right">TOTAL PNL</th>
+        </tr>
+      </thead>
+      <tbody>${trs}</tbody>
+    </table>
+    <div style="font-size:9px;color:#3a4356;margin-top:6px">
+      BLUE_SKY = within 2% of 52w high (no overhead). NEAR_HIGH ≤ 10% off. BELOW ≤ 30% off. DEEP_BELOW &gt; 30% off.
+    </div>`;
 }
 
 // ── NARRATIVE EVOLUTION panel (longitudinal stage chains from journal) ───
@@ -3080,10 +3226,11 @@ async function processFiles(entries){
   LIFECYCLE.date = primaryDate;
   console.log('FEM dashboard primary scan date:', primaryDate);
 
-  const scanEntries=[], checkEntries=[], momentumEntries=[], consumptionEntries=[], postmortemEntries=[], analystEntries=[], shortsEntries=[], recommendEntries=[], pnlEntries=[], intradayEntries=[], rejRevisitEntries=[], attrEntries=[], famEntries=[], famAttrEntries=[], convergenceEntries=[];
+  const scanEntries=[], checkEntries=[], momentumEntries=[], consumptionEntries=[], postmortemEntries=[], analystEntries=[], shortsEntries=[], recommendEntries=[], pnlEntries=[], intradayEntries=[], rejRevisitEntries=[], attrEntries=[], famEntries=[], famAttrEntries=[], convergenceEntries=[], athAttrEntries=[];
   for(const e of entries){
     if(!e.name.endsWith('.csv')) continue;
     if(e.name.startsWith('fam_setups_')) famEntries.push(e);
+    else if(e.name.startsWith('fam_attribution_ath_')) athAttrEntries.push(e);
     else if(e.name.startsWith('fam_attribution_')) famAttrEntries.push(e);
     else if(e.name.startsWith('fem_convergence_')) convergenceEntries.push(e);
     else if(e.name.startsWith('fem_momentum_')) momentumEntries.push(e);
@@ -3114,9 +3261,12 @@ async function processFiles(entries){
   await loadAttributionPanel(attrEntries);
   await loadFamPanel(famEntries);
   await loadFamAttributionPanel(famAttrEntries);
+  await loadAthAttributionPanel(athAttrEntries);
   await loadConvergencePanel(convergenceEntries);
   await loadStateLookupPanel();
   await renderNarrativeEvolution();
+  // Final ATH-badge paint after all panels have rendered tickers
+  if(typeof _paintAthBadges === 'function') _paintAthBadges();
 
   // Load check files -> outcome map
   const outcomeMap = {};
