@@ -198,6 +198,39 @@ tr:hover td{background:#1a2533}
   <div id="pnl-empty" style="display:none;color:#6b7280;font-size:11px;font-style:italic;padding:6px 0">No P&L data yet — run 3_EOD_CHECK.bat after market close.</div>
 </div>
 
+<!-- STATE LOOKUP — promoted to top of page 2026-05-13 -->
+<div id="statelookup" style="padding:16px 22px;background:linear-gradient(180deg,#0f2030 0%,#0d1117 100%);border-bottom:3px solid #60a5fa;display:none">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:12px">
+    <div style="font-size:14px;font-weight:800;color:#60a5fa;letter-spacing:1px">🔭 STATE LOOKUP <span style="font-size:10px;color:#6b7280;font-weight:500;letter-spacing:0;margin-left:8px">Type any watchlist ticker + press ENTER · full FAM state · <span id="sl-date">--</span> · <span id="sl-count">--</span></span></div>
+    <div style="display:flex;align-items:center;gap:10px;font-size:11px;color:#94a3b8;flex-wrap:wrap">
+      <select id="sl-tier" onchange="renderStateLookup()" style="background:#161b22;border:1px solid #30363d;color:#e2e8f0;padding:4px 8px;border-radius:4px;font-size:12px">
+        <option value="ALL">All tiers</option>
+        <option value="CONVICTION">CONVICTION only</option>
+        <option value="MARGINAL">MARGINAL only</option>
+        <option value="NONE">No candidate</option>
+      </select>
+      <label style="display:flex;align-items:center;gap:5px;cursor:pointer">
+        <input type="checkbox" id="sl-live" onchange="slOnLiveToggle()">
+        <span style="font-weight:700;color:#22c55e">LIVE</span>
+        <span style="font-size:10px;color:#6b7280">(any symbol, fresh bars)</span>
+      </label>
+      <button onclick="slConfigureUrl()" style="background:#161b22;border:1px solid #30363d;color:#94a3b8;padding:4px 8px;border-radius:4px;font-size:11px;cursor:pointer">⚙ Live URL</button>
+    </div>
+  </div>
+  <!-- Prominent ticker input row — bigger font, bigger box, ENTER to submit -->
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:10px 14px">
+    <label for="sl-input" style="font-size:13px;color:#94a3b8;letter-spacing:.5px;font-weight:700">TICKER →</label>
+    <input type="text" id="sl-input" placeholder="ticker…" onkeydown="slOnKey(event)"
+      style="background:#0d1117;border:2px solid #60a5fa66;color:#60a5fa;padding:10px 14px;border-radius:6px;font-size:22px;font-weight:800;text-transform:uppercase;width:220px;letter-spacing:2px;font-family:monospace">
+    <button onclick="slDispatch()" style="background:#1e3a5f;border:1px solid #60a5fa;color:#60a5fa;padding:10px 18px;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:1px">LOOKUP</button>
+    <span style="font-size:11px;color:#6b7280;font-style:italic">press <kbd style="background:#161b22;border:1px solid #30363d;padding:1px 5px;border-radius:3px;font-family:monospace">Enter</kbd> or click LOOKUP</span>
+  </div>
+  <div id="sl-typeahead" style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px;font-size:11px;color:#6b7280;font-style:italic"></div>
+  <div id="sl-livestatus" style="display:none;font-size:11px;margin-bottom:8px"></div>
+  <div id="sl-result"></div>
+  <div id="sl-empty" style="display:none;color:#6b7280;font-size:11px;font-style:italic;padding:12px;text-align:center">No state lookup data — run fam_state_export.py and push to GitHub.</div>
+</div>
+
 <div id="recommend" style="padding:10px 18px;background:linear-gradient(180deg,#1a1408 0%,#0d1117 100%);border-bottom:2px solid #fb923c;display:none">
   <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:6px">
     <div>
@@ -361,6 +394,13 @@ tr:hover td{background:#1a2533}
         <option value="LONG">LONG only</option>
         <option value="SHORT">SHORT only</option>
       </select>
+      <select id="fam-limit" onchange="renderFam()" style="background:#161b22;border:1px solid #30363d;color:#e2e8f0;padding:4px 8px;border-radius:4px;font-size:12px">
+        <option value="10">Top 10</option>
+        <option value="20" selected>Top 20</option>
+        <option value="30">Top 30</option>
+        <option value="50">Top 50</option>
+        <option value="999">All</option>
+      </select>
       <span style="font-size:10px;color:#6b7280;font-style:italic">backtest 30d/927 fires: +$13.5k @ thresh 60</span>
     </div>
   </div>
@@ -374,30 +414,10 @@ tr:hover td{background:#1a2533}
 <!-- regime, expression OR marginal candidate, primitive contributions.) -->
 <!-- Reads fam_states.json (full payload) + fam_states_index.json (list).-->
 <!-- ================================================================== -->
-<div id="statelookup" style="padding:12px 18px;background:linear-gradient(180deg,#0f2030 0%,#0d1117 100%);border-bottom:2px solid #60a5fa;display:none">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:10px">
-    <div style="font-size:13px;font-weight:700;color:#60a5fa;letter-spacing:1px">🔭 STATE LOOKUP <span style="font-size:10px;color:#6b7280;font-weight:500;letter-spacing:0;margin-left:8px">Type any watchlist ticker · full FAM state · gaps, channels, regime, expression OR marginal candidate · <span id="sl-date">--</span> · <span id="sl-count">--</span></span></div>
-    <div style="display:flex;align-items:center;gap:10px;font-size:11px;color:#94a3b8;flex-wrap:wrap">
-      <input type="text" id="sl-input" placeholder="ticker…" onkeydown="slOnKey(event)" oninput="renderStateLookup()" style="background:#161b22;border:1px solid #30363d;color:#60a5fa;padding:6px 10px;border-radius:4px;font-size:13px;font-weight:700;text-transform:uppercase;width:120px;letter-spacing:1px">
-      <select id="sl-tier" onchange="renderStateLookup()" style="background:#161b22;border:1px solid #30363d;color:#e2e8f0;padding:4px 8px;border-radius:4px;font-size:12px">
-        <option value="ALL">All tiers</option>
-        <option value="CONVICTION">CONVICTION only</option>
-        <option value="MARGINAL">MARGINAL only</option>
-        <option value="NONE">No candidate</option>
-      </select>
-      <label style="display:flex;align-items:center;gap:5px;cursor:pointer">
-        <input type="checkbox" id="sl-live" onchange="slOnLiveToggle()">
-        <span style="font-weight:700;color:#22c55e">LIVE</span>
-        <span style="font-size:10px;color:#6b7280">(any symbol, fresh bars)</span>
-      </label>
-      <button onclick="slConfigureUrl()" style="background:#161b22;border:1px solid #30363d;color:#94a3b8;padding:4px 8px;border-radius:4px;font-size:11px;cursor:pointer">⚙ Live URL</button>
-    </div>
-  </div>
-  <div id="sl-typeahead" style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px;font-size:11px;color:#6b7280;font-style:italic"></div>
-  <div id="sl-livestatus" style="display:none;font-size:11px;margin-bottom:8px"></div>
-  <div id="sl-result"></div>
-  <div id="sl-empty" style="display:none;color:#6b7280;font-size:11px;font-style:italic;padding:12px;text-align:center">No state lookup data — run fam_state_export.py and push to GitHub.</div>
-</div>
+<!-- STATE LOOKUP — moved here 2026-05-13 to sit just below P&L at top of page.
+     Press ENTER to lookup (not on every keystroke). -->
+<!-- This panel now lives directly under PnL; the original block below this point was relocated. -->
+<div style="display:none" id="statelookup-old-placeholder"></div>
 
 <div id="momentum" style="padding:12px 18px;background:linear-gradient(180deg,#2d1b0f 0%,#0d1117 100%);border-bottom:2px solid #f59e0b;display:none">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
@@ -794,6 +814,12 @@ function renderFam(){
     rows = rows.filter(r => r.side === sideFilter);
   }
   rows.sort((a,b) => parseFloat(b.score) - parseFloat(a.score));
+  // Limit cards shown (CONTRACT-X UI 2026-05-13)
+  const limitEl = document.getElementById('fam-limit');
+  const cardLimit = limitEl ? parseInt(limitEl.value, 10) || 20 : 20;
+  if(rows.length > cardLimit){
+    rows = rows.slice(0, cardLimit);
+  }
 
   if(rows.length === 0){
     empty.style.display = 'block';
@@ -1853,12 +1879,21 @@ function slOnLiveToggle(){
   renderStateLookup();
 }
 
+function slDispatch(){
+  // Single entry point for ENTER + LOOKUP button. Routes to LIVE if enabled,
+  // else renders from local watchlist state.
+  const cb = document.getElementById('sl-live');
+  if(cb && cb.checked && slLiveUrl){
+    slFetchLive();
+  } else {
+    renderStateLookup();
+  }
+}
+
 function slOnKey(ev){
   if(ev.key === 'Enter'){
-    const cb = document.getElementById('sl-live');
-    if(cb && cb.checked && slLiveUrl){
-      slFetchLive();
-    }
+    ev.preventDefault();
+    slDispatch();
   }
 }
 
