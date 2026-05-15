@@ -231,6 +231,77 @@ tr:hover td{background:#1a2533}
   <div id="sl-empty" style="display:none;color:#6b7280;font-size:11px;font-style:italic;padding:12px;text-align:center">No state lookup data — run fam_state_export.py and push to GitHub.</div>
 </div>
 
+<!-- MASTER SETUPS LIST — promoted to top (right under State Lookup) 2026-05-15 -->
+<div id="master-list-wrap" style="padding:12px 18px;background:linear-gradient(180deg,#0e1a2a 0%,#0d1117 100%);border-bottom:2px solid #94a3b8">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+    <div style="font-size:13px;font-weight:700;color:#94a3b8;letter-spacing:1px">📋 ALL SETUPS — MASTER LIST <span style="font-size:10px;color:#6b7280;font-weight:500;letter-spacing:0;margin-left:8px">every scanned ticker · filter / sort below</span></div>
+  </div>
+
+<div id="controls" style="display:none">
+  <input type="text" id="filter-ticker" placeholder="Filter ticker..." oninput="applyFilters()">
+  <select id="filter-source" onchange="applyFilters()">
+    <option value="">All Sources</option>
+    <option value="BOUNCE">Bounce (strict)</option>
+    <option value="PENNY">Penny</option>
+    <option value="BIGCAP">BigCap</option>
+    <option value="SWING">Swing</option>
+  </select>
+  <select id="filter-side" onchange="applyFilters()">
+    <option value="">Both Sides</option>
+    <option value="Long">Long</option>
+    <option value="Short">Short</option>
+  </select>
+  <select id="filter-tier" onchange="applyFilters()">
+    <option value="">All Tiers</option>
+    <option value="DOUBLE_PLATINUM">💎 Double Platinum</option>
+    <option value="T1-STRONG">T1-STRONG</option>
+    <option value="T1">T1</option>
+    <option value="T2">T2</option>
+    <option value="T3">T3</option>
+  </select>
+  <select id="filter-outcome" onchange="applyFilters()">
+    <option value="">All Outcomes</option>
+    <option value="TARGET_HIT">WIN (Target Hit)</option>
+    <option value="STOPPED">STOPPED (Loss)</option>
+    <option value="WINNING">WINNING (Live+)</option>
+    <option value="LOSING">LOSING (Live-)</option>
+    <option value="NO_FILL">NO_FILL</option>
+    <option value="UNCHECKED">Unchecked</option>
+  </select>
+  <select id="filter-date" onchange="applyFilters()">
+    <option value="">All Dates</option>
+  </select>
+  <span id="summary" style="font-size:11px;color:#6b7280;margin-left:4px"></span>
+</div>
+
+<div class="tw">
+  <table id="main-tbl">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Src</th>
+        <th>Ticker</th>
+        <th>Side</th>
+        <th>Mode</th>
+        <th>Tier</th>
+        <th>FEM</th>
+        <th>Entry</th>
+        <th>Stop</th>
+        <th>T1</th>
+        <th>R:R</th>
+        <th>Float</th>
+        <th>Outcome</th>
+        <th>Result R</th>
+        <th>Last Px</th>
+        <th>Entry diff%</th>
+      </tr>
+    </thead>
+    <tbody id="tbl-body"></tbody>
+  </table>
+</div>
+<div id="empty">No setups match your filters.</div>
+</div>
+
 <!-- RECOVERY ARC — promoted to top, right under State Lookup (2026-05-14) -->
 <div id="recovery" style="padding:12px 18px;background:linear-gradient(180deg,#0a2e1a 0%,#0d1117 100%);border-bottom:2px solid #22c55e;display:none">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
@@ -458,71 +529,8 @@ tr:hover td{background:#1a2533}
   <div id="shorts-empty" style="display:none;color:#6b7280;font-size:11px;font-style:italic;padding:12px;text-align:center">No bearish Genesis candidates this morning — no qualifying pre-market gap-down with volume.</div>
 </div>
 
-<!-- Recovery Arc panel moved to top-of-page (right under State Lookup) 2026-05-14 -->
+<!-- Master setups list (controls + main-tbl + empty) moved to top-of-page right under State Lookup on 2026-05-15 -->
 
-<div id="controls" style="display:none">
-  <input type="text" id="filter-ticker" placeholder="Filter ticker..." oninput="applyFilters()">
-  <select id="filter-source" onchange="applyFilters()">
-    <option value="">All Sources</option>
-    <option value="BOUNCE">Bounce (strict)</option>
-    <option value="PENNY">Penny</option>
-    <option value="BIGCAP">BigCap</option>
-    <option value="SWING">Swing</option>
-  </select>
-  <select id="filter-side" onchange="applyFilters()">
-    <option value="">Both Sides</option>
-    <option value="Long">Long</option>
-    <option value="Short">Short</option>
-  </select>
-  <select id="filter-tier" onchange="applyFilters()">
-    <option value="">All Tiers</option>
-    <option value="DOUBLE_PLATINUM">💎 Double Platinum</option>
-    <option value="T1-STRONG">T1-STRONG</option>
-    <option value="T1">T1</option>
-    <option value="T2">T2</option>
-    <option value="T3">T3</option>
-  </select>
-  <select id="filter-outcome" onchange="applyFilters()">
-    <option value="">All Outcomes</option>
-    <option value="TARGET_HIT">WIN (Target Hit)</option>
-    <option value="STOPPED">STOPPED (Loss)</option>
-    <option value="WINNING">WINNING (Live+)</option>
-    <option value="LOSING">LOSING (Live-)</option>
-    <option value="NO_FILL">NO_FILL</option>
-    <option value="UNCHECKED">Unchecked</option>
-  </select>
-  <select id="filter-date" onchange="applyFilters()">
-    <option value="">All Dates</option>
-  </select>
-  <span id="summary" style="font-size:11px;color:#6b7280;margin-left:4px"></span>
-</div>
-
-<div class="tw">
-  <table id="main-tbl">
-    <thead>
-      <tr>
-        <th>Date</th>
-        <th>Src</th>
-        <th>Ticker</th>
-        <th>Side</th>
-        <th>Mode</th>
-        <th>Tier</th>
-        <th>FEM</th>
-        <th>Entry</th>
-        <th>Stop</th>
-        <th>T1</th>
-        <th>R:R</th>
-        <th>Float</th>
-        <th>Outcome</th>
-        <th>Result R</th>
-        <th>Last Px</th>
-        <th>Entry diff%</th>
-      </tr>
-    </thead>
-    <tbody id="tbl-body"></tbody>
-  </table>
-</div>
-<div id="empty">No setups match your filters.</div>
 
 <script>
 let ALL_ROWS = [];
