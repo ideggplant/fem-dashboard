@@ -2069,11 +2069,44 @@ function _slIdeaCard(idea, isMarginal){
     `<span style="background:#60a5fa;color:#0d1117;padding:2px 6px;border-radius:3px;font-size:10px;font-weight:800;margin-left:4px">MARKET</span>` :
     `<span style="background:#161b22;color:#94a3b8;padding:2px 6px;border-radius:3px;font-size:10px;font-weight:600;margin-left:4px;border:1px solid #30363d">LIMIT</span>`;
   const prims = Object.entries(idea.primitive_contributions || {}).sort((a,b)=>b[1]-a[1]);
-  const primsHtml = prims.map(([k,v]) => {
-    const cls = v >= 0 ? 'pos' : 'neg';
+  // ── Group chips by category for readable scoring breakdown (added 2026-05-14)
+  // Categories: STRUCTURE (gaps, channels, anchors, dirty rails),
+  // CONFLUENCE (CONTRACT-12 stack), VOLUME (vol, OBV, breakout surge),
+  // PRESSURE (gap_pressure, test signature), CONTEXT (regime, sector, ATH).
+  const _category = (key) => {
+    const k = key.toLowerCase();
+    if(k.includes('confluence') || k.includes('rail_stack') || k.includes('rejection_short') || k.includes('rejection_long') || k.includes('breakout_long') || k.includes('breakdown_short') || k.startsWith('rails_') || k.includes('double_')) return 'CONFLUENCE';
+    if(k.includes('vol') || k.includes('obv') || k.includes('compression') || k.includes('rel_vol') || k.includes('breakout_volume')) return 'VOLUME';
+    if(k.includes('eaten') || k.includes('built') || k.includes('pressure') || k.includes('prior_rejects') || k.includes('current_vol_') || k.includes('level_well') || k.includes('test_')) return 'PRESSURE';
+    if(k.includes('regime') || k.includes('sector') || k.includes('industry') || k.includes('ath') || k.includes('blue_sky') || k.includes('exhaustion') || k.includes('climax')) return 'CONTEXT';
+    return 'STRUCTURE';   // gaps, channels, anchors, dirty rails, tier, conviction, pullback, etc.
+  };
+  const groups = { STRUCTURE: [], CONFLUENCE: [], VOLUME: [], PRESSURE: [], CONTEXT: [] };
+  for(const [k, v] of prims){ groups[_category(k)].push([k, v]); }
+  const groupColors = {
+    STRUCTURE:  '#a78bfa',
+    CONFLUENCE: '#fbbf24',
+    VOLUME:     '#60a5fa',
+    PRESSURE:   '#34d399',
+    CONTEXT:    '#94a3b8',
+  };
+  const _renderChips = (entries) => entries.map(([k, v]) => {
     const col = v >= 0 ? '#22c55e' : '#ef4444';
     const sign = v >= 0 ? '+' : '';
-    return `<span style="display:inline-block;background:#161b22;border:1px solid #30363d;color:${col};padding:2px 6px;border-radius:3px;font-size:11px;margin:2px;font-family:monospace">${sign}${v.toFixed(1)} ${_slEscape(k)}</span>`;
+    return `<span style="display:inline-block;background:#0d1117;border:1px solid #30363d;color:${col};padding:2px 6px;border-radius:3px;font-size:11px;margin:2px;font-family:monospace">${sign}${v.toFixed(1)} ${_slEscape(k)}</span>`;
+  }).join('');
+  const primsHtml = ['STRUCTURE', 'CONFLUENCE', 'VOLUME', 'PRESSURE', 'CONTEXT'].map(g => {
+    const entries = groups[g];
+    if(!entries.length) return '';
+    const sum = entries.reduce((acc, [, v]) => acc + v, 0);
+    const sumCol = sum >= 0 ? '#22c55e' : '#ef4444';
+    return `<div style="margin-bottom:6px">
+      <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:3px">
+        <span style="font-size:9px;font-weight:700;letter-spacing:1px;color:${groupColors[g]}">${g}</span>
+        <span style="font-size:9px;font-family:monospace;color:${sumCol}">net ${sum>=0?'+':''}${sum.toFixed(1)}</span>
+      </div>
+      <div>${_renderChips(entries)}</div>
+    </div>`;
   }).join('');
   const reasonsHtml = (idea.reasons || []).map(r => `<li style="color:#94a3b8;font-size:11px;line-height:1.5">${_slEscape(r)}</li>`).join('');
   const rrCol = idea.rr >= 2 ? '#22c55e' : idea.rr >= 1 ? '#fbbf24' : '#ef4444';
@@ -2282,7 +2315,139 @@ function _slRenderStateBlock(input, state, isLive){
       </div>
 
       ${warningsHtml}
+
+      <!-- ── Snapshot journal (added 2026-05-14) ─────────────────────────── -->
+      <!-- localStorage-backed log of trader's reads + notes vs system reads. -->
+      <div id="sl-snapshot-block" style="margin-top:14px;border-top:1px solid #21262d;padding-top:12px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;gap:8px;flex-wrap:wrap">
+          <div style="font-size:11px;font-weight:700;color:#60a5fa;letter-spacing:1px">📓 SNAPSHOT JOURNAL <span style="font-size:9px;color:#6b7280;font-weight:500;letter-spacing:0;margin-left:4px">your reads vs system, saved locally</span></div>
+          <button onclick="slShowAllSnapshots()" style="background:#161b22;border:1px solid #30363d;color:#94a3b8;padding:3px 8px;border-radius:4px;font-size:10px;cursor:pointer">view all</button>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px;flex-wrap:wrap">
+          <input type="text" id="sl-snap-note" placeholder="your read (e.g. 'taking it', 'too thin', 'wait for retest')..." style="flex:1;min-width:200px;background:#0d1117;border:1px solid #30363d;color:#e2e8f0;padding:6px 10px;border-radius:4px;font-size:11px">
+          <select id="sl-snap-action" style="background:#0d1117;border:1px solid #30363d;color:#e2e8f0;padding:6px 8px;border-radius:4px;font-size:11px">
+            <option value="WATCH">WATCH</option>
+            <option value="TAKE">TAKING IT</option>
+            <option value="SKIP">SKIP</option>
+            <option value="OVERRIDE_LONG">OVERRIDE → LONG</option>
+            <option value="OVERRIDE_SHORT">OVERRIDE → SHORT</option>
+          </select>
+          <button onclick="slSaveSnapshot('${state.ticker}', ${state.current_price || 0})" style="background:#1e3a5f;border:1px solid #60a5fa;color:#60a5fa;padding:6px 12px;border-radius:4px;font-size:11px;font-weight:700;cursor:pointer">SAVE</button>
+        </div>
+        <div id="sl-snap-list" style="font-size:10px;color:#94a3b8"></div>
+      </div>
     </div>`;
+  // Render existing snapshots for this ticker after card is in DOM
+  setTimeout(() => slRenderSnapshotList(state.ticker), 0);
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// Snapshot journal — localStorage-backed log of trader reads vs system reads.
+// Per-ticker. Persists across browser sessions. Lets the trader build a
+// long-term record of "I saw this, system saw that, here's what I did,
+// here's what I'd do again." After 3-6 months → empirical proof of where
+// the trader's overrides beat the system or hurt it.
+// ════════════════════════════════════════════════════════════════════════════
+const SL_SNAP_KEY = 'fem_sl_snapshots_v1';
+
+function slLoadSnapshots(){
+  try { return JSON.parse(localStorage.getItem(SL_SNAP_KEY) || '[]'); }
+  catch(e){ return []; }
+}
+function slSaveAll(snaps){
+  try { localStorage.setItem(SL_SNAP_KEY, JSON.stringify(snaps)); }
+  catch(e){ console.warn('snapshot save failed', e); }
+}
+
+function slSaveSnapshot(ticker, currentPrice){
+  const noteEl = document.getElementById('sl-snap-note');
+  const actEl = document.getElementById('sl-snap-action');
+  const note = (noteEl && noteEl.value || '').trim();
+  const action = actEl ? actEl.value : 'WATCH';
+  if(!ticker) return;
+  // Capture the system's current read for context (top idea + score)
+  let systemRead = '';
+  try {
+    const t = (ticker || '').toUpperCase();
+    const st = slData && slData.states && slData.states[t];
+    if(st){
+      if(st.ideas && st.ideas.length){
+        const i = st.ideas[0];
+        systemRead = `${i.setup} ${i.side} score=${(i.score||0).toFixed(0)}`;
+      } else if(st.marginal){
+        systemRead = `MARGINAL ${st.marginal.setup} ${st.marginal.side} score=${(st.marginal.score||0).toFixed(0)}`;
+      } else {
+        systemRead = 'NO CANDIDATE';
+      }
+    }
+  } catch(e){}
+  const snaps = slLoadSnapshots();
+  snaps.push({
+    ticker: (ticker || '').toUpperCase(),
+    ts: new Date().toISOString(),
+    price: parseFloat(currentPrice) || null,
+    action,
+    note,
+    system_read: systemRead,
+  });
+  slSaveAll(snaps);
+  if(noteEl) noteEl.value = '';
+  slRenderSnapshotList(ticker);
+}
+
+function slDeleteSnapshot(idx){
+  const snaps = slLoadSnapshots();
+  if(idx < 0 || idx >= snaps.length) return;
+  const ticker = snaps[idx].ticker;
+  snaps.splice(idx, 1);
+  slSaveAll(snaps);
+  slRenderSnapshotList(ticker);
+}
+
+function slRenderSnapshotList(ticker){
+  const list = document.getElementById('sl-snap-list');
+  if(!list) return;
+  const t = (ticker || '').toUpperCase();
+  const all = slLoadSnapshots();
+  const own = all.map((s, idx) => ({ s, idx })).filter(x => x.s.ticker === t);
+  if(!own.length){
+    list.innerHTML = '<span style="color:#3a4356;font-style:italic">no snapshots yet for this ticker</span>';
+    return;
+  }
+  own.sort((a,b) => b.s.ts.localeCompare(a.s.ts));
+  list.innerHTML = own.slice(0, 8).map(({s, idx}) => {
+    const date = s.ts.slice(0, 10);
+    const time = s.ts.slice(11, 16);
+    const actCol = s.action === 'TAKE' ? '#22c55e'
+                 : s.action === 'SKIP' ? '#94a3b8'
+                 : s.action.startsWith('OVERRIDE') ? '#fbbf24' : '#60a5fa';
+    const px = s.price ? `$${s.price.toFixed(2)}` : '';
+    const sysCol = s.system_read.includes('CONVICTION') ? '#a78bfa'
+                 : s.system_read === 'NO CANDIDATE' ? '#6b7280' : '#94a3b8';
+    return `<div style="padding:5px 8px;background:#0d1117;border-left:2px solid ${actCol};margin-bottom:3px;font-family:monospace;font-size:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <span style="color:#6b7280">${date} ${time}</span>
+      <span style="color:#94a3b8">${px}</span>
+      <span style="color:${actCol};font-weight:700">${s.action}</span>
+      <span style="color:#e2e8f0;flex:1">${_slEscape(s.note || '')}</span>
+      <span style="color:${sysCol};font-size:9px;font-style:italic">sys: ${_slEscape(s.system_read || '—')}</span>
+      <span onclick="slDeleteSnapshot(${idx})" style="color:#ef444466;cursor:pointer;padding:0 4px" title="delete">×</span>
+    </div>`;
+  }).join('') + (own.length > 8 ? `<div style="color:#3a4356;font-size:9px;font-style:italic;padding:4px 8px">+${own.length-8} older not shown</div>` : '');
+}
+
+function slShowAllSnapshots(){
+  const all = slLoadSnapshots();
+  if(!all.length){ alert('No snapshots saved yet. Click SAVE on any ticker lookup to start your journal.'); return; }
+  // Group by ticker, show summary
+  const byT = {};
+  for(const s of all){ (byT[s.ticker] = byT[s.ticker] || []).push(s); }
+  const summary = Object.entries(byT)
+    .sort((a,b) => b[1].length - a[1].length)
+    .map(([t, snaps]) => {
+      const acts = snaps.map(s => s.action).join(', ');
+      return `${t}: ${snaps.length} snapshot(s) — ${acts}`;
+    }).join('\n');
+  alert(`SNAPSHOT JOURNAL (${all.length} total entries across ${Object.keys(byT).length} tickers):\n\n${summary}\n\nFull data is in localStorage key: ${SL_SNAP_KEY}\nExport via DevTools → Application → Local Storage`);
 }
 
 async function loadAttributionPanel(entries){
